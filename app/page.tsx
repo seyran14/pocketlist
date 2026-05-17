@@ -1,65 +1,199 @@
-import Image from "next/image";
+import { Suspense } from "react"
+import { prisma } from "@/lib/prisma"
+import { Navbar } from "@/components/Navbar"
+import { ListingGrid, ListingGridSkeleton } from "@/components/listings/ListingGrid"
+import { ListingFilters } from "@/components/listings/ListingFilters"
+import { Separator } from "@/components/ui/separator"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import type { Prisma } from "@/lib/generated/prisma/client"
 
-export default function Home() {
+type SearchParams = {
+  q?: string
+  location?: string
+  propertyType?: string
+  bedrooms?: string
+  priceMin?: string
+  priceMax?: string
+  status?: string
+  listingType?: string
+  sort?: string
+  page?: string
+}
+
+async function getListings(sp: SearchParams) {
+  const sort = sp.sort ?? "newest"
+  const page = parseInt(sp.page ?? "1", 10)
+  const limit = 24
+
+  const where: Prisma.ListingWhereInput = {
+    status: { in: ["ACTIVE", "RESERVED"] },
+  }
+
+  if (sp.q) {
+    const q = sp.q.trim()
+    where.OR = [
+      { projectName: { contains: q } },
+      { location: { contains: q } },
+      { subLocation: { contains: q } },
+      { description: { contains: q } },
+    ]
+  }
+
+  if (sp.location) {
+    where.location = { in: sp.location.split(",").map((l) => l.trim()) }
+  }
+  if (sp.propertyType) {
+    where.propertyType = {
+      in: sp.propertyType.split(",") as Prisma.EnumPropertyTypeFilter["in"],
+    }
+  }
+  if (sp.bedrooms) {
+    where.bedrooms = { in: sp.bedrooms.split(",") }
+  }
+  if (sp.priceMin || sp.priceMax) {
+    where.price = {
+      ...(sp.priceMin ? { gte: parseFloat(sp.priceMin) } : {}),
+      ...(sp.priceMax ? { lte: parseFloat(sp.priceMax) } : {}),
+    }
+  }
+  if (sp.status === "ready") where.handover = "Ready"
+  if (sp.status === "offplan") where.handover = { not: "Ready" }
+  if (sp.status === "distress") where.isDistress = true
+  if (sp.listingType === "SALE" || sp.listingType === "RENT") {
+    where.listingType = sp.listingType as "SALE" | "RENT"
+  }
+
+  const orderBy: Prisma.ListingOrderByWithRelationInput =
+    sort === "price_asc"
+      ? { price: "asc" }
+      : sort === "price_desc"
+        ? { price: "desc" }
+        : sort === "area_asc"
+          ? { areaSqft: "asc" }
+          : sort === "area_desc"
+            ? { areaSqft: "desc" }
+            : { createdAt: "desc" }
+
+  const [listings, total] = await Promise.all([
+    prisma.listing.findMany({
+      where,
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        projectName: true,
+        location: true,
+        subLocation: true,
+        propertyType: true,
+        bedrooms: true,
+        areaSqft: true,
+        areaSqm: true,
+        plotSqft: true,
+        plotSqm: true,
+        price: true,
+        priceLabel: true,
+        floor: true,
+        view: true,
+        furnished: true,
+        handover: true,
+        isDistress: true,
+        originalPrice: true,
+        status: true,
+        listingType: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    }),
+    prisma.listing.count({ where }),
+  ])
+
+  return { listings, total, page, pages: Math.ceil(total / limit) }
+}
+
+async function getLocations() {
+  const rows = await prisma.listing.findMany({
+    where: { status: { in: ["ACTIVE", "RESERVED"] } },
+    select: { location: true },
+    distinct: ["location"],
+    orderBy: { location: "asc" },
+  })
+  return rows.map((r) => r.location)
+}
+
+async function ListingsSection({ searchParams }: { searchParams: SearchParams }) {
+  const data = await getListings(searchParams)
+  const serialized = data.listings.map((l) => ({
+    ...l,
+    createdAt: l.createdAt.toISOString(),
+    expiresAt: l.expiresAt.toISOString(),
+  }))
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      <p className="text-sm text-muted-foreground mb-4">
+        {data.total} listing{data.total !== 1 ? "s" : ""}
+      </p>
+      <ListingGrid listings={serialized} />
+      {data.pages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-8">
+          {data.page > 1 ? (
+            <Link href={pageUrl(searchParams, data.page - 1)}>
+              <Button variant="outline" size="sm">← Prev</Button>
+            </Link>
+          ) : (
+            <Button variant="outline" size="sm" disabled>← Prev</Button>
+          )}
+          <span className="text-sm text-muted-foreground">
+            {data.page} / {data.pages}
+          </span>
+          {data.page < data.pages ? (
+            <Link href={pageUrl(searchParams, data.page + 1)}>
+              <Button variant="outline" size="sm">Next →</Button>
+            </Link>
+          ) : (
+            <Button variant="outline" size="sm" disabled>Next →</Button>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      )}
+    </>
+  )
+}
+
+function pageUrl(sp: SearchParams, page: number) {
+  const params = new URLSearchParams(sp as Record<string, string>)
+  if (page <= 1) params.delete("page")
+  else params.set("page", String(page))
+  const qs = params.toString()
+  return qs ? `/?${qs}` : "/"
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const sp = await searchParams
+  const locations = await getLocations()
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        <h1 className="text-2xl font-bold mb-1 text-center">Dubai Properties</h1>
+        <p className="text-muted-foreground text-sm mb-5 text-center">
+          Browse listings from agents. Sign in to reveal contact details.
+        </p>
+
+        <ListingFilters locations={locations} />
+        <Separator className="mt-4 mb-5" />
+
+        <Suspense fallback={<ListingGridSkeleton />}>
+          <ListingsSection searchParams={sp} />
+        </Suspense>
       </main>
     </div>
-  );
+  )
 }
