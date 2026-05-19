@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { ListingGrid, ListingGridSkeleton } from "@/components/listings/ListingGrid"
 import { ListingFilters } from "@/components/listings/ListingFilters"
+import { PaginationBar } from "@/components/listings/PaginationBar"
 import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { headers } from "next/headers"
 import type { Prisma } from "@/lib/generated/prisma/client"
 
 type SearchParams = {
@@ -24,7 +24,9 @@ type SearchParams = {
 async function getListings(sp: SearchParams) {
   const sort = sp.sort ?? "newest"
   const page = parseInt(sp.page ?? "1", 10)
-  const limit = 24
+  const ua = (await headers()).get("user-agent") ?? ""
+  const isMobile = /iPhone|iPad|Android|Mobile/i.test(ua)
+  const limit = isMobile ? 10 : 15
 
   const where: Prisma.ListingWhereInput = {
     status: { in: ["ACTIVE", "RESERVED"] },
@@ -138,25 +140,12 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
       </p>
       <ListingGrid listings={serialized} />
       {data.pages > 1 && (
-        <div className="flex items-center justify-center gap-3 mt-8">
-          {data.page > 1 ? (
-            <Link href={pageUrl(searchParams, data.page - 1)}>
-              <Button variant="outline" size="sm">← Prev</Button>
-            </Link>
-          ) : (
-            <Button variant="outline" size="sm" disabled>← Prev</Button>
-          )}
-          <span className="text-sm text-muted-foreground">
-            {data.page} / {data.pages}
-          </span>
-          {data.page < data.pages ? (
-            <Link href={pageUrl(searchParams, data.page + 1)}>
-              <Button variant="outline" size="sm">Next →</Button>
-            </Link>
-          ) : (
-            <Button variant="outline" size="sm" disabled>Next →</Button>
-          )}
-        </div>
+        <PaginationBar
+          page={data.page}
+          pages={data.pages}
+          prevUrl={pageUrl(searchParams, data.page - 1)}
+          nextUrl={pageUrl(searchParams, data.page + 1)}
+        />
       )}
     </>
   )
@@ -182,10 +171,14 @@ export default async function HomePage({
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
-        <h1 className="text-2xl font-bold mb-1 text-center">Dubai Properties</h1>
-        <p className="text-muted-foreground text-sm mb-5 text-center">
-          Browse listings from agents. Sign in to reveal contact details.
-        </p>
+        {sp.page && parseInt(sp.page) > 1 ? null : (
+          <>
+            <h1 className="text-2xl font-bold mb-1 text-center">Dubai Properties</h1>
+            <p className="text-muted-foreground text-sm mb-5 text-center">
+              Listings from agents to agents and their clients.
+            </p>
+          </>
+        )}
 
         <ListingFilters locations={locations} />
         <Separator className="mt-4 mb-5" />

@@ -102,6 +102,27 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
+
+  // Duplicate check: same agent, same project + bedrooms combo
+  const force = req.nextUrl.searchParams.get("force") === "1"
+  if (!force && body.projectName && body.bedrooms) {
+    const duplicate = await prisma.listing.findFirst({
+      where: {
+        agentId: session.user.id,
+        projectName: { equals: body.projectName },
+        bedrooms: body.bedrooms,
+        status: { in: ["ACTIVE", "RESERVED"] },
+      },
+      select: { id: true },
+    })
+    if (duplicate) {
+      return NextResponse.json(
+        { error: "duplicate", listingId: duplicate.id },
+        { status: 409 }
+      )
+    }
+  }
+
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
   const { notes, ...rest } = body

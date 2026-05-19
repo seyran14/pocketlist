@@ -68,7 +68,11 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
     if (!isLoggedIn || contact) return
     setLoading(true)
     const res = await fetch(`/api/listings/${listingId}/contact`)
-    if (res.ok) setContact(await res.json())
+    if (res.status === 429) {
+      setContact({ name: "__limit__" })
+    } else if (res.ok) {
+      setContact(await res.json())
+    }
     setLoading(false)
   }
 
@@ -123,6 +127,10 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                     href={`mailto:${contact.email}`} colorClass="text-zinc-500" />
                 )}
               </div>
+            ) : contact?.name === "__limit__" ? (
+              <p className="text-sm text-muted-foreground py-2">
+                You&apos;ve reached the daily limit (20 contacts). Try again tomorrow.
+              </p>
             ) : (
               <p className="text-sm text-muted-foreground py-2">Could not load contact info.</p>
             )

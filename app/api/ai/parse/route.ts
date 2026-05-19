@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { parseListingText } from "@/lib/ai"
+import { checkRateLimit } from "@/lib/ratelimit"
 
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user || session.user.role !== "AGENT") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const { allowed, remaining } = checkRateLimit(`parse:${session.user.id}`, 5)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Daily parse limit reached (5/day). Try again tomorrow." },
+      { status: 429 }
+    )
   }
 
   const { rawText } = await req.json()

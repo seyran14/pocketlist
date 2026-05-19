@@ -28,7 +28,6 @@ export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; 
   const isReserved = listing.status === "RESERVED"
   const isDistress = listing.isDistress
   const isRent = listing.listingType === "RENT"
-  const isNew = Date.now() - new Date(listing.createdAt).getTime() < 48 * 60 * 60 * 1000
 
   return (
     <Link
@@ -59,9 +58,7 @@ export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; 
           {isDistress && (
             <Badge variant="destructive" className="text-xs">Distress Deal</Badge>
           )}
-          {isNew && (
-            <Badge className="text-xs bg-green-500 text-white border-0">New</Badge>
-          )}
+
         </div>
       </div>
 

@@ -145,4 +145,5 @@
 
 .card-animate {
   animation: card-in 220ms ease both;
+  will-change: transform;
 }

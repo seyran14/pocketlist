@@ -34,7 +34,9 @@ export function NewListingClient() {
       })
       const data = await res.json()
       if (!res.ok) {
-        if (res.status === 422) {
+        if (res.status === 429) {
+          toast.error("Daily parse limit reached (5/day). Use 'Fill manually' or try again tomorrow.")
+        } else if (res.status === 422) {
           toast.error("No listings detected. Try pasting a single unit first.")
         } else {
           toast.error("AI parsing unavailable. Fill in the form manually below.")
@@ -67,7 +69,7 @@ export function NewListingClient() {
     setFormValues((prev) => prev.filter((_, i) => i !== index))
   }
 
-  async function handlePublish() {
+  async function handlePublish(force = false) {
     const valid = formValues.filter((v) => v?.projectName && v?.location)
     if (valid.length === 0) {
       toast.error("At least one listing needs a project name and location.")
@@ -77,21 +79,37 @@ export function NewListingClient() {
     try {
       const results = await Promise.allSettled(
         valid.map((unit) =>
-          fetch("/api/listings", {
+          fetch(`/api/listings${force ? "?force=1" : ""}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(unit),
+          }).then(async (res) => {
+            if (res.status === 409) {
+              const data = await res.json()
+              throw { duplicate: true, name: unit.projectName, id: data.listingId }
+            }
+            return res
           })
         )
       )
+      const duplicates = results
+        .filter((r): r is PromiseRejectedResult => r.status === "rejected" && r.reason?.duplicate)
+        .map((r) => r.reason.name as string)
       const succeeded = results.filter((r) => r.status === "fulfilled").length
-      const failed = results.length - succeeded
-      if (succeeded > 0) {
-        toast.success(
-          `${succeeded} listing${succeeded !== 1 ? "s" : ""} published successfully${failed > 0 ? ` (${failed} failed)` : ""}`
+
+      if (duplicates.length > 0 && !force) {
+        toast.warning(
+          `Possible duplicate: "${duplicates.join(", ")}" already active. Publish anyway?`,
+          {
+            action: { label: "Publish anyway", onClick: () => handlePublish(true) },
+            duration: 8000,
+          }
         )
+      }
+      if (succeeded > 0) {
+        toast.success(`${succeeded} listing${succeeded !== 1 ? "s" : ""} published`)
         router.push("/dashboard")
-      } else {
+      } else if (duplicates.length === 0) {
         toast.error("Failed to publish listings. Please try again.")
       }
     } finally {
@@ -215,7 +233,7 @@ export function NewListingClient() {
               Start over
             </Button>
             <Button
-              onClick={handlePublish}
+              onClick={() => handlePublish()}
               disabled={publishing || units.length === 0}
               className="min-w-36"
             >

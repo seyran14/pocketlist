@@ -79,7 +79,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
   )
 
   return (
-    <div className="flex flex-col gap-4 py-3">
+    <div className="flex flex-col gap-3 py-2">
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -87,7 +87,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search projects, locations…"
-          className="pl-9 pr-8 h-10 text-sm"
+          className="pl-9 pr-8 h-9 text-sm"
         />
         {query && (
           <button
@@ -100,145 +100,106 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         )}
       </div>
 
-      {/* Sale / Rent primary toggle */}
+      {/* Sale / Rent */}
       <div className="flex gap-1">
-        <Button
-          variant={!listingType ? "default" : "outline"}
-          size="sm"
-          className="h-8 px-4 text-sm"
-          onClick={() => update("listingType", null)}
-        >
-          All
-        </Button>
-        <Button
-          variant={listingType === "SALE" ? "default" : "outline"}
-          size="sm"
-          className="h-8 px-4 text-sm"
-          onClick={() => update("listingType", "SALE")}
-        >
-          For Sale
-        </Button>
-        <Button
-          variant={listingType === "RENT" ? "default" : "outline"}
-          size="sm"
-          className="h-8 px-4 text-sm"
-          onClick={() => update("listingType", "RENT")}
-        >
-          For Rent
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-wrap items-end gap-3 w-full sm:w-auto">
-        {/* Sort */}
-        <div className="flex flex-col gap-1">
-          <Label className="text-xs text-muted-foreground">Sort</Label>
-          <Select
-            value={current("sort") || "newest"}
-            onValueChange={(v) => update("sort", v === "newest" ? null : v)}
-          >
-            <SelectTrigger className="h-8 w-36 text-sm">
-              <span>
-                {SORT_OPTIONS.find((o) => o.value === (current("sort") || "newest"))?.label ?? "Newest"}
-              </span>
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Price range */}
-        <div className="flex flex-col gap-1 w-full sm:w-auto">
-          <Label className="text-xs text-muted-foreground">
-            {isRent ? "Annual rent (AED)" : "Price (AED)"}
-          </Label>
-          <div className="flex items-center gap-1.5 w-full sm:w-auto">
-            <Input
-              type="number"
-              placeholder="Min"
-              className="h-8 w-0 min-w-0 flex-1 sm:flex-none sm:w-28 text-sm"
-              value={priceMin}
-              onChange={(e) => setPriceMin(e.target.value)}
-              onBlur={(e) => update("priceMin", e.target.value || null)}
-            />
-            <span className="text-muted-foreground text-xs shrink-0">—</span>
-            <Input
-              type="number"
-              placeholder="Max"
-              className="h-8 w-0 min-w-0 flex-1 sm:flex-none sm:w-28 text-sm"
-              value={priceMax}
-              onChange={(e) => setPriceMax(e.target.value)}
-              onBlur={(e) => update("priceMax", e.target.value || null)}
-            />
-          </div>
-        </div>
-        </div>
+        <Button variant={!listingType ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
+          onClick={() => update("listingType", null)}>All</Button>
+        <Button variant={listingType === "SALE" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
+          onClick={() => update("listingType", "SALE")}>For Sale</Button>
+        <Button variant={listingType === "RENT" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
+          onClick={() => update("listingType", "RENT")}>For Rent</Button>
         {hasFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs text-muted-foreground self-end"
-            onClick={() => router.push(pathname)}
-          >
-            Clear filters
-          </Button>
+          <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-muted-foreground ml-auto"
+            onClick={() => router.push(pathname)}>Clear</Button>
         )}
       </div>
 
-      {/* Property type */}
-      <div className="flex flex-col gap-1">
-        <Label className="text-xs text-muted-foreground">Property type</Label>
-        <ToggleGroup
-          multiple
-          className="flex-wrap justify-start gap-1"
-          value={current("propertyType") ? (current("propertyType").split(",") as string[]) : []}
-          onValueChange={(v) => update("propertyType", v.length ? v.join(",") : null)}
-        >
-          {PROPERTY_TYPES.map((t) => (
-            <ToggleGroupItem key={t} value={t} className="h-7 px-3 text-xs capitalize">
-              {t.charAt(0) + t.slice(1).toLowerCase()}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+      {/* Row 1: Sort + Price | Property type */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div className="flex items-end gap-3 flex-wrap">
+          <div className="flex flex-col gap-1">
+            <Label className="text-xs text-muted-foreground">Sort</Label>
+            <Select
+              value={current("sort") || "newest"}
+              onValueChange={(v) => update("sort", v === "newest" ? null : v)}
+            >
+              <SelectTrigger className="h-7 w-32 text-xs">
+                <span>{SORT_OPTIONS.find((o) => o.value === (current("sort") || "newest"))?.label ?? "Newest"}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Bedrooms */}
-      <div className="flex flex-col gap-1">
-        <Label className="text-xs text-muted-foreground">Bedrooms</Label>
-        <ToggleGroup
-          multiple
-          className="flex-wrap justify-start gap-1"
-          value={current("bedrooms") ? (current("bedrooms").split(",") as string[]) : []}
-          onValueChange={(v) => update("bedrooms", v.length ? v.join(",") : null)}
-        >
-          {BEDROOM_OPTIONS.map((b) => (
-            <ToggleGroupItem key={b} value={b} className="h-7 w-14 text-xs">
-              {b === "Studio" ? "Studio" : `${b}BR`}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <div className="flex flex-col gap-1">
+            <Label className="text-xs text-muted-foreground">{isRent ? "Rent (AED)" : "Price (AED)"}</Label>
+            <div className="flex items-center gap-1">
+              <Input type="number" placeholder="Min" className="h-7 w-24 text-xs"
+                value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
+                onBlur={(e) => update("priceMin", e.target.value || null)} />
+              <span className="text-muted-foreground text-xs">—</span>
+              <Input type="number" placeholder="Max" className="h-7 w-24 text-xs"
+                value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
+                onBlur={(e) => update("priceMax", e.target.value || null)} />
+            </div>
+          </div>
+        </div>
 
-      {/* Status — only for sale listings */}
-      {!isRent && (
-        <div className="flex flex-col gap-1">
-          <Label className="text-xs text-muted-foreground">Status</Label>
+        <div className="flex flex-col gap-1 sm:items-end">
+          <Label className="text-xs text-muted-foreground">Property type</Label>
           <ToggleGroup
-            className="justify-start gap-1"
-            value={current("status") ? [current("status")] : []}
-            onValueChange={(v) => update("status", v[v.length - 1] ?? null)}
+            multiple
+            className="flex-wrap justify-start sm:justify-end gap-1"
+            value={current("propertyType") ? (current("propertyType").split(",") as string[]) : []}
+            onValueChange={(v) => update("propertyType", v.length ? v.join(",") : null)}
           >
-            {STATUS_OPTIONS.map(({ value, label }) => (
-              <ToggleGroupItem key={value} value={value} className="h-7 px-3 text-xs">
-                {label}
+            {PROPERTY_TYPES.map((t) => (
+              <ToggleGroupItem key={t} value={t} className="h-7 px-2.5 text-xs">
+                {t.charAt(0) + t.slice(1).toLowerCase()}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
         </div>
-      )}
+      </div>
+
+      {/* Row 2: Bedrooms | Status */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <Label className="text-xs text-muted-foreground">Bedrooms</Label>
+          <ToggleGroup
+            multiple
+            className="flex-wrap justify-start gap-1"
+            value={current("bedrooms") ? (current("bedrooms").split(",") as string[]) : []}
+            onValueChange={(v) => update("bedrooms", v.length ? v.join(",") : null)}
+          >
+            {BEDROOM_OPTIONS.map((b) => (
+              <ToggleGroupItem key={b} value={b} className="h-7 w-12 text-xs">
+                {b === "Studio" ? "Studio" : `${b}BR`}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+
+        {!isRent && (
+          <div className="flex flex-col gap-1 sm:items-end">
+            <Label className="text-xs text-muted-foreground">Status</Label>
+            <ToggleGroup
+              className="justify-start sm:justify-end gap-1"
+              value={current("status") ? [current("status")] : []}
+              onValueChange={(v) => update("status", v[v.length - 1] ?? null)}
+            >
+              {STATUS_OPTIONS.map(({ value, label }) => (
+                <ToggleGroupItem key={value} value={value} className="h-7 px-2.5 text-xs">
+                  {label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

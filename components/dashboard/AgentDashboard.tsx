@@ -133,6 +133,18 @@ export function AgentDashboard({ listings }: Props) {
     }
   }
 
+  async function renewListing(id: string, name: string) {
+    const res = await fetch(`/api/listings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "refresh" }),
+    })
+    if (res.ok) {
+      toast.success(`${name} renewed for 30 days`)
+      startTransition(() => router.refresh())
+    }
+  }
+
   async function deleteListing(id: string, name: string) {
     const res = await fetch(`/api/listings/${id}`, { method: "DELETE" })
     if (res.ok || res.status === 204) {
@@ -338,6 +350,11 @@ export function AgentDashboard({ listings }: Props) {
                             Sold
                           </Button>
                         )}
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground"
+                          disabled={isPending}
+                          onClick={() => renewListing(l.id, l.projectName)}>
+                          Renew
+                        </Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
                           disabled={isPending}
                           onClick={() => setConfirmDeleteId(l.id)}>

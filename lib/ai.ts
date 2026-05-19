@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk"
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 3 })
 
 const SYSTEM_PROMPT = `You are a Dubai real estate listing parser. Extract all property listings from the raw text below. There may be 1 to 20 units in one message. Return ONLY a valid JSON array, no explanation, no markdown.
 
@@ -60,8 +60,8 @@ export type ParsedListing = {
 
 export async function parseListingText(rawText: string): Promise<ParsedListing[]> {
   const message = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 4096,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 2048,
     messages: [
       {
         role: "user",

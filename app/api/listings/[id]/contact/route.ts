@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { checkRateLimit } from "@/lib/ratelimit"
 
 type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: NextRequest, ctx: Ctx) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const { allowed } = checkRateLimit(`contact:${session.user.id}`, 20)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many contact requests today (20/day). Try again tomorrow." },
+      { status: 429 }
+    )
+  }
 
   const { id } = await ctx.params
 

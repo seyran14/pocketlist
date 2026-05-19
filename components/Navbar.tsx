@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { signOutAction } from "@/lib/actions/auth"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { NotificationBell } from "@/components/NotificationBell"
 
 export async function Navbar() {
   const session = await auth()
@@ -12,7 +13,7 @@ export async function Navbar() {
   const displayName = user?.name ?? user?.email?.split("@")[0] ?? "Account"
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
+    <header className="sticky top-0 z-50 border-b bg-card">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="font-bold text-lg tracking-tight shrink-0">
           PocketList
@@ -34,6 +35,7 @@ export async function Navbar() {
                       Dashboard
                     </Button>
                   </Link>
+                  <NotificationBell />
                 </>
               ) : (
                 <Link href="/dashboard/saved">
