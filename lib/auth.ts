@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import Google from "next-auth/providers/google"
 import Resend from "next-auth/providers/resend"
+import Credentials from "next-auth/providers/credentials"
 import { Resend as ResendClient } from "resend"
 import { prisma } from "@/lib/prisma"
 import { signInEmailHtml } from "@/lib/emails/signInEmail"
@@ -9,7 +9,29 @@ import { signInEmailHtml } from "@/lib/emails/signInEmail"
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
+  session: { strategy: "database" },
   providers: [
+    Credentials({
+      id: "admin-password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (
+          credentials?.email !== process.env.ADMIN_EMAIL ||
+          credentials?.password !== process.env.ADMIN_PASSWORD
+        ) {
+          return null
+        }
+        const user = await prisma.user.upsert({
+          where: { email: process.env.ADMIN_EMAIL! },
+          update: {},
+          create: { email: process.env.ADMIN_EMAIL! },
+        })
+        return user
+      },
+    }),
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: "PocketList <noreply@rncn8n.com>",
@@ -25,10 +47,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           html: signInEmailHtml(token),
         })
       },
-    }),
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
