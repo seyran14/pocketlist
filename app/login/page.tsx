@@ -1,14 +1,15 @@
-import { signIn } from "@/lib/auth"
-import { cookies } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { loginAction } from "@/lib/actions/auth"
 import Link from "next/link"
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration: "Server configuration error. Please try again later.",
   AccessDenied: "Access denied.",
   Verification: "The sign-in link has expired or already been used. Request a new one.",
+  not_registered: "No account found with this email. Please register first.",
+  already_registered: "You already have an account. Sign in below.",
   Default: "Something went wrong. Please try again.",
 }
 
@@ -28,17 +29,7 @@ export default function LoginPage({
         <StatusBanner searchParams={searchParams} />
 
         <div className="rounded-xl border bg-card p-6 space-y-4">
-          {/* Magic link */}
-          <form
-            action={async (formData: FormData) => {
-              "use server"
-              const email = formData.get("email") as string
-              const jar = await cookies()
-              jar.set("pending_auth_email", email, { httpOnly: true, path: "/", maxAge: 900 })
-              await signIn("resend", { email, redirectTo: "/dashboard" })
-            }}
-            className="space-y-3"
-          >
+          <form action={loginAction} className="space-y-3">
             <div className="space-y-1">
               <Label htmlFor="email">Email address</Label>
               <Input
@@ -75,8 +66,9 @@ async function StatusBanner({
 }) {
   const { error } = await searchParams
   if (!error) return null
+  const isInfo = error === "already_registered"
   return (
-    <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive mb-4">
+    <div className={`rounded-lg border px-4 py-3 text-sm mb-4 ${isInfo ? "border-blue-300/50 bg-blue-50/50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" : "border-destructive/30 bg-destructive/5 text-destructive"}`}>
       {ERROR_MESSAGES[error] ?? ERROR_MESSAGES.Default}
     </div>
   )
