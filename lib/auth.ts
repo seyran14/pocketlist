@@ -5,11 +5,12 @@ import Credentials from "next-auth/providers/credentials"
 import { Resend as ResendClient } from "resend"
 import { prisma } from "@/lib/prisma"
 import { signInEmailHtml } from "@/lib/emails/signInEmail"
+import type { JWT } from "next-auth/jwt"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" },
+  session: { strategy: "jwt" },
   providers: [
     Credentials({
       id: "admin-password",
@@ -50,10 +51,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.role = (user as { role?: string }).role ?? "BUYER"
+      } else if (token.id) {
+        // Refresh role from DB on each token refresh
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        })
+        if (dbUser) token.role = dbUser.role
+      }
+      return token
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async session({ session, token }: { session: any; token: JWT }) {
       if (session.user) {
-        session.user.id = user.id
-        session.user.role = user.role
+        session.user.id = token.id as string
+        session.user.role = token.role as string
       }
       return session
     },
