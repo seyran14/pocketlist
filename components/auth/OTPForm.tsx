@@ -16,19 +16,36 @@ export function OTPForm({ email }: { email: string }) {
     setError("")
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (code.length !== 6) {
       setError("Enter the 6-digit code from your email.")
       return
     }
     setLoading(true)
-    const params = new URLSearchParams({
-      token: code,
-      email,
-      callbackUrl: "/dashboard",
-    })
-    router.push(`/api/auth/callback/resend?${params.toString()}`)
+    setError("")
+
+    try {
+      const params = new URLSearchParams({ token: code, email, callbackUrl: "/dashboard" })
+      const res = await fetch(`/api/auth/callback/resend?${params}`, {
+        credentials: "include",
+      })
+
+      // If final URL has an error or is still on auth pages — wrong code
+      if (res.url.includes("error=") || res.url.includes("/login") || res.url.includes("/auth/")) {
+        setError("Wrong code. Please try again.")
+        setCode("")
+        setLoading(false)
+        return
+      }
+
+      // Success — session cookie is set, navigate to dashboard
+      router.push("/dashboard")
+      router.refresh()
+    } catch {
+      setError("Network error. Please try again.")
+      setLoading(false)
+    }
   }
 
   return (

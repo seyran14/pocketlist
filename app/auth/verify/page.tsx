@@ -2,6 +2,8 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { OTPForm } from "@/components/auth/OTPForm"
+import { Button } from "@/components/ui/button"
+import { signIn } from "@/lib/auth"
 
 export default async function VerifyPage() {
   const jar = await cookies()
@@ -21,12 +23,19 @@ export default async function VerifyPage() {
           <OTPForm email={email} />
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          Didn&apos;t receive it? Check spam or{" "}
-          <Link href="/login" className="text-foreground underline underline-offset-4">
-            try again
-          </Link>
-        </p>
+        <div className="flex flex-col items-center gap-2 mt-4">
+          <p className="text-sm text-muted-foreground">Wrong email address?</p>
+          <form action={async () => {
+            "use server"
+            const jar = await cookies()
+            jar.delete("pending_auth_email")
+            redirect("/login")
+          }}>
+            <Button variant="ghost" size="sm" type="submit" className="text-sm h-8">
+              Change email →
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   )
