@@ -71,8 +71,12 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       : `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K`
   }
 
-  const updated = await prisma.listing.update({ where: { id }, data })
-  return NextResponse.json(updated)
+  try {
+    const updated = await prisma.listing.update({ where: { id }, data })
+    return NextResponse.json(updated)
+  } catch {
+    return NextResponse.json({ error: "Failed to update listing" }, { status: 500 })
+  }
 }
 
 export async function DELETE(_req: NextRequest, ctx: Ctx) {

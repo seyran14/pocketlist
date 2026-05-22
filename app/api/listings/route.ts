@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
   const statusFilter = searchParams.get("status")
   const listingType = searchParams.get("listingType")
   const sort = searchParams.get("sort") ?? "newest"
-  const page = parseInt(searchParams.get("page") ?? "1", 10)
+  const rawPage = parseInt(searchParams.get("page") ?? "1", 10)
+  const page = Math.max(1, Math.min(isNaN(rawPage) ? 1 : rawPage, 1000))
   const limit = 24
 
   const where: Prisma.ListingWhereInput = {
@@ -131,23 +132,26 @@ export async function POST(req: NextRequest) {
   const isRent = rest.listingType === "RENT"
   const bedsLabel = beds === "Studio" ? "Studio" : `${beds}BR`
 
-  const listing = await prisma.listing.create({
-    data: {
-      ...rest,
-      agentId: session.user.id,
-      expiresAt,
-      bedrooms: beds,
-      description: notes ?? null,
-      priceLabel: price
-        ? isRent
-          ? `AED ${Number(price).toLocaleString("en-AE")} / yr`
-          : `AED ${Number(price).toLocaleString("en-AE")}`
-        : null,
-      title: isRent
-        ? `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K/yr`
-        : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
-    },
-  })
-
-  return NextResponse.json(listing, { status: 201 })
+  try {
+    const listing = await prisma.listing.create({
+      data: {
+        ...rest,
+        agentId: session.user.id,
+        expiresAt,
+        bedrooms: beds,
+        description: notes ?? null,
+        priceLabel: price
+          ? isRent
+            ? `AED ${Number(price).toLocaleString("en-AE")} / yr`
+            : `AED ${Number(price).toLocaleString("en-AE")}`
+          : null,
+        title: isRent
+          ? `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K/yr`
+          : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
+      },
+    })
+    return NextResponse.json(listing, { status: 201 })
+  } catch {
+    return NextResponse.json({ error: "Failed to create listing" }, { status: 500 })
+  }
 }

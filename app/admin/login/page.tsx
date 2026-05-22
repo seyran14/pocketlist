@@ -1,9 +1,11 @@
 import { signIn } from "@/lib/auth"
 import { redirect } from "next/navigation"
+import { headers } from "next/headers"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
+import { checkRateLimit } from "@/lib/ratelimit"
 
 export default async function AdminLoginPage({
   searchParams,
@@ -22,7 +24,9 @@ export default async function AdminLoginPage({
 
         {error && (
           <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive mb-4">
-            Incorrect email or password.
+            {error === "rate_limited"
+              ? "Too many attempts. Please wait 15 minutes."
+              : "Incorrect email or password."}
           </div>
         )}
 
@@ -30,6 +34,10 @@ export default async function AdminLoginPage({
           <form
             action={async (formData: FormData) => {
               "use server"
+              const h = await headers()
+              const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "127.0.0.1"
+              const { allowed } = checkRateLimit(`admin-login:${ip}`, 5, 15)
+              if (!allowed) redirect("/admin/login?error=rate_limited")
               try {
                 await signIn("admin-password", {
                   email: formData.get("email"),

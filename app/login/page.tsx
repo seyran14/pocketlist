@@ -10,6 +10,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   Verification: "The sign-in link has expired or already been used. Request a new one.",
   not_registered: "No account found with this email. Please register first.",
   already_registered: "You already have an account. Sign in below.",
+  rate_limited: "Too many attempts. Please wait 15 minutes and try again.",
   Default: "Something went wrong. Please try again.",
 }
 

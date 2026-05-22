@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 async function isAdmin() {
   const session = await auth()
-  return session?.user?.email === process.env.ADMIN_EMAIL
+  return session?.user?.email?.toLowerCase() === process.env.ADMIN_EMAIL?.toLowerCase()
 }
 
 export async function PATCH(req: NextRequest) {
@@ -15,8 +15,12 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Invalid" }, { status: 400 })
   }
 
-  const user = await prisma.user.update({ where: { id }, data: { role } })
-  return NextResponse.json(user)
+  try {
+    const user = await prisma.user.update({ where: { id }, data: { role } })
+    return NextResponse.json(user)
+  } catch {
+    return NextResponse.json({ error: "User not found" }, { status: 404 })
+  }
 }
 
 export async function DELETE(req: NextRequest) {
@@ -25,11 +29,14 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: "Invalid" }, { status: 400 })
 
-  await prisma.savedListing.deleteMany({ where: { userId: id } })
-  await prisma.notification.deleteMany({ where: { userId: id } })
-  await prisma.session.deleteMany({ where: { userId: id } })
-  await prisma.account.deleteMany({ where: { userId: id } })
-  await prisma.user.delete({ where: { id } })
-
-  return NextResponse.json({ ok: true })
+  try {
+    await prisma.savedListing.deleteMany({ where: { userId: id } })
+    await prisma.notification.deleteMany({ where: { userId: id } })
+    await prisma.session.deleteMany({ where: { userId: id } })
+    await prisma.account.deleteMany({ where: { userId: id } })
+    await prisma.user.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch {
+    return NextResponse.json({ error: "User not found" }, { status: 404 })
+  }
 }
