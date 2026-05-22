@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
 import { AdminGate } from "./_components/AdminGate"
+import { AdminUsersTable } from "./_components/AdminUsersTable"
 
 export default async function AdminPage({
   searchParams,
@@ -34,6 +35,7 @@ export default async function AdminPage({
     newThisWeek,
     newUsers,
     recentListings,
+    allUsers,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { role: "AGENT" } }),
@@ -52,6 +54,17 @@ export default async function AdminPage({
         status: true,
         createdAt: true,
         agent: { select: { name: true } },
+      },
+    }),
+    prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        _count: { select: { listings: true } },
       },
     }),
   ])
@@ -149,6 +162,7 @@ export default async function AdminPage({
             </table>
           </div>
         </div>
+        <AdminUsersTable users={allUsers} />
       </main>
     </div>
   )
