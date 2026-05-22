@@ -2,7 +2,7 @@ import type { NextConfig } from "next"
 import { withSentryConfig } from "@sentry/nextjs"
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.1.142"],
+  allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS?.split(",") ?? [],
   devIndicators: false,
 }
 
