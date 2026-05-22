@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { checkRateLimit } from "@/lib/ratelimit"
+import { logger } from "@/lib/logger"
 
 const MAX_LENGTHS: Record<string, number> = {
   name: 100,
@@ -32,7 +33,8 @@ export async function GET() {
       },
     })
     return NextResponse.json(user)
-  } catch {
+  } catch (err) {
+    logger.error("profile.get_failed", err, { userId: session.user.id })
     return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 })
   }
 }
@@ -41,15 +43,17 @@ export async function PATCH(req: NextRequest) {
   const session = await auth()
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
+  logger.setUser(session.user.id, session.user.email ?? undefined)
+
   const { allowed } = checkRateLimit(`profile:${session.user.id}`, 20, 60)
   if (!allowed) {
+    logger.warn("ratelimit.profile", { userId: session.user.id })
     return NextResponse.json({ error: "Too many updates. Try again later." }, { status: 429 })
   }
 
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 
-  // Validate field lengths
   for (const [field, max] of Object.entries(MAX_LENGTHS)) {
     if (body[field] && typeof body[field] === "string" && body[field].length > max) {
       return NextResponse.json({ error: `${field} is too long (max ${max} chars)` }, { status: 400 })
@@ -79,8 +83,10 @@ export async function PATCH(req: NextRequest) {
         reraNumber: true,
       },
     })
+    logger.info("profile.updated", { userId: session.user.id, fields: Object.keys(body).filter((k) => body[k] !== undefined) })
     return NextResponse.json(updated)
-  } catch {
+  } catch (err) {
+    logger.error("profile.update_failed", err, { userId: session.user.id })
     return NextResponse.json({ error: "Failed to update profile" }, { status: 500 })
   }
 }

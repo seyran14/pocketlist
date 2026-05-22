@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 
 export async function GET() {
   const session = await auth()
@@ -14,7 +15,8 @@ export async function GET() {
       take: 50,
     })
     return NextResponse.json(notifications)
-  } catch {
+  } catch (err) {
+    logger.error("notifications.get_failed", err, { userId: session.user.id })
     return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 })
   }
 }
@@ -27,7 +29,6 @@ export async function PATCH(req: Request) {
   if (!body || !Array.isArray(body.ids) || body.ids.length === 0) {
     return NextResponse.json({ error: "Invalid ids" }, { status: 400 })
   }
-  // Limit batch size
   const ids = body.ids.slice(0, 100) as string[]
 
   try {
@@ -35,8 +36,10 @@ export async function PATCH(req: Request) {
       where: { id: { in: ids }, userId: session.user.id },
       data: { read: true },
     })
+    logger.info("notifications.marked_read", { userId: session.user.id, count: ids.length })
     return NextResponse.json({ ok: true })
-  } catch {
+  } catch (err) {
+    logger.error("notifications.mark_read_failed", err, { userId: session.user.id })
     return NextResponse.json({ error: "Failed to update notifications" }, { status: 500 })
   }
 }

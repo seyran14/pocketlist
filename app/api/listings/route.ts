@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/generated/prisma/client"
+import { logger } from "@/lib/logger"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -55,45 +56,50 @@ export async function GET(req: NextRequest) {
             ? { areaSqft: "desc" }
             : { createdAt: "desc" }
 
-  const [listings, total] = await Promise.all([
-    prisma.listing.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-      select: {
-        id: true,
-        title: true,
-        projectName: true,
-        location: true,
-        subLocation: true,
-        propertyType: true,
-        bedrooms: true,
-        areaSqft: true,
-        areaSqm: true,
-        plotSqft: true,
-        plotSqm: true,
-        price: true,
-        priceLabel: true,
-        floor: true,
-        view: true,
-        furnished: true,
-        handover: true,
-        isDistress: true,
-        originalPrice: true,
-        status: true,
-        listingType: true,
-        createdAt: true,
-        expiresAt: true,
-        agent: {
-          select: { id: true, name: true },
+  try {
+    const [listings, total] = await Promise.all([
+      prisma.listing.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        select: {
+          id: true,
+          title: true,
+          projectName: true,
+          location: true,
+          subLocation: true,
+          propertyType: true,
+          bedrooms: true,
+          areaSqft: true,
+          areaSqm: true,
+          plotSqft: true,
+          plotSqm: true,
+          price: true,
+          priceLabel: true,
+          floor: true,
+          view: true,
+          furnished: true,
+          handover: true,
+          isDistress: true,
+          originalPrice: true,
+          status: true,
+          listingType: true,
+          createdAt: true,
+          expiresAt: true,
+          agent: {
+            select: { id: true, name: true },
+          },
         },
-      },
-    }),
-    prisma.listing.count({ where }),
-  ])
+      }),
+      prisma.listing.count({ where }),
+    ])
 
-  return NextResponse.json({ listings, total, page, pages: Math.ceil(total / limit) })
+    return NextResponse.json({ listings, total, page, pages: Math.ceil(total / limit) })
+  } catch (err) {
+    logger.error("listings.fetch_failed", err, { page, sort })
+    return NextResponse.json({ error: "Failed to fetch listings" }, { status: 500 })
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -105,9 +111,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
+  logger.setUser(session.user.id, session.user.email ?? undefined)
+
   const body = await req.json()
 
-  // Duplicate check: same agent, same project + bedrooms combo
   const force = req.nextUrl.searchParams.get("force") === "1"
   if (!force && body.projectName && body.bedrooms) {
     const duplicate = await prisma.listing.findFirst({
@@ -120,6 +127,12 @@ export async function POST(req: NextRequest) {
       select: { id: true },
     })
     if (duplicate) {
+      logger.warn("listing.duplicate_blocked", {
+        userId: session.user.id,
+        projectName: body.projectName,
+        bedrooms: body.bedrooms,
+        existingId: duplicate.id,
+      })
       return NextResponse.json(
         { error: "duplicate", listingId: duplicate.id },
         { status: 409 }
@@ -153,8 +166,21 @@ export async function POST(req: NextRequest) {
           : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
       },
     })
+
+    logger.info("listing.created", {
+      userId: session.user.id,
+      listingId: listing.id,
+      projectName: listing.projectName,
+      location: listing.location,
+      price: listing.price,
+      listingType: listing.listingType,
+      propertyType: listing.propertyType,
+      bedrooms: listing.bedrooms,
+    })
+
     return NextResponse.json(listing, { status: 201 })
-  } catch {
+  } catch (err) {
+    logger.error("listing.create_failed", err, { userId: session.user.id, projectName: body.projectName })
     return NextResponse.json({ error: "Failed to create listing" }, { status: 500 })
   }
 }

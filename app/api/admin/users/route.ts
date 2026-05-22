@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 
 async function isAdmin() {
   const session = await auth()
@@ -8,7 +9,10 @@ async function isAdmin() {
 }
 
 export async function PATCH(req: NextRequest) {
-  if (!(await isAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAdmin())) {
+    logger.warn("admin.unauthorized_patch", { path: req.nextUrl.pathname })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   const { id, role } = await req.json()
   if (!id || !["BUYER", "AGENT"].includes(role)) {
@@ -17,15 +21,19 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const user = await prisma.user.update({ where: { id }, data: { role } })
-    console.log(`[ADMIN] Role change: user=${id} role=${role}`)
+    logger.info("admin.role_changed", { targetUserId: id, newRole: role, userEmail: logger.maskEmail(user.email ?? "") })
     return NextResponse.json(user)
-  } catch {
+  } catch (err) {
+    logger.error("admin.role_change_failed", err, { targetUserId: id, role })
     return NextResponse.json({ error: "User not found" }, { status: 404 })
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  if (!(await isAdmin())) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!(await isAdmin())) {
+    logger.warn("admin.unauthorized_delete", { path: req.nextUrl.pathname })
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
 
   const { id } = await req.json()
   if (!id) return NextResponse.json({ error: "Invalid" }, { status: 400 })
@@ -36,9 +44,10 @@ export async function DELETE(req: NextRequest) {
     await prisma.session.deleteMany({ where: { userId: id } })
     await prisma.account.deleteMany({ where: { userId: id } })
     await prisma.user.delete({ where: { id } })
-    console.log(`[ADMIN] User deleted: user=${id}`)
+    logger.info("admin.user_deleted", { targetUserId: id })
     return NextResponse.json({ ok: true })
-  } catch {
+  } catch (err) {
+    logger.error("admin.user_delete_failed", err, { targetUserId: id })
     return NextResponse.json({ error: "User not found" }, { status: 404 })
   }
 }
