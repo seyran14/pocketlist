@@ -4,9 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { AgentDashboard } from "@/components/dashboard/AgentDashboard"
 import { NotificationBanner } from "@/components/dashboard/NotificationBanner"
+import { ProfileBanner } from "@/components/dashboard/ProfileBanner"
 import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -86,18 +85,7 @@ export default async function DashboardPage() {
         </div>
         <Separator className="mb-6" />
 
-        {!session.user.name && (
-          <div className="card-animate mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 flex items-center justify-between gap-4 text-sm" style={{ animationDelay: "60ms" }}>
-            <span className="text-amber-800 dark:text-amber-300">
-              Complete your profile so buyers can contact you.
-            </span>
-            <Link href="/profile">
-              <Button size="sm" variant="outline" className="shrink-0 h-7 px-3 text-xs">
-                Set up profile →
-              </Button>
-            </Link>
-          </div>
-        )}
+        <ProfileBanner hasName={!!session.user.name} />
 
         {expiringListings.length > 0 && (
           <div className="card-animate mb-6" style={{ animationDelay: "80ms" }}>
