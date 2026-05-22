@@ -46,6 +46,11 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   } = body
   const data: Record<string, unknown> = { ...rest }
 
+  // Agents can only set these statuses; EXPIRED is reserved for the cron job
+  if (data.status !== undefined && !["ACTIVE", "RESERVED", "SOLD"].includes(data.status as string)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+  }
+
   if (notes !== undefined) data.description = notes ?? null
   if (data.bedrooms === null) delete data.bedrooms
 

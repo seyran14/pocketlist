@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const user = await prisma.user.update({ where: { id }, data: { role } })
+    console.log(`[ADMIN] Role change: user=${id} role=${role}`)
     return NextResponse.json(user)
   } catch {
     return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -35,6 +36,7 @@ export async function DELETE(req: NextRequest) {
     await prisma.session.deleteMany({ where: { userId: id } })
     await prisma.account.deleteMany({ where: { userId: id } })
     await prisma.user.delete({ where: { id } })
+    console.log(`[ADMIN] User deleted: user=${id}`)
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ error: "User not found" }, { status: 404 })
