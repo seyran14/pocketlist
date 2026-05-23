@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
+export const revalidate = 86400 // cache 24h — needed for Telegram/WhatsApp crawlers
 
 // Site palette (oklch → hex equivalents)
 const bg       = "#fafafa"   // --background light
