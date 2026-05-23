@@ -24,7 +24,7 @@ export function ProfileBanner({ hasName }: { hasName: boolean }) {
   }
 
   return (
-    <div className="card-animate mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 flex items-center justify-between gap-4 text-sm" style={{ animationDelay: "60ms" }}>
+    <div className="card-animate mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-sm" style={{ animationDelay: "60ms" }}>
       <span className="text-amber-800 dark:text-amber-300">
         Complete your profile so buyers can contact you.
       </span>

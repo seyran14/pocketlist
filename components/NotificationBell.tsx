@@ -63,7 +63,7 @@ export function NotificationBell() {
 
       {open && (
         <div className={cn(
-          "absolute right-0 top-10 z-50 w-80 rounded-xl border bg-card shadow-lg",
+          "absolute right-0 top-10 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-xl border bg-card shadow-lg",
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-150"
         )}>
           <div className="px-4 py-3 border-b">

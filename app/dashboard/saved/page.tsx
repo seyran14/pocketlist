@@ -75,7 +75,7 @@ export default async function SavedPage() {
                     "use server"
                     await unsaveListingAction(s.id)
                   }}
-                  className="absolute top-2 right-2 opacity-0 group-hover/saved:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover/saved:opacity-100 transition-opacity"
                 >
                   <button
                     type="submit"
