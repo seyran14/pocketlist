@@ -350,6 +350,12 @@ export function AgentDashboard({ listings }: Props) {
                             Sold
                           </Button>
                         )}
+                        {l.status === "SOLD" && (
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                            onClick={() => updateStatus(l.id, "ACTIVE", l.projectName)}>
+                            Unsold
+                          </Button>
+                        )}
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground"
                           disabled={isPending}
                           onClick={() => renewListing(l.id, l.projectName)}>
