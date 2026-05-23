@@ -108,7 +108,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">4. Data Storage</p>
-              <p>Your account data is stored on secure servers in the EU/US. Analytics data is processed by PostHog on US-based servers.</p>
+              <p>Your account data is stored on secure servers in the EU/US. Analytics data is processed by PostHog on EU-based servers.</p>
             </div>
 
             <div className="space-y-1">
