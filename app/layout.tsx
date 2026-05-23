@@ -3,7 +3,6 @@ import { Geist } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { PostHogProvider } from "@/components/PostHogProvider"
-import { Suspense } from "react"
 import "./globals.css"
 
 const geist = Geist({
@@ -26,12 +25,10 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full bg-background font-sans">
         <PostHogProvider>
-          <Suspense>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              {children}
-              <Toaster />
-            </ThemeProvider>
-          </Suspense>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </PostHogProvider>
       </body>
     </html>
