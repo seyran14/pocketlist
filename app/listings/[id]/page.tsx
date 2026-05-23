@@ -70,6 +70,9 @@ export default async function ListingPage({
   // Count view (fire-and-forget, non-blocking)
   prisma.listing.update({ where: { id }, data: { viewCount: { increment: 1 } } }).catch(() => {})
 
+  // Warm OG image cache so it's ready when link is shared in Telegram/WhatsApp
+  fetch(`${BASE_URL}/listings/${id}/opengraph-image`).catch(() => {})
+
   const isOwner = session?.user?.id === listing.agentId
   const isLoggedIn = !!session?.user
 

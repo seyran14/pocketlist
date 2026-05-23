@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
-export const revalidate = 86400 // cache 24h — needed for Telegram/WhatsApp crawlers
 
 // Site palette (oklch → hex equivalents)
 const bg       = "#fafafa"   // --background light
@@ -158,6 +157,11 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
         </div>
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      headers: {
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600",
+      },
+    }
   )
 }
