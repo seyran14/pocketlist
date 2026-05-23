@@ -15,6 +15,9 @@ export async function POST(_req: NextRequest, ctx: Ctx) {
   const userId = session.user.id
 
   try {
+    const listing = await prisma.listing.findUnique({ where: { id }, select: { id: true } })
+    if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+
     const existing = await prisma.savedListing.findUnique({
       where: { userId_listingId: { userId, listingId: id } },
     })

@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import { timingSafeEqual } from "crypto"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import Resend from "next-auth/providers/resend"
 import Credentials from "next-auth/providers/credentials"
@@ -19,10 +20,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (
-          credentials?.email !== process.env.ADMIN_EMAIL ||
-          credentials?.password !== process.env.ADMIN_PASSWORD
-        ) {
+        const adminEmail = process.env.ADMIN_EMAIL ?? ""
+        const adminPass = process.env.ADMIN_PASSWORD ?? ""
+        const inputEmail = String(credentials?.email ?? "")
+        const inputPass = String(credentials?.password ?? "")
+
+        // Use timing-safe comparison to prevent timing attacks
+        const emailMatch = inputEmail.length === adminEmail.length &&
+          timingSafeEqual(Buffer.from(inputEmail), Buffer.from(adminEmail))
+        const passMatch = inputPass.length === adminPass.length &&
+          timingSafeEqual(Buffer.from(inputPass), Buffer.from(adminPass))
+
+        if (!emailMatch || !passMatch) {
           return null
         }
         const user = await prisma.user.upsert({
@@ -38,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: "PocketList <noreply@rncn8n.com>",
       maxAge: 15 * 60,
       generateVerificationToken: () =>
-        String(Math.floor(100000 + Math.random() * 900000)),
+        String(require("crypto").randomInt(100000, 1000000)),
       sendVerificationRequest: async ({ identifier: email, token }) => {
         const resend = new ResendClient(process.env.RESEND_API_KEY)
         await resend.emails.send({
