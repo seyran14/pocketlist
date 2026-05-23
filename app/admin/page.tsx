@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
 import { AdminGate } from "./_components/AdminGate"
 import { AdminUsersTable } from "./_components/AdminUsersTable"
+import { AnalyticsPanel } from "./_components/AnalyticsPanel"
 
 export default async function AdminPage({
   searchParams,
@@ -102,6 +103,10 @@ export default async function AdminPage({
               <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
             </div>
           ))}
+        </div>
+
+        <div className="card-animate mb-8">
+          <AnalyticsPanel />
         </div>
 
         <div className="card-animate rounded-xl border bg-card overflow-hidden">
