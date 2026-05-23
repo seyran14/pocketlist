@@ -41,6 +41,7 @@ export async function DELETE(req: NextRequest) {
   try {
     await prisma.savedListing.deleteMany({ where: { userId: id } })
     await prisma.notification.deleteMany({ where: { userId: id } })
+    await prisma.listing.deleteMany({ where: { agentId: id } })
     await prisma.session.deleteMany({ where: { userId: id } })
     await prisma.account.deleteMany({ where: { userId: id } })
     await prisma.user.delete({ where: { id } })
