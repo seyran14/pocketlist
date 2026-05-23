@@ -11,6 +11,8 @@ import { formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
+const BASE_URL = "https://pocketlist.ae"
+
 export async function generateMetadata({
   params,
 }: {
@@ -25,10 +27,25 @@ export async function generateMetadata({
   const title = listing.title || listing.projectName
   const price = listing.priceLabel ?? `AED ${listing.price.toLocaleString("en-AE")}`
   const description = `${price} · ${listing.location}${listing.description ? ` · ${listing.description.slice(0, 120)}` : ""}`
+  const pageUrl = `${BASE_URL}/listings/${id}`
+  const ogImage = `${BASE_URL}/listings/${id}/opengraph-image`
   return {
     title: `${title} | PocketList`,
     description,
-    openGraph: { title, description },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      type: "website",
+      siteName: "PocketList",
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
   }
 }
 
