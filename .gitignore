@@ -46,3 +46,4 @@ next-env.d.ts
 dev.db
 dev.db-shm
 dev.db-wal
+.notes
