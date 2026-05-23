@@ -21,7 +21,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 
-  const { email, name, message } = body
+  const { email, name, phone, social, message } = body
 
   if (!email || typeof email !== "string" || !EMAIL_REGEX.test(email)) {
     logger.warn("inquiry.invalid_email", { listingId: id, ip })
@@ -58,6 +58,8 @@ export async function POST(req: NextRequest, ctx: Ctx) {
         listingUrl: `${baseUrl}/listings/${id}`,
         buyerEmail: email,
         buyerName: name || undefined,
+        buyerPhone: phone || undefined,
+        buyerSocial: social || undefined,
         message: message || undefined,
       }),
     })
@@ -67,6 +69,8 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       buyerEmail: logger.maskEmail(email),
       agentEmail: logger.maskEmail(listing.agent.email),
       hasMessage: !!message,
+      hasPhone: !!phone,
+      hasSocial: !!social,
     })
   } catch (err) {
     logger.error("inquiry.email_failed", err, { listingId: id, ip })

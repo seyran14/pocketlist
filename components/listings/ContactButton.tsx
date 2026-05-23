@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Phone, Mail, MessageCircle, Send } from "lucide-react"
+import { Phone, Mail, MessageCircle, Send, User, AtSign } from "lucide-react"
 
 type Props = {
   listingId: string
@@ -59,6 +59,8 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
   const [loading, setLoading] = useState(false)
   const [inquiryEmail, setInquiryEmail] = useState("")
   const [inquiryName, setInquiryName] = useState("")
+  const [inquiryPhone, setInquiryPhone] = useState("")
+  const [inquirySocial, setInquirySocial] = useState("")
   const [inquiryMsg, setInquiryMsg] = useState("")
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
@@ -83,7 +85,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
     await fetch(`/api/listings/${listingId}/inquiry`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: inquiryEmail, name: inquiryName, message: inquiryMsg }),
+      body: JSON.stringify({ email: inquiryEmail, name: inquiryName, phone: inquiryPhone, social: inquirySocial, message: inquiryMsg }),
     })
     setSending(false)
     setSent(true)
@@ -141,22 +143,46 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
             </div>
           ) : (
             <form onSubmit={handleInquiry} className="space-y-3 pt-1">
-              <p className="text-sm text-muted-foreground">
-                The agent will contact you via email.
-              </p>
-              <p className="text-sm text-muted-foreground -mt-1">
-                To view the agent&apos;s contact details directly,{" "}
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                The agent will contact you via email.{" "}
                 <a href="/login" className="underline underline-offset-4 text-foreground hover:opacity-70">
-                  sign up or log in
-                </a>
-                .
+                  Sign in
+                </a>{" "}
+                to see their contact details directly.
               </p>
-              <Input placeholder="Your email" type="email" required
-                value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)} />
-              <Input placeholder="Your name (optional)"
-                value={inquiryName} onChange={(e) => setInquiryName(e.target.value)} />
+
+              {/* Email — required */}
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9" placeholder="Your email" type="email" required
+                  value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)} />
+              </div>
+
+              {/* Name — optional */}
+              <div className="relative">
+                <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9" placeholder="Your name (optional)"
+                  value={inquiryName} onChange={(e) => setInquiryName(e.target.value)} />
+              </div>
+
+              {/* Phone — optional */}
+              <div className="relative">
+                <Phone className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9" placeholder="Phone (optional)" type="tel"
+                  value={inquiryPhone} onChange={(e) => setInquiryPhone(e.target.value)} />
+              </div>
+
+              {/* Social — optional */}
+              <div className="relative">
+                <AtSign className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9" placeholder="WhatsApp, Telegram or Instagram (optional)"
+                  value={inquirySocial} onChange={(e) => setInquirySocial(e.target.value)} />
+              </div>
+
+              {/* Message — optional */}
               <Textarea placeholder="Message (optional)" className="resize-none text-sm" rows={3}
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
+
               <Button type="submit" className="w-full" disabled={sending || !inquiryEmail}>
                 {sending ? "Sending…" : "Send to agent →"}
               </Button>

@@ -4,6 +4,8 @@ export function inquiryEmailHtml({
   listingUrl,
   buyerEmail,
   buyerName,
+  buyerPhone,
+  buyerSocial,
   message,
 }: {
   agentName: string
@@ -11,6 +13,8 @@ export function inquiryEmailHtml({
   listingUrl: string
   buyerEmail: string
   buyerName?: string
+  buyerPhone?: string
+  buyerSocial?: string
   message?: string
 }): string {
   const from = buyerName ? `${buyerName} (${buyerEmail})` : buyerEmail
@@ -56,6 +60,8 @@ export function inquiryEmailHtml({
                   <td style="background-color:#0a0a0a;border:1px solid #252525;border-radius:10px;padding:16px 20px;">
                     <p style="margin:0 0 4px 0;font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.05em;">From</p>
                     <p style="margin:0;font-size:14px;font-weight:600;color:#ffffff;">${from}</p>
+                    ${buyerPhone ? `<p style="margin:10px 0 0 0;font-size:13px;color:#888;border-top:1px solid #252525;padding-top:10px;"><span style="color:#555;">Phone</span> &nbsp;${buyerPhone}</p>` : ""}
+                    ${buyerSocial ? `<p style="margin:${buyerPhone ? "6px" : "10px"} 0 0 0;font-size:13px;color:#888;${!buyerPhone ? "border-top:1px solid #252525;padding-top:10px;" : ""}"><span style="color:#555;">Social</span> &nbsp;${buyerSocial}</p>` : ""}
                     ${message ? `<p style="margin:12px 0 0 0;font-size:13px;color:#999;line-height:1.6;border-top:1px solid #252525;padding-top:12px;">${message}</p>` : ""}
                   </td>
                 </tr>
