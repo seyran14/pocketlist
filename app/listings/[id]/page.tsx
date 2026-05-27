@@ -5,11 +5,12 @@ import { auth } from "@/lib/auth"
 import { Navbar } from "@/components/Navbar"
 import { ContactButton } from "@/components/listings/ContactButton"
 import { CopyLinkButton } from "@/components/listings/CopyLinkButton"
+import { SaveButton } from "@/components/listings/SaveButton"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import { formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 
 const BASE_URL = "https://pocketlist.ae"
 
@@ -75,6 +76,13 @@ export default async function ListingPage({
 
   const isOwner = session?.user?.id === listing.agentId
   const isLoggedIn = !!session?.user
+
+  const savedListing = session?.user?.id
+    ? await prisma.savedListing.findUnique({
+        where: { userId_listingId: { userId: session.user.id, listingId: id } },
+        select: { id: true },
+      })
+    : null
 
   const fieldRow = (label: string, value: string | number | null | undefined) => {
     if (!value && value !== 0) return null
@@ -166,7 +174,7 @@ export default async function ListingPage({
               <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
 
               {session?.user?.role === "BUYER" && (
-                <SaveButton listingId={listing.id} />
+                <SaveButton listingId={listing.id} initialSaved={!!savedListing} />
               )}
 
               <CopyLinkButton />
@@ -207,23 +215,3 @@ export default async function ListingPage({
   )
 }
 
-function SaveButton({ listingId }: { listingId: string }) {
-  return (
-    <form
-      action={async () => {
-        "use server"
-        const { prisma } = await import("@/lib/prisma")
-        const { auth } = await import("@/lib/auth")
-        const session = await auth()
-        if (!session?.user?.id) return
-        await prisma.savedListing.create({
-          data: { userId: session.user.id, listingId },
-        }).catch(() => {})
-      }}
-    >
-      <Button variant="outline" size="sm" type="submit" className="w-full">
-        Save listing
-      </Button>
-    </form>
-  )
-}

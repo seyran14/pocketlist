@@ -55,7 +55,10 @@ export function NotificationBell() {
       >
         <Bell className="w-4 h-4" />
         {notifs.length > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+          <span
+            key={notifs.length}
+            className="badge-animate absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none"
+          >
             {notifs.length > 9 ? "9+" : notifs.length}
           </span>
         )}
