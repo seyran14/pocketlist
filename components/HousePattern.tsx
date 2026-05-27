@@ -25,8 +25,8 @@ export function HousePattern() {
           {/* In SVG masks: white = visible, black = hidden */}
           <radialGradient id="fade-mask-grad" cx="50%" cy="50%" r="60%">
             <stop offset="0%"   stopColor="black" stopOpacity="1" />
-            <stop offset="40%"  stopColor="black" stopOpacity="0.6" />
-            <stop offset="75%"  stopColor="white" stopOpacity="0.8" />
+            <stop offset="25%"  stopColor="black" stopOpacity="0.5" />
+            <stop offset="55%"  stopColor="white" stopOpacity="0.7" />
             <stop offset="100%" stopColor="white" stopOpacity="1" />
           </radialGradient>
 
