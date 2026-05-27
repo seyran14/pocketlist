@@ -34,14 +34,11 @@ export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; 
       href={`/listings/${listing.id}`}
       className={cn(
         "card-animate group relative flex flex-col rounded-xl border bg-card p-4 transition-all duration-150 hover:shadow-md hover:border-zinc-300 hover:-translate-y-0.5 active:scale-[0.98]",
-        isDistress && "border-red-300 hover:border-red-400",
+        isDistress && "border-red-300/70 ring-1 ring-red-300/30 hover:border-red-300 hover:ring-red-300/50 dark:border-red-700/50 dark:ring-red-700/25",
         isReserved && "opacity-70"
       )}
       style={{ animationDelay: `${Math.min(index * 35, 280)}ms` }}
     >
-      {isDistress && (
-        <div className="absolute -top-px left-4 right-4 h-0.5 rounded-full bg-red-400" />
-      )}
 
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
@@ -76,8 +73,8 @@ export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; 
         )}
       </div>
 
-      <div className="mt-auto flex items-end justify-between">
-        <p className="text-base font-bold tracking-tight">
+      <div className="mt-auto pt-3 border-t border-border/60 flex items-end justify-between">
+        <p className="text-lg font-bold tracking-tight">
           {listing.priceLabel ?? (isRent ? formatRentPrice(listing.price) : formatPrice(listing.price))}
         </p>
         <div className="flex flex-col items-end gap-1">

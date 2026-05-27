@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginAction } from "@/lib/actions/auth"
+import { HousePattern } from "@/components/HousePattern"
 import Link from "next/link"
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -20,7 +21,8 @@ export default function LoginPage({
   searchParams: Promise<{ error?: string }>
 }) {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+      <HousePattern />
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">PocketList</Link>
