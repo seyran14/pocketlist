@@ -1,7 +1,7 @@
 export function HousePattern() {
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
+      className="absolute inset-0 overflow-hidden pointer-events-none text-foreground"
       aria-hidden="true"
     >
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -17,19 +17,21 @@ export function HousePattern() {
               height="28"
               fill="none"
               stroke="currentColor"
-              strokeWidth="0.5"
+              strokeOpacity="0.13"
+              strokeWidth="0.6"
             />
           </pattern>
 
-          {/* Radial mask: opaque at edges, transparent in center */}
-          <radialGradient id="fade-mask" cx="50%" cy="50%" r="55%" fx="50%" fy="50%">
-            <stop offset="0%"   stopColor="black" stopOpacity="0" />
-            <stop offset="45%"  stopColor="black" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="black" stopOpacity="1" />
+          {/* In SVG masks: white = visible, black = hidden */}
+          <radialGradient id="fade-mask-grad" cx="50%" cy="50%" r="60%">
+            <stop offset="0%"   stopColor="black" stopOpacity="1" />
+            <stop offset="40%"  stopColor="black" stopOpacity="0.6" />
+            <stop offset="75%"  stopColor="white" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="white" stopOpacity="1" />
           </radialGradient>
 
           <mask id="grid-mask">
-            <rect width="100%" height="100%" fill="url(#fade-mask)" />
+            <rect width="100%" height="100%" fill="url(#fade-mask-grad)" />
           </mask>
         </defs>
 
@@ -38,7 +40,6 @@ export function HousePattern() {
           height="100%"
           fill="url(#sq-grid)"
           mask="url(#grid-mask)"
-          className="text-foreground/[0.12]"
         />
       </svg>
     </div>
