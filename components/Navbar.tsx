@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { signOutAction } from "@/lib/actions/auth"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { NotificationBell } from "@/components/NotificationBell"
+import { SupportButton } from "@/components/SupportButton"
 
 export async function Navbar() {
   const session = await auth()
@@ -23,6 +24,7 @@ export async function Navbar() {
           <ThemeToggle />
           {user ? (
             <>
+              <SupportButton />
               {isAgent ? (
                 <>
                   <Link href="/dashboard/listings/new" className="hidden sm:block">
