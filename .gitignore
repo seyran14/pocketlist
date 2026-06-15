@@ -47,3 +47,9 @@ dev.db
 dev.db-shm
 dev.db-wal
 .notes
+
+# Claude Code local settings
+.claude/
+
+# Runtime data
+data/ratelimit.json
