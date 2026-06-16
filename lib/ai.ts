@@ -1,6 +1,7 @@
-import Anthropic from "@anthropic-ai/sdk"
+import OpenAI from "openai"
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 3 })
+// Temporary: running on OpenAI's free daily token promo until the Anthropic account is topped up
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 3 })
 
 const SYSTEM_PROMPT = `You are a Dubai real estate listing parser. Extract all property listings from the raw text below. There may be 1 to 20 units in one message. Return ONLY a valid JSON array, no explanation, no markdown.
 
@@ -59,19 +60,16 @@ export type ParsedListing = {
 }
 
 export async function parseListingText(rawText: string): Promise<ParsedListing[]> {
-  const message = await client.messages.create({
-    model: process.env.AI_MODEL ?? "claude-haiku-4-5-20251001",
+  const completion = await client.chat.completions.create({
+    model: process.env.AI_MODEL ?? "gpt-4.1-mini",
     max_tokens: 2048,
     messages: [
-      {
-        role: "user",
-        content: rawText,
-      },
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: rawText },
     ],
-    system: SYSTEM_PROMPT,
   })
 
-  const raw = message.content[0].type === "text" ? message.content[0].text : ""
+  const raw = completion.choices[0]?.message?.content ?? ""
   // Strip markdown code fences if present (```json ... ``` or ``` ... ```)
   const json = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim()
   return JSON.parse(json) as ParsedListing[]
