@@ -26,7 +26,7 @@ async function getListings(sp: SearchParams) {
   const page = parseInt(sp.page ?? "1", 10)
   const ua = (await headers()).get("user-agent") ?? ""
   const isMobile = /iPhone|iPad|Android|Mobile/i.test(ua)
-  const limit = isMobile ? 10 : 15
+  const limit = isMobile ? 10 : 16
 
   const where: Prisma.ListingWhereInput = {
     status: { in: ["ACTIVE", "RESERVED"] },

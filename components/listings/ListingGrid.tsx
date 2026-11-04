@@ -13,7 +13,7 @@ export function ListingGrid({ listings }: { listings: ListingCardData[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {listings.map((listing, i) => (
         <ListingCard key={listing.id} listing={listing} index={i} />
       ))}
@@ -23,8 +23,8 @@ export function ListingGrid({ listings }: { listings: ListingCardData[] }) {
 
 export function ListingGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 9 }).map((_, i) => (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="rounded-xl border bg-card p-4 space-y-3">
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-3 w-1/2" />
