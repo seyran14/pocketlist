@@ -24,13 +24,14 @@ export function EditListingClient() {
     ACTIVE: "Active", RESERVED: "Under Offer", SOLD: "Sold",
   }
 
-  const [listing, setListing] = useState<(ParsedListing & { status: string }) | null>(null)
+  const [listing, setListing] = useState<(ParsedListing & { status: string; photos: { id: string }[] }) | null>(null)
   const [formValues, setFormValues] = useState<UnitFormValues | null>(null)
   const [status, setStatus] = useState("ACTIVE")
   const [listingType, setListingType] = useState<"SALE" | "RENT">("SALE")
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetch(`/api/listings/${params.id}`)
@@ -102,6 +103,7 @@ export function EditListingClient() {
             data={listing}
             onChange={(_, values) => setFormValues(values)}
             onRemove={() => {}}
+            onUploadingChange={setUploading}
           />
 
           <div className="rounded-xl border bg-card p-4">
@@ -160,8 +162,8 @@ export function EditListingClient() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={saving || deleting || !listing}>
-                {saving ? "Saving…" : "Save changes"}
+              <Button onClick={handleSave} disabled={saving || deleting || uploading || !listing}>
+                {uploading ? "Uploading photos…" : saving ? "Saving…" : "Save changes"}
               </Button>
             </div>
           </div>

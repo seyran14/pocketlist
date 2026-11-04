@@ -3,10 +3,10 @@ import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 
-export const metadata = { title: "Agents | PocketList" }
+export const metadata = { title: "Owners | PocketList" }
 
-export default async function AgentsPage() {
-  const agents = await prisma.user.findMany({
+export default async function OwnersPage() {
+  const owners = await prisma.user.findMany({
     where: {
       role: "AGENT",
       listings: { some: { status: { in: ["ACTIVE", "RESERVED"] } } },
@@ -24,22 +24,22 @@ export default async function AgentsPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="text-2xl font-bold mb-1">Agents</h1>
+        <h1 className="text-2xl font-bold mb-1">Owners</h1>
         <p className="text-sm text-muted-foreground mb-5">
-          {agents.length} agent{agents.length !== 1 ? "s" : ""} with active listings
+          {owners.length} owner{owners.length !== 1 ? "s" : ""} with active listings
         </p>
         <Separator className="mb-6" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {agents.map((a) => (
+          {owners.map((a) => (
             <Link
               key={a.id}
-              href={`/agents/${a.id}`}
+              href={`/owners/${a.id}`}
               className="rounded-xl border bg-card p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="font-semibold truncate">{a.name ?? "Agent"}</p>
+                  <p className="font-semibold truncate">{a.name ?? "Owner"}</p>
                   {a.reraNumber && (
                     <p className="text-xs text-muted-foreground mt-0.5">RERA: {a.reraNumber}</p>
                   )}

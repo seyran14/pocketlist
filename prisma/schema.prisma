@@ -26,6 +26,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   notifications Notification[]
+  photos        ListingPhoto[]
 }
 
 enum Role {
@@ -83,6 +84,23 @@ model Listing {
 
   savedBy       SavedListing[]
   notifications Notification[]
+  photos        ListingPhoto[]
+}
+
+// Files live on disk at <UPLOAD_DIR>/<id>.webp and <id>-thumb.webp.
+// listingId stays null between upload and publish.
+model ListingPhoto {
+  id         String   @id
+  createdAt  DateTime @default(now())
+  position   Int      @default(0)
+  uploaderId String
+  listingId  String?
+
+  uploader User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  listing  Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, position])
+  @@index([uploaderId, listingId])
 }
 
 enum ListingStatus {

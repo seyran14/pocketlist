@@ -63,14 +63,11 @@ export async function PATCH(req: NextRequest) {
   try {
     const updated = await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        name: body.name || null,
-        phone: body.phone || null,
-        whatsapp: body.whatsapp || null,
-        telegram: body.telegram || null,
-        contactPref: body.contactPref || null,
-        reraNumber: body.reraNumber || null,
-      },
+      data: Object.fromEntries(
+        Object.keys(MAX_LENGTHS)
+          .filter((field) => body[field] !== undefined)
+          .map((field) => [field, body[field] || null])
+      ),
       select: {
         id: true,
         name: true,

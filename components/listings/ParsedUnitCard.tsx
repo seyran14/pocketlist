@@ -13,6 +13,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select"
+import { PhotoUploader } from "@/components/listings/PhotoUploader"
 import { cn } from "@/lib/utils"
 import type { ParsedListing } from "@/lib/ai"
 
@@ -46,14 +47,16 @@ export type UnitFormValues = {
   isRented: boolean
   rentAmount: number | null
   notes: string | null
+  photoIds: string[]
 }
 
 type Props = {
   index: number
   total: number
-  data: ParsedListing
+  data: ParsedListing & { photos?: { id: string }[] }
   onChange: (index: number, values: UnitFormValues) => void
   onRemove: (index: number) => void
+  onUploadingChange?: (uploading: boolean) => void
 }
 
 function Hint({ children, level = "warn" }: { children: string; level?: "warn" | "info" }) {
@@ -64,7 +67,7 @@ function Hint({ children, level = "warn" }: { children: string; level?: "warn" |
   )
 }
 
-export function ParsedUnitCard({ index, total, data, onChange, onRemove }: Props) {
+export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploadingChange }: Props) {
   const { register, watch, setValue, getValues } = useForm<UnitFormValues>({
     defaultValues: {
       listingType: data.listingType ?? "SALE",
@@ -87,6 +90,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove }: Props
       isRented: data.isRented ?? false,
       rentAmount: data.rentAmount ?? null,
       notes: data.notes ?? null,
+      photoIds: data.photos?.map((p) => p.id) ?? [],
     },
   })
 
@@ -149,10 +153,16 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove }: Props
         </button>
       </div>
 
+      <PhotoUploader
+        initialIds={data.photos?.map((p) => p.id) ?? []}
+        onChange={(ids) => setValue("photoIds", ids)}
+        onUploadingChange={onUploadingChange}
+      />
+
       <div className="grid grid-cols-2 gap-3">
         {/* Project */}
         <div className="col-span-2">
-          <Label className="text-xs text-muted-foreground">Project name</Label>
+          <Label className="text-xs text-muted-foreground">Project / building name</Label>
           <Input {...register("projectName")} className="h-8 text-sm mt-1" />
         </div>
 

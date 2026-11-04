@@ -72,7 +72,7 @@ export default async function AdminPage({
 
   const stats: { label: string; value: number }[] = [
     { label: "Total Users", value: totalUsers },
-    { label: "Agents", value: agents },
+    { label: "Owners", value: agents },
     { label: "Active Listings", value: activeListings },
     { label: "New This Week", value: newThisWeek },
     { label: "Buyers", value: buyers },
@@ -119,7 +119,7 @@ export default async function AdminPage({
                 <tr className="border-b bg-muted/40">
                   <th className="text-left px-4 py-2 font-medium text-muted-foreground">Project</th>
                   <th className="text-left px-4 py-2 font-medium text-muted-foreground">Location</th>
-                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Agent</th>
+                  <th className="text-left px-4 py-2 font-medium text-muted-foreground">Owner</th>
                   <th className="text-left px-4 py-2 font-medium text-muted-foreground">Status</th>
                   <th className="text-left px-4 py-2 font-medium text-muted-foreground">Posted</th>
                 </tr>

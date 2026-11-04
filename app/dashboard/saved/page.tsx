@@ -35,6 +35,7 @@ export default async function SavedPage() {
           createdAt: true,
           handover: true,
           propertyType: true,
+          photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
         },
       },
     },

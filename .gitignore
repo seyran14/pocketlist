@@ -53,3 +53,10 @@ dev.db-wal
 
 # Runtime data
 data/ratelimit.json
+
+# server backups
+server-backup-*.zip
+pocketlist-server-backup-*.zip
+
+# Listing photos (live on the server, never in git)
+/uploads

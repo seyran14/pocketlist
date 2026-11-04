@@ -13,9 +13,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { cn, formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
 
-type Agent = { id: string; name: string | null }
+type Owner = { id: string; name: string | null }
 
 type FeedListing = {
   id: string
@@ -43,7 +44,8 @@ type FeedListing = {
   status: string
   listingType: string
   createdAt: string
-  agent: Agent
+  agent: Owner
+  photos: { id: string }[]
 }
 
 type ContactInfo = {
@@ -215,6 +217,8 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 </div>
 
                 <div className="px-4 py-4 space-y-4">
+                  <PhotoGallery photos={l.photos} alt={`${l.projectName}, ${l.location}`} />
+
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2">
                     {l.status === "RESERVED" && <Badge variant="secondary">Under Offer</Badge>}
@@ -269,12 +273,12 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     </div>
                   )}
 
-                  {/* Agent */}
+                  {/* Owner */}
                   <div className="rounded-xl border bg-card p-3">
-                    <Link href={`/agents/${l.agent.id}`} className="font-medium text-sm hover:underline underline-offset-4">
-                      {l.agent.name ?? "Agent"}
+                    <Link href={`/owners/${l.agent.id}`} className="font-medium text-sm hover:underline underline-offset-4">
+                      {l.agent.name ?? "Owner"}
                     </Link>
-                    <p className="text-xs text-muted-foreground">Agent</p>
+                    <p className="text-xs text-muted-foreground">Owner</p>
                   </div>
 
                   {/* Bottom spacer so last content isn't hidden behind bottom padding */}
@@ -324,7 +328,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {isLoggedIn ? (contactInfo?.name ?? "Agent Contact") : "Leave your details"}
+              {isLoggedIn ? (contactInfo?.name ?? "Owner Contact") : "Leave your details"}
             </DialogTitle>
           </DialogHeader>
 
@@ -382,11 +386,11 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
           ) : inquirySent ? (
             <div className="py-4 text-center space-y-1">
               <p className="text-sm font-medium">Sent!</p>
-              <p className="text-sm text-muted-foreground">The agent will reach out to you shortly.</p>
+              <p className="text-sm text-muted-foreground">The owner will reach out to you shortly.</p>
             </div>
           ) : (
             <form onSubmit={sendInquiry} className="space-y-3 pt-1">
-              <p className="text-sm text-muted-foreground">The agent will contact you via email.</p>
+              <p className="text-sm text-muted-foreground">The owner will contact you via email.</p>
               <p className="text-sm text-muted-foreground -mt-1">
                 To view contact details directly,{" "}
                 <a href="/login" className="underline underline-offset-4 text-foreground">sign in</a>.
@@ -398,7 +402,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
               <Textarea placeholder="Message (optional)" className="resize-none text-sm" rows={3}
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
               <Button type="submit" className="w-full" disabled={inquirySending || !inquiryEmail}>
-                {inquirySending ? "Sending…" : "Send to agent →"}
+                {inquirySending ? "Sending…" : "Send to owner →"}
               </Button>
             </form>
           )}

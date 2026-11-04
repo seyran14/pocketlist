@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/generated/prisma/client"
 import { logger } from "@/lib/logger"
+import { setListingPhotos } from "@/lib/photos"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -90,6 +91,7 @@ export async function GET(req: NextRequest) {
           agent: {
             select: { id: true, name: true },
           },
+          photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
         },
       }),
       prisma.listing.count({ where }),
@@ -142,7 +144,7 @@ export async function POST(req: NextRequest) {
 
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
-  const { notes, ...rest } = body
+  const { notes, photoIds, ...rest } = body
   const beds = rest.bedrooms ?? "Studio"
   const price = rest.price ?? 0
   const isRent = rest.listingType === "RENT"
@@ -166,6 +168,8 @@ export async function POST(req: NextRequest) {
           : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
       },
     })
+
+    await setListingPhotos(listing.id, session.user.id, photoIds)
 
     logger.info("listing.created", {
       userId: session.user.id,

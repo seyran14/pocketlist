@@ -1,8 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
+import { Building2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { cn, formatPrice, formatRentPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
+import { photoUrl } from "@/lib/photos-shared"
 
 type ListingCardData = {
   id: string
@@ -22,12 +25,14 @@ type ListingCardData = {
   createdAt: string
   handover: string | null
   propertyType: string
+  photos?: { id: string }[]
 }
 
 export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; index?: number }) {
   const isReserved = listing.status === "RESERVED"
   const isDistress = listing.isDistress
   const isRent = listing.listingType === "RENT"
+  const cover = listing.photos?.[0]
 
   return (
     <Link
@@ -39,6 +44,20 @@ export function ListingCard({ listing, index = 0 }: { listing: ListingCardData; 
       )}
       style={{ animationDelay: `${Math.min(index * 35, 280)}ms` }}
     >
+      <div className="relative -mx-4 -mt-4 mb-3 flex aspect-[4/3] items-center justify-center overflow-hidden rounded-t-[11px] bg-muted">
+        {cover ? (
+          <Image
+            src={photoUrl(cover.id, "thumb")}
+            alt={`${listing.projectName}, ${listing.location}`}
+            fill
+            unoptimized
+            loading="lazy"
+            className="object-cover"
+          />
+        ) : (
+          <Building2 size={32} className="text-muted-foreground/40" aria-hidden="true" />
+        )}
+      </div>
 
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">

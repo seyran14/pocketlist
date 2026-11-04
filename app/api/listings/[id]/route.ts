@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
+import { deletePhotos, setListingPhotos } from "@/lib/photos"
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -15,6 +16,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
         agent: {
           select: { id: true, name: true, reraNumber: true },
         },
+        photos: { select: { id: true }, orderBy: { position: "asc" } },
       },
     })
 
@@ -43,7 +45,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   const {
-    notes, action,
+    notes, action, photoIds, photos: _photos,
     id: _id, createdAt: _ca, updatedAt: _ua, expiresAt: _ea,
     agentId: _agentId, agent: _agent,
     ...rest
@@ -85,6 +87,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
 
   try {
     const updated = await prisma.listing.update({ where: { id }, data })
+    await setListingPhotos(id, session.user.id, photoIds)
     logger.info("listing.updated", {
       userId: session.user.id,
       listingId: id,
@@ -113,6 +116,7 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
   }
 
   try {
+    await deletePhotos({ listingId: id })
     await prisma.listing.delete({ where: { id } })
     logger.info("listing.deleted", {
       userId: session.user.id,

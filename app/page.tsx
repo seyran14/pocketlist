@@ -107,6 +107,7 @@ async function getListings(sp: SearchParams) {
         listingType: true,
         createdAt: true,
         expiresAt: true,
+        photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
       },
     }),
     prisma.listing.count({ where }),
@@ -175,7 +176,7 @@ export default async function HomePage({
           <>
             <h1 className="text-2xl font-bold mb-1 text-center">Dubai Properties</h1>
             <p className="text-muted-foreground text-sm mb-5 text-center">
-              Listings from agents to agents and their clients.
+              Homes listed directly by their owners.
             </p>
           </>
         )}

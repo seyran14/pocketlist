@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar"
 import { ContactButton } from "@/components/listings/ContactButton"
 import { CopyLinkButton } from "@/components/listings/CopyLinkButton"
 import { SaveButton } from "@/components/listings/SaveButton"
+import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
@@ -62,6 +63,7 @@ export default async function ListingPage({
       where: { id },
       include: {
         agent: { select: { id: true, name: true, reraNumber: true } },
+        photos: { select: { id: true }, orderBy: { position: "asc" } },
       },
     }),
   ])
@@ -101,6 +103,12 @@ export default async function ListingPage({
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Main content */}
           <div className="flex-1 min-w-0 card-animate" style={{ animationDelay: "0ms" }}>
+            {listing.photos.length > 0 && (
+              <div className="mb-5">
+                <PhotoGallery photos={listing.photos} alt={`${listing.projectName}, ${listing.location}`} />
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {listing.status === "RESERVED" && (
                 <Badge variant="secondary">Under Offer</Badge>
@@ -158,10 +166,10 @@ export default async function ListingPage({
           <div className="card-animate w-full lg:w-72 shrink-0" style={{ animationDelay: "80ms" }}>
             <div className="sticky top-20 rounded-xl border bg-card p-4 space-y-4">
               <div>
-                <Link href={`/agents/${listing.agent.id}`} className="font-semibold hover:underline underline-offset-4">
-                  {listing.agent.name ?? "Agent"}
+                <Link href={`/owners/${listing.agent.id}`} className="font-semibold hover:underline underline-offset-4">
+                  {listing.agent.name ?? "Owner"}
                 </Link>
-                <p className="text-xs text-muted-foreground">Agent</p>
+                <p className="text-xs text-muted-foreground">Owner</p>
                 {listing.agent.reraNumber && (
                   <p className="text-xs text-muted-foreground mt-1">
                     RERA: {listing.agent.reraNumber}

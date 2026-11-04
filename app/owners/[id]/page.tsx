@@ -6,15 +6,15 @@ import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
-export default async function AgentPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OwnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const agent = await prisma.user.findUnique({
+  const owner = await prisma.user.findUnique({
     where: { id, role: "AGENT" },
     select: { id: true, name: true, reraNumber: true, createdAt: true },
   })
 
-  if (!agent) notFound()
+  if (!owner) notFound()
 
   const rawListings = await prisma.listing.findMany({
     where: { agentId: id, status: { in: ["ACTIVE", "RESERVED"] } },
@@ -43,6 +43,7 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
       listingType: true,
       createdAt: true,
       expiresAt: true,
+      photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
     },
   })
 
@@ -67,10 +68,10 @@ export default async function AgentPage({ params }: { params: Promise<{ id: stri
         </Link>
 
         <div className="card-animate">
-          <h1 className="text-2xl font-bold">{agent.name}</h1>
+          <h1 className="text-2xl font-bold">{owner.name ?? "Owner"}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Agent · {listings.length} active listing{plural}
-            {agent.reraNumber && ` · RERA ${agent.reraNumber}`}
+            Owner · {listings.length} active listing{plural}
+            {owner.reraNumber && ` · RERA ${owner.reraNumber}`}
           </p>
         </div>
 

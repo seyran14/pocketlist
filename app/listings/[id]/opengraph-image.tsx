@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og"
+import sharp from "sharp"
 import { prisma } from "@/lib/prisma"
+import { readPhotoFile } from "@/lib/photos"
 
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
@@ -13,6 +15,19 @@ const tagBg    = "#f4f4f5"   // --muted light
 const tagFg    = "#3f3f46"   // slightly darker muted
 const dim      = "#a1a1aa"   // very muted
 
+const CACHE_HEADERS = {
+  "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600",
+}
+
+// Satori can't decode WebP, so the cover goes in as JPEG.
+async function coverDataUri(photoId: string | undefined) {
+  if (!photoId) return null
+  const file = await readPhotoFile(`${photoId}.webp`)
+  if (!file) return null
+  const jpeg = await sharp(file).resize(size.width, size.height, { fit: "cover" }).jpeg({ quality: 80 }).toBuffer()
+  return `data:image/jpeg;base64,${jpeg.toString("base64")}`
+}
+
 export default async function OgImage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const listing = await prisma.listing.findUnique({
@@ -23,6 +38,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
       bedrooms: true, propertyType: true,
       areaSqft: true, areaSqm: true,
       isDistress: true,
+      photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
     },
   })
 
@@ -37,6 +53,39 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
     : listing.areaSqm
     ? `${listing.areaSqm.toLocaleString()} sqm`
     : null
+
+  const cover = await coverDataUri(listing.photos[0]?.id).catch(() => null)
+
+  if (cover) {
+    return new ImageResponse(
+      (
+        <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", fontFamily: "sans-serif" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={cover} alt="" width={size.width} height={size.height} style={{ position: "absolute", top: 0, left: 0 }} />
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              flexDirection: "column",
+              padding: "96px 56px 40px",
+              color: "#fff",
+              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.85))",
+            }}
+          >
+            <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: -1 }}>{price}</span>
+            <span style={{ fontSize: 28, marginTop: 8 }}>{title}</span>
+            <span style={{ fontSize: 20, marginTop: 12, opacity: 0.8 }}>
+              {[beds, type, area, "pocketlist.ae"].filter(Boolean).join(" · ")}
+            </span>
+          </div>
+        </div>
+      ),
+      { ...size, headers: CACHE_HEADERS }
+    )
+  }
 
   const titleSize = title.length > 50 ? 44 : title.length > 35 ? 52 : title.length > 22 ? 60 : 68
 
@@ -159,9 +208,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
     ),
     {
       ...size,
-      headers: {
-        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600",
-      },
+      headers: CACHE_HEADERS,
     }
   )
 }

@@ -37,14 +37,14 @@ export function RegisterForm() {
               id="role-buyer"
               value="BUYER"
               title="Looking to buy"
-              description="Browse listings and contact agents"
+              description="Browse listings and contact owners"
               defaultChecked
             />
             <RoleCard
-              id="role-agent"
+              id="role-owner"
               value="AGENT"
-              title="Agent / Seller"
-              description="Post listings and get contacted by buyers"
+              title="Property owner"
+              description="List your property and get contacted by buyers"
             />
           </div>
         </div>

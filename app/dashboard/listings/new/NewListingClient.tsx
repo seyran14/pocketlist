@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { ParsedUnitCard, type UnitFormValues } from "@/components/listings/ParsedUnitCard"
+import { OwnerContactCard, hasContactChannel, type OwnerContact } from "@/components/listings/OwnerContactCard"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
@@ -12,16 +13,69 @@ import { toast } from "sonner"
 import type { ParsedListing } from "@/lib/ai"
 
 type Step = "paste" | "review"
+type Unit = ParsedListing & { uid: string }
+
+const CONTACT_PREFS = { phone: "PHONE", whatsapp: "WHATSAPP", telegram: "TELEGRAM" } as const
+
+// Filled channels become visible to buyers and cleared ones stop being shown;
+// any other choice the owner made in their profile (e.g. Email) is left alone.
+function mergeContactPref(existing: string | null, contact: OwnerContact) {
+  const prefs = new Set(existing ? existing.split(",").map((s) => s.trim()).filter(Boolean) : [])
+  for (const [field, pref] of Object.entries(CONTACT_PREFS)) {
+    if (contact[field as keyof typeof CONTACT_PREFS].trim()) prefs.add(pref)
+    else prefs.delete(pref)
+  }
+  return [...prefs].join(",")
+}
 
 export function NewListingClient() {
   const router = useRouter()
   const [step, setStep] = useState<Step>("paste")
   const [rawText, setRawText] = useState("")
-  const [units, setUnits] = useState<ParsedListing[]>([])
+  const [units, setUnits] = useState<Unit[]>([])
   const [formValues, setFormValues] = useState<UnitFormValues[]>([])
   const [parsing, setParsing] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [uploadingCount, setUploadingCount] = useState(0)
+  const [contact, setContact] = useState<OwnerContact | null>(null)
+  const [savedContact, setSavedContact] = useState<OwnerContact | null>(null)
+  const [contactPref, setContactPref] = useState<string | null>(null)
+  const [contactError, setContactError] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => {
+        if (!p) return
+        const loaded = {
+          name: p.name ?? "",
+          phone: p.phone ?? "",
+          whatsapp: p.whatsapp ?? "",
+          telegram: p.telegram ?? "",
+        }
+        setContact(loaded)
+        setSavedContact(loaded)
+        setContactPref(p.contactPref)
+      })
+      .catch(() => {})
+  }, [])
+
+  async function saveContact() {
+    if (!contact) return true
+    if (JSON.stringify(contact) === JSON.stringify(savedContact)) return true
+    const nextPref = mergeContactPref(contactPref, contact)
+    const res = await fetch("/api/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...contact, contactPref: nextPref }),
+    })
+    if (res.ok) {
+      setSavedContact(contact)
+      setContactPref(nextPref)
+    }
+    return res.ok
+  }
 
   async function handleParse() {
     if (!rawText.trim()) return
@@ -40,13 +94,13 @@ export function NewListingClient() {
           toast.error("No listings detected. Try pasting a single unit first.")
         } else {
           toast.error("AI parsing unavailable. Fill in the form manually below.")
-          setUnits([blankUnit()])
+          setUnits([withUid(blankUnit())])
           setFormValues([blankFormValues()])
           setStep("review")
         }
         return
       }
-      setUnits(data.units)
+      setUnits(data.units.map(withUid))
       setFormValues(data.units.map(() => ({} as UnitFormValues)))
       setStep("review")
     } catch {
@@ -75,8 +129,18 @@ export function NewListingClient() {
       toast.error("At least one listing needs a project name and location.")
       return
     }
+    if (contact && !hasContactChannel(contact)) {
+      setContactError(true)
+      toast.error("Add a phone, WhatsApp or Telegram so buyers can reach you.")
+      return
+    }
+    setContactError(false)
     setPublishing(true)
     try {
+      if (!(await saveContact())) {
+        toast.error("Couldn't save your contact details. Please try again.")
+        return
+      }
       const results = await Promise.allSettled(
         valid.map((unit) =>
           fetch(`/api/listings${force ? "?force=1" : ""}`, {
@@ -129,7 +193,7 @@ export function NewListingClient() {
         </button>
         <h1 className="text-2xl font-bold">Add New Listing</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Paste a WhatsApp or Telegram message — AI will extract each unit automatically.
+          Describe your property or paste an existing ad, and AI fills in the details. You can add photos and your contact on the next step.
         </p>
       </div>
 
@@ -141,7 +205,7 @@ export function NewListingClient() {
             ref={textareaRef}
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
-            placeholder={`Paste your listing message here — you can include multiple units from one WhatsApp/Telegram message. AI will extract each unit separately.\n\nExample:\nPeninsula 2 | Business Bay\nStudio | 388 sqft | AED 1,380,000\nHandover Q1 2026 | Canal view`}
+            placeholder={`Describe your property in your own words, or paste an existing ad. If you have several units, AI will extract each one separately.\n\nExample:\nPeninsula 2 | Business Bay\nStudio | 388 sqft | AED 1,380,000\nHandover Q1 2026 | Canal view`}
             className="min-h-56 text-sm resize-none"
             autoFocus
           />
@@ -157,7 +221,7 @@ export function NewListingClient() {
             <Button
               variant="outline"
               onClick={() => {
-                setUnits([blankUnit()])
+                setUnits([withUid(blankUnit())])
                 setFormValues([blankFormValues()])
                 setStep("review")
               }}
@@ -197,12 +261,13 @@ export function NewListingClient() {
 
           {units.map((unit, i) => (
             <ParsedUnitCard
-              key={i}
+              key={unit.uid}
               index={i}
               total={units.length}
               data={unit}
               onChange={handleUnitChange}
               onRemove={handleRemove}
+              onUploadingChange={(uploading) => setUploadingCount((n) => n + (uploading ? 1 : -1))}
             />
           ))}
 
@@ -211,12 +276,23 @@ export function NewListingClient() {
             size="sm"
             className="w-full"
             onClick={() => {
-              setUnits((prev) => [...prev, blankUnit()])
+              setUnits((prev) => [...prev, withUid(blankUnit())])
               setFormValues((prev) => [...prev, blankFormValues()])
             }}
           >
             + Add another unit
           </Button>
+
+          {contact && (
+            <OwnerContactCard
+              value={contact}
+              onChange={(next) => {
+                setContact(next)
+                if (hasContactChannel(next)) setContactError(false)
+              }}
+              showError={contactError}
+            />
+          )}
 
           <Separator />
 
@@ -234,10 +310,12 @@ export function NewListingClient() {
             </Button>
             <Button
               onClick={() => handlePublish()}
-              disabled={publishing || units.length === 0}
+              disabled={publishing || uploadingCount > 0 || units.length === 0}
               className="min-w-36"
             >
-              {publishing
+              {uploadingCount > 0
+                ? "Uploading photos…"
+                : publishing
                 ? "Publishing…"
                 : `Publish ${units.length} Listing${units.length !== 1 ? "s" : ""}`}
             </Button>
@@ -246,6 +324,10 @@ export function NewListingClient() {
       )}
     </main>
   )
+}
+
+function withUid(unit: ParsedListing): Unit {
+  return { ...unit, uid: crypto.randomUUID() }
 }
 
 function blankUnit(): ParsedListing {

@@ -67,6 +67,11 @@ export function ProfileForm({ user }: { user: ProfileData }) {
     })
   }
 
+  // Without this a newly typed number stays hidden from buyers until its box is ticked.
+  function showNewChannel(key: string, saved: string | null, value: string) {
+    if (!saved && value.trim()) setPrefs((prev) => new Set(prev).add(key))
+  }
+
   function selectAll() {
     setPrefs(new Set(CONTACT_METHODS.map((m) => m.key)))
   }
@@ -131,7 +136,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
-                {...register("phone")}
+                {...register("phone", { onBlur: (e) => showNewChannel("PHONE", user.phone, e.target.value) })}
                 placeholder="+123 456 7890"
                 type="tel"
               />
@@ -141,7 +146,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
               <Label htmlFor="whatsapp">WhatsApp</Label>
               <Input
                 id="whatsapp"
-                {...register("whatsapp")}
+                {...register("whatsapp", { onBlur: (e) => showNewChannel("WHATSAPP", user.whatsapp, e.target.value) })}
                 placeholder="+123 456 7890"
                 type="tel"
               />
@@ -151,7 +156,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
               <Label htmlFor="telegram">Telegram</Label>
               <Input
                 id="telegram"
-                {...register("telegram")}
+                {...register("telegram", { onBlur: (e) => showNewChannel("TELEGRAM", user.telegram, e.target.value) })}
                 placeholder="@username or +123 456 7890"
               />
               <p className="text-xs text-muted-foreground">Username or phone number</p>
@@ -188,7 +193,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="reraNumber">RERA number</Label>
+            <Label htmlFor="reraNumber">RERA number (optional)</Label>
             <Input
               id="reraNumber"
               {...register("reraNumber")}

@@ -38,7 +38,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
         {/* Scrollable content */}
         <div className="overflow-y-auto px-6 py-5 text-sm text-muted-foreground space-y-5 leading-relaxed">
 
-          <p className="text-xs text-muted-foreground/70">Last updated: May 2026</p>
+          <p className="text-xs text-muted-foreground/70">Last updated: November 2026</p>
 
           {/* Terms of Service */}
           <section className="space-y-3">
@@ -46,7 +46,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">1. About PocketList</p>
-              <p>PocketList is an online marketplace for Dubai real estate listings. We connect property sellers and agents with prospective buyers. PocketList is not a licensed real estate broker and does not participate in any transactions.</p>
+              <p>PocketList is an online marketplace for Dubai real estate listings. We connect property owners with prospective buyers. PocketList is not a licensed real estate broker and does not participate in any transactions.</p>
             </div>
 
             <div className="space-y-1">
@@ -55,8 +55,8 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
             </div>
 
             <div className="space-y-1">
-              <p className="font-medium text-foreground">3. Agent Responsibilities</p>
-              <p>Agents are solely responsible for the accuracy of their listings. All property details, prices, and availability must be truthful and up to date. Misrepresentation may result in account suspension.</p>
+              <p className="font-medium text-foreground">3. Owner Responsibilities</p>
+              <p>Owners are solely responsible for the accuracy of their listings. All property details, photos, prices, and availability must be truthful and up to date, and you must have the right to publish every photo you upload. Misrepresentation may result in account suspension.</p>
             </div>
 
             <div className="space-y-1">
@@ -93,7 +93,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">1. Data We Collect</p>
-              <p>We collect your email address and name when you register, listing information you submit, and usage data (pages visited, clicks, session behaviour) to improve the platform.</p>
+              <p>We collect your email address and name when you register, listing information and photos you submit, and usage data (pages visited, clicks, session behaviour) to improve the platform.</p>
             </div>
 
             <div className="space-y-1">

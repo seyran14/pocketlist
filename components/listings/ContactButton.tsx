@@ -111,7 +111,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {isLoggedIn ? (contact?.name ?? "Agent Contact") : "Leave your details"}
+              {isLoggedIn ? (contact?.name ?? "Owner Contact") : "Leave your details"}
             </DialogTitle>
           </DialogHeader>
 
@@ -160,13 +160,13 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
               </div>
               <div className="text-center space-y-0.5">
                 <p className="text-sm font-medium">Message sent!</p>
-                <p className="text-xs text-muted-foreground">The agent will reach out to you shortly.</p>
+                <p className="text-xs text-muted-foreground">The owner will reach out to you shortly.</p>
               </div>
             </div>
           ) : (
             <form onSubmit={handleInquiry} className="space-y-3 pt-1">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                The agent will contact you via email.{" "}
+                The owner will contact you via email.{" "}
                 <a href="/login" className="underline underline-offset-4 text-foreground hover:opacity-70">
                   Sign in
                 </a>{" "}
@@ -206,7 +206,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
 
               <Button type="submit" className="w-full" disabled={sending || !inquiryEmail}>
-                {sending ? "Sending…" : "Send to agent →"}
+                {sending ? "Sending…" : "Send to owner →"}
               </Button>
             </form>
           )}

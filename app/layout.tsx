@@ -13,7 +13,7 @@ const geist = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://pocketlist.ae"),
   title: "PocketList — Dubai Real Estate",
-  description: "Browse and post Dubai property listings. Agents paste raw messages, AI parses them instantly.",
+  description: "Browse Dubai property listed directly by owners. Post your own home with photos in minutes.",
 }
 
 export default function RootLayout({

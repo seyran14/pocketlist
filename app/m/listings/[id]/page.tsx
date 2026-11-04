@@ -3,6 +3,11 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { FeedClient } from "./FeedClient"
 
+const feedInclude = {
+  agent: { select: { id: true, name: true } },
+  photos: { select: { id: true }, orderBy: { position: "asc" as const } },
+}
+
 export default async function MobileFeedPage({
   params,
 }: {
@@ -14,7 +19,7 @@ export default async function MobileFeedPage({
     auth(),
     prisma.listing.findUnique({
       where: { id },
-      include: { agent: { select: { id: true, name: true } } },
+      include: feedInclude,
     }),
   ])
 
@@ -26,7 +31,7 @@ export default async function MobileFeedPage({
       status: { in: ["ACTIVE", "RESERVED"] },
     },
     orderBy: { createdAt: "desc" },
-    include: { agent: { select: { id: true, name: true } } },
+    include: feedInclude,
   })
 
   const allListings = [targetListing, ...rest]
