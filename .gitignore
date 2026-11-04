@@ -60,3 +60,6 @@ pocketlist-server-backup-*.zip
 
 # Listing photos (live on the server, never in git)
 /uploads
+
+# Local copies of production data (scripts/pull-backup.sh)
+/backups
