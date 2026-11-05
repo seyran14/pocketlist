@@ -103,12 +103,10 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         )}
       </div>
 
-      {/* Sale / Rent */}
+      {/* Rent only for now; sale is hidden until it comes back */}
       <div className="flex gap-1">
         <Button variant={!listingType ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
           onClick={() => update("listingType", null)}>{t("All")}</Button>
-        <Button variant={listingType === "SALE" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
-          onClick={() => update("listingType", "SALE")}>{t("For Sale")}</Button>
         <Button variant={listingType === "RENT" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
           onClick={() => update("listingType", "RENT")}>{t("For Rent")}</Button>
         {hasFilters && (
