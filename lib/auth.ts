@@ -13,6 +13,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
+  logger: {
+    error(code, ...message) {
+      // InvalidProvider fires when bots hit /api/auth/callback without a provider — safe to ignore
+      if (String(code).includes("InvalidProvider")) return
+      console.error(code, ...message)
+    },
+  },
   providers: [
     Credentials({
       id: "admin-password",
