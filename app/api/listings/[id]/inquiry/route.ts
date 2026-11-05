@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { isPublicStatus } from "@/lib/utils"
+import { EMAIL_FROM, isPublicStatus } from "@/lib/utils"
 import { Resend } from "resend"
 import { inquiryEmailHtml } from "@/lib/emails/inquiryEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     const baseUrl = req.headers.get("origin") ?? "https://pocketlist.ae"
 
     await resend.emails.send({
-      from: "PocketList <noreply@rncn8n.com>",
+      from: EMAIL_FROM,
       to: listing.agent.email,
       replyTo: email,
       subject: `New inquiry for ${listingTitle}`,

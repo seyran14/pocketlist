@@ -6,7 +6,7 @@ import { isAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { reviewEmailHtml } from "@/lib/emails/reviewEmail"
-import { SUPPORT_EMAIL } from "@/lib/utils"
+import { EMAIL_FROM, SUPPORT_EMAIL } from "@/lib/utils"
 
 const LISTING_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000
 
@@ -28,7 +28,7 @@ async function tellOwner(listing: { id: string; projectName: string; agentId: st
   try {
     // Resend reports most failures in the result rather than by throwing.
     const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
-      from: "PocketList <noreply@rncn8n.com>",
+      from: EMAIL_FROM,
       to: listing.agent.email,
       replyTo: SUPPORT_EMAIL,
       subject: approved ? "Your listing is live" : "Your listing needs changes",

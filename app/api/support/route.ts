@@ -3,7 +3,7 @@ import { Resend } from "resend"
 import { supportEmailHtml } from "@/lib/emails/supportEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
-import { SUPPORT_EMAIL } from "@/lib/utils"
+import { EMAIL_FROM, SUPPORT_EMAIL } from "@/lib/utils"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     // Resend reports most failures in the result rather than by throwing.
     const { error } = await resend.emails.send({
-      from: "PocketList <noreply@rncn8n.com>",
+      from: EMAIL_FROM,
       to: SUPPORT_EMAIL,
       replyTo: email,
       subject: `[poketlist support] message from ${email}`,

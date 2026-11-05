@@ -6,6 +6,7 @@ import Credentials from "next-auth/providers/credentials"
 import { Resend as ResendClient } from "resend"
 import { prisma } from "@/lib/prisma"
 import { signInEmailHtml } from "@/lib/emails/signInEmail"
+import { EMAIL_FROM } from "@/lib/utils"
 import type { JWT } from "next-auth/jwt"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -44,14 +45,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     Resend({
       apiKey: process.env.RESEND_API_KEY,
-      from: "PocketList <noreply@rncn8n.com>",
+      from: EMAIL_FROM,
       maxAge: 15 * 60,
       generateVerificationToken: () =>
         String(require("crypto").randomInt(100000, 1000000)),
       sendVerificationRequest: async ({ identifier: email, token }) => {
         const resend = new ResendClient(process.env.RESEND_API_KEY)
         await resend.emails.send({
-          from: "PocketList <noreply@rncn8n.com>",
+          from: EMAIL_FROM,
           to: email,
           subject: `${token} is your PocketList sign-in code`,
           html: signInEmailHtml(token),

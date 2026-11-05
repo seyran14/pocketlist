@@ -3,7 +3,7 @@ import { Resend } from "resend"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { contractEmailHtml } from "@/lib/emails/contractEmail"
-import { SUPPORT_EMAIL } from "@/lib/utils"
+import { EMAIL_FROM, SUPPORT_EMAIL } from "@/lib/utils"
 
 export const CONTRACT_LINK_DAYS = 14
 
@@ -31,7 +31,7 @@ export async function sendContractEmail(
 ) {
   try {
     const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
-      from: "PocketList <noreply@rncn8n.com>",
+      from: EMAIL_FROM,
       to,
       replyTo: SUPPORT_EMAIL,
       subject,
