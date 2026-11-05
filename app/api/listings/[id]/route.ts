@@ -3,6 +3,17 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { logger } from "@/lib/logger"
 import { deletePhotos, setListingPhotos } from "@/lib/photos"
+import { attachDeed, deleteDocuments } from "@/lib/documents"
+import { refreshChecks } from "@/lib/listing-review"
+import {
+  VERIFIED_FIELDS,
+  missingFields,
+  occupancyFields,
+  pickPrivateFields,
+  pickPublicFields,
+} from "@/lib/listing-rules"
+import { isPublicStatus } from "@/lib/utils"
+import type { Prisma } from "@/lib/generated/prisma/client"
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -21,7 +32,30 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     })
 
     if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 })
-    return NextResponse.json(listing)
+
+    const session = await auth()
+    const isOwner = session?.user?.id === listing.agentId
+    if (!isOwner) {
+      if (!isPublicStatus(listing.status)) return NextResponse.json({ error: "Not found" }, { status: 404 })
+      return NextResponse.json(listing)
+    }
+
+    const [review, deed] = await Promise.all([
+      prisma.listingReview.findUnique({ where: { listingId: id } }),
+      prisma.ownerDocument.findFirst({
+        where: { listingId: id, kind: "TITLE_DEED" },
+        select: { id: true, fileName: true },
+      }),
+    ])
+    return NextResponse.json({
+      ...listing,
+      propertyNumber: review?.propertyNumber ?? null,
+      isExclusive: review?.isExclusive ?? null,
+      amountPaid: review?.amountPaid ?? null,
+      poaAvailable: review?.poaAvailable ?? null,
+      reviewNote: review?.note ?? null,
+      deed,
+    })
   } catch (err) {
     logger.error("listing.get_failed", err, { listingId: id })
     return NextResponse.json({ error: "Failed to fetch listing" }, { status: 500 })
@@ -44,18 +78,41 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const {
-    notes, action, photoIds, photos: _photos,
-    id: _id, createdAt: _ca, updatedAt: _ua, expiresAt: _ea,
-    agentId: _agentId, agent: _agent,
-    ...rest
-  } = body
-  const data: Record<string, unknown> = { ...rest }
+  const { notes, action, photoIds, deedId } = body
+  const rest = pickPublicFields(body)
+  const privateFields = pickPrivateFields(body)
+  const data: Record<string, unknown> = { ...rest, ...occupancyFields(rest.occupancy) }
 
-  // Agents can only set these statuses; EXPIRED is reserved for the cron job
-  if (data.status !== undefined && !["ACTIVE", "RESERVED", "SOLD"].includes(data.status as string)) {
-    return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+  // Owners can only set these statuses, and only once a listing has been approved:
+  // EXPIRED is for the cron job, the review statuses for the reviewer.
+  const inReview = listing.status === "PENDING_REVIEW" || listing.status === "REJECTED"
+  if (body.status !== undefined && body.status !== listing.status) {
+    if (inReview || !["ACTIVE", "RESERVED", "SOLD"].includes(body.status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    }
+    data.status = body.status
   }
+
+  const [review, currentDeed] = await Promise.all([
+    prisma.listingReview.findUnique({ where: { listingId: id } }),
+    prisma.ownerDocument.findFirst({ where: { listingId: id, kind: "TITLE_DEED" }, select: { id: true } }),
+  ])
+  const current = listing as unknown as Record<string, unknown>
+  const blank = (v: unknown) => (v === "" || v === undefined ? null : v)
+  const changed = (a: unknown, b: unknown) => blank(a) !== blank(b)
+  const verifiedFieldChanged = VERIFIED_FIELDS.some((f) => f in rest && changed(rest[f], current[f]))
+  const propertyChanged = "propertyNumber" in privateFields && changed(privateFields.propertyNumber, review?.propertyNumber)
+  const newDeed = !!deedId && deedId !== currentDeed?.id
+  const needsReview = listing.status === "REJECTED" || verifiedFieldChanged || propertyChanged || newDeed
+
+  if (needsReview || listing.status === "PENDING_REVIEW") {
+    const merged = { ...current, ...review, ...rest, ...privateFields, deedId: deedId ?? currentDeed?.id }
+    const missing = missingFields(merged)
+    if (missing.length > 0) {
+      return NextResponse.json({ error: "missing_fields", fields: missing }, { status: 422 })
+    }
+  }
+  if (needsReview) data.status = "PENDING_REVIEW"
 
   if (notes !== undefined) data.description = notes ?? null
   if (data.bedrooms === null) delete data.bedrooms
@@ -83,11 +140,24 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       : `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K`
   }
 
-  const changedFields = Object.keys(rest).filter((k) => rest[k] !== (listing as Record<string, unknown>)[k])
+  const changedFields = Object.keys(rest).filter((k) => rest[k] !== current[k])
 
   try {
+    if (newDeed && !(await attachDeed(id, session.user.id, deedId))) {
+      return NextResponse.json({ error: "verification_incomplete" }, { status: 422 })
+    }
     const updated = await prisma.listing.update({ where: { id }, data })
     await setListingPhotos(id, session.user.id, photoIds)
+
+    if (Object.keys(privateFields).length > 0 && (review || needsReview)) {
+      await prisma.listingReview.upsert({
+        where: { listingId: id },
+        update: { ...privateFields, ...(needsReview ? { note: null, reviewedAt: null } : {}) },
+        create: { ...privateFields, listingId: id } as Prisma.ListingReviewUncheckedCreateInput,
+      })
+    }
+    if (needsReview || updated.status === "PENDING_REVIEW") await refreshChecks(id)
+
     logger.info("listing.updated", {
       userId: session.user.id,
       listingId: id,
@@ -117,6 +187,7 @@ export async function DELETE(_req: NextRequest, ctx: Ctx) {
 
   try {
     await deletePhotos({ listingId: id })
+    await deleteDocuments({ listingId: id })
     await prisma.listing.delete({ where: { id } })
     logger.info("listing.deleted", {
       userId: session.user.id,

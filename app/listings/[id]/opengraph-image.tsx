@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og"
 import sharp from "sharp"
 import { prisma } from "@/lib/prisma"
+import { isPublicStatus } from "@/lib/utils"
 import { readPhotoFile } from "@/lib/photos"
 
 export const size = { width: 1200, height: 630 }
@@ -33,7 +34,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
   const listing = await prisma.listing.findUnique({
     where: { id },
     select: {
-      title: true, projectName: true, location: true,
+      title: true, projectName: true, location: true, status: true,
       price: true, priceLabel: true,
       bedrooms: true, propertyType: true,
       areaSqft: true, areaSqm: true,
@@ -42,7 +43,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
     },
   })
 
-  if (!listing) return new ImageResponse(<div>Not found</div>, { ...size })
+  if (!listing || !isPublicStatus(listing.status)) return new ImageResponse(<div>Not found</div>, { ...size })
 
   const title = listing.title || listing.projectName
   const price = listing.priceLabel ?? `AED ${listing.price.toLocaleString("en-AE")}`

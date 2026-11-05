@@ -34,3 +34,11 @@ export function daysAgo(date: Date): string {
 // Counts every listing the user has, sold and expired included. Together with
 // MAX_PHOTOS_PER_LISTING this caps a user at 120 published photos.
 export const MAX_LISTINGS_PER_USER = 10
+
+const HIDDEN_STATUSES = ["EXPIRED", "PENDING_REVIEW", "REJECTED"]
+
+export function isPublicStatus(status: string) {
+  return !HIDDEN_STATUSES.includes(status)
+}
+
+export const SUPPORT_EMAIL = "support@pocketlist.ae"

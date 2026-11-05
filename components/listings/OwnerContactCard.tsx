@@ -17,16 +17,18 @@ const FIELDS = [
   { key: "telegram", label: "Telegram", placeholder: "@username", type: "text" },
 ] as const
 
-export function hasContactChannel(c: OwnerContact) {
-  return !!(c.phone.trim() || c.whatsapp.trim() || c.telegram.trim())
+export function hasRequiredContact(c: OwnerContact) {
+  return !!(c.name.trim() && c.phone.trim())
 }
 
 export function OwnerContactCard({
   value,
+  email,
   onChange,
   showError,
 }: {
   value: OwnerContact
+  email: string
   onChange: (value: OwnerContact) => void
   showError: boolean
 }) {
@@ -35,11 +37,15 @@ export function OwnerContactCard({
       <div>
         <h2 className="text-sm font-semibold">Your contact</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Buyers reach you directly. Add a phone, WhatsApp or Telegram. It&apos;s saved to your profile and used on all your listings.
+          Your name and phone are required. Buyers reach you directly, and this is saved to your profile for all your listings.
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="sm:col-span-2">
+          <Label htmlFor="contact-email" className="text-xs text-muted-foreground">Email</Label>
+          <Input id="contact-email" value={email} readOnly disabled className="h-8 text-sm mt-1" />
+        </div>
         {FIELDS.map(({ key, label, placeholder, type }) => (
           <div key={key}>
             <Label htmlFor={`contact-${key}`} className="text-xs text-muted-foreground">{label}</Label>
@@ -57,7 +63,7 @@ export function OwnerContactCard({
 
       {showError && (
         <p role="alert" className="text-xs text-destructive">
-          Add at least one way for buyers to reach you.
+          Add your name and phone number.
         </p>
       )}
     </div>

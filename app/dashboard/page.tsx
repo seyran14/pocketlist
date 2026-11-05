@@ -33,6 +33,7 @@ export default async function DashboardPage() {
         createdAt: true,
         expiresAt: true,
         viewCount: true,
+        review: { select: { note: true } },
       },
     }),
     prisma.listing.findMany({

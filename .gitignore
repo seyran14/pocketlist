@@ -63,3 +63,5 @@ pocketlist-server-backup-*.zip
 
 # Local copies of production data (scripts/pull-backup.sh)
 /backups
+
+/private-docs

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
+import { deleteDocuments } from "@/lib/documents"
 import { deletePhotos } from "@/lib/photos"
 
 async function isAdmin() {
@@ -43,6 +44,7 @@ export async function DELETE(req: NextRequest) {
     await prisma.savedListing.deleteMany({ where: { userId: id } })
     await prisma.notification.deleteMany({ where: { userId: id } })
     await deletePhotos({ uploaderId: id })
+    await deleteDocuments({ uploaderId: id })
     await prisma.listing.deleteMany({ where: { agentId: id } })
     await prisma.session.deleteMany({ where: { userId: id } })
     await prisma.account.deleteMany({ where: { userId: id } })

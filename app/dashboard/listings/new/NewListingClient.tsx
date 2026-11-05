@@ -4,12 +4,14 @@ import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { ParsedUnitCard, type UnitFormValues } from "@/components/listings/ParsedUnitCard"
-import { OwnerContactCard, hasContactChannel, type OwnerContact } from "@/components/listings/OwnerContactCard"
+import { IdentityCard, type IdentityDocuments } from "@/components/listings/IdentityCard"
+import { OwnerContactCard, hasRequiredContact, type OwnerContact } from "@/components/listings/OwnerContactCard"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import { missingFields } from "@/lib/listing-rules"
 import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import type { ParsedListing } from "@/lib/ai"
 
@@ -42,6 +44,9 @@ export function NewListingClient() {
   const [savedContact, setSavedContact] = useState<OwnerContact | null>(null)
   const [contactPref, setContactPref] = useState<string | null>(null)
   const [contactError, setContactError] = useState(false)
+  const [email, setEmail] = useState("")
+  const [identity, setIdentity] = useState<IdentityDocuments>({ passport: null, emiratesId: null })
+  const [identityError, setIdentityError] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -58,7 +63,12 @@ export function NewListingClient() {
         setContact(loaded)
         setSavedContact(loaded)
         setContactPref(p.contactPref)
+        setEmail(p.email ?? "")
       })
+      .catch(() => {})
+    fetch("/api/documents")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((documents) => documents && setIdentity(documents))
       .catch(() => {})
   }, [])
 
@@ -125,17 +135,25 @@ export function NewListingClient() {
   }
 
   async function handlePublish(force = false) {
-    const valid = formValues.filter((v) => v?.projectName && v?.location)
-    if (valid.length === 0) {
-      toast.error("At least one listing needs a project name and location.")
+    const valid = formValues
+    const incomplete = valid.findIndex((v) => missingFields(v).length > 0)
+    if (incomplete >= 0) {
+      const prefix = valid.length > 1 ? `Unit ${incomplete + 1}: add` : "Add"
+      toast.error(`${prefix} ${missingFields(valid[incomplete]).join(", ")}.`)
       return
     }
-    if (contact && !hasContactChannel(contact)) {
+    if (!contact || !hasRequiredContact(contact)) {
       setContactError(true)
-      toast.error("Add a phone, WhatsApp or Telegram so buyers can reach you.")
+      toast.error("Add your name and phone number.")
+      return
+    }
+    if (!identity.passport) {
+      setIdentityError(true)
+      toast.error("Upload your passport to publish.")
       return
     }
     setContactError(false)
+    setIdentityError(false)
     setPublishing(true)
     try {
       if (!(await saveContact())) {
@@ -173,7 +191,7 @@ export function NewListingClient() {
         )
       }
       if (succeeded > 0) {
-        toast.success(`${succeeded} listing${succeeded !== 1 ? "s" : ""} published`)
+        toast.success(`${succeeded} listing${succeeded !== 1 ? "s" : ""} sent for review. We'll email you when it's live.`)
         router.push("/dashboard")
       } else if (duplicates.length === 0 && !limitReached) {
         toast.error("Failed to publish listings. Please try again.")
@@ -195,7 +213,7 @@ export function NewListingClient() {
         </button>
         <h1 className="text-2xl font-bold">Add New Listing</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Describe your property or paste an existing ad, and AI fills in the details. You can add photos and your contact on the next step.
+          Describe your property or paste an existing ad, and AI fills in the details. You&apos;ll add photos, your title deed and your passport on the next step.
         </p>
       </div>
 
@@ -290,11 +308,19 @@ export function NewListingClient() {
               value={contact}
               onChange={(next) => {
                 setContact(next)
-                if (hasContactChannel(next)) setContactError(false)
+                if (hasRequiredContact(next)) setContactError(false)
               }}
+              email={email}
               showError={contactError}
             />
           )}
+
+          <IdentityCard
+            value={identity}
+            onChange={setIdentity}
+            showError={identityError}
+            onUploadingChange={(uploading) => setUploadingCount((n) => n + (uploading ? 1 : -1))}
+          />
 
           <Separator />
 
@@ -316,10 +342,10 @@ export function NewListingClient() {
               className="min-w-36"
             >
               {uploadingCount > 0
-                ? "Uploading photos…"
+                ? "Uploading…"
                 : publishing
-                ? "Publishing…"
-                : `Publish ${units.length} Listing${units.length !== 1 ? "s" : ""}`}
+                ? "Submitting…"
+                : `Submit ${units.length} Listing${units.length !== 1 ? "s" : ""} for Review`}
             </Button>
           </div>
         </div>

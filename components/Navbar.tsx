@@ -22,9 +22,9 @@ export async function Navbar() {
 
         <nav className="flex items-center gap-1">
           <ThemeToggle />
+          <SupportButton />
           {user ? (
             <>
-              <SupportButton />
               {isAgent ? (
                 <>
                   <Link href="/dashboard/listings/new" className="hidden sm:block">

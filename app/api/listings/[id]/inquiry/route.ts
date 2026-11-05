@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { isPublicStatus } from "@/lib/utils"
 import { Resend } from "resend"
 import { inquiryEmailHtml } from "@/lib/emails/inquiryEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
@@ -33,11 +34,12 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     select: {
       title: true,
       projectName: true,
+      status: true,
       agent: { select: { name: true, email: true } },
     },
   })
 
-  if (!listing || !listing.agent?.email) {
+  if (!listing || !isPublicStatus(listing.status) || !listing.agent?.email) {
     logger.warn("inquiry.listing_not_found", { listingId: id, ip })
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }

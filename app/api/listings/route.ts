@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/generated/prisma/client"
 import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
+import { attachDeed } from "@/lib/documents"
+import { refreshChecks } from "@/lib/listing-review"
+import { missingFields, occupancyFields, pickPrivateFields, pickPublicFields } from "@/lib/listing-rules"
 import { logger } from "@/lib/logger"
 import { setListingPhotos } from "@/lib/photos"
 
@@ -127,6 +130,23 @@ export async function POST(req: NextRequest) {
   logger.setUser(session.user.id, session.user.email ?? undefined)
 
   const body = await req.json()
+  const userId = session.user.id
+
+  const missing = missingFields(body)
+  if (missing.length > 0) {
+    return NextResponse.json({ error: "missing_fields", fields: missing }, { status: 422 })
+  }
+
+  const [owner, passport, deed] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true, phone: true } }),
+    prisma.ownerDocument.count({ where: { uploaderId: userId, kind: "PASSPORT" } }),
+    prisma.ownerDocument.count({
+      where: { id: String(body.deedId), uploaderId: userId, kind: "TITLE_DEED", listingId: null },
+    }),
+  ])
+  if (!owner?.name?.trim() || !owner.phone?.trim() || passport === 0 || deed === 0) {
+    return NextResponse.json({ error: "verification_incomplete" }, { status: 422 })
+  }
 
   const force = req.nextUrl.searchParams.get("force") === "1"
   if (!force && body.projectName && body.bedrooms) {
@@ -135,7 +155,7 @@ export async function POST(req: NextRequest) {
         agentId: session.user.id,
         projectName: { equals: body.projectName },
         bedrooms: body.bedrooms,
-        status: { in: ["ACTIVE", "RESERVED"] },
+        status: { in: ["ACTIVE", "RESERVED", "PENDING_REVIEW"] },
       },
       select: { id: true },
     })
@@ -155,7 +175,9 @@ export async function POST(req: NextRequest) {
 
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
-  const { notes, photoIds, ...rest } = body
+  const { notes, photoIds, deedId } = body
+  const rest = { ...pickPublicFields(body), ...occupancyFields(body.occupancy) } as Prisma.ListingUncheckedCreateInput
+  const privateFields = pickPrivateFields(body) as Prisma.ListingReviewUncheckedCreateWithoutListingInput
   const beds = rest.bedrooms ?? "Studio"
   const price = rest.price ?? 0
   const isRent = rest.listingType === "RENT"
@@ -170,6 +192,8 @@ export async function POST(req: NextRequest) {
         data: {
           ...rest,
           agentId: session.user.id,
+          status: "PENDING_REVIEW",
+          review: { create: privateFields },
           expiresAt,
           bedrooms: beds,
           description: notes ?? null,
@@ -191,6 +215,8 @@ export async function POST(req: NextRequest) {
     }
 
     await setListingPhotos(listing.id, session.user.id, photoIds)
+    await attachDeed(listing.id, userId, deedId)
+    await refreshChecks(listing.id)
 
     logger.info("listing.created", {
       userId: session.user.id,

@@ -10,10 +10,12 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
+import { formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus } from "@/lib/utils"
 import Link from "next/link"
 
 const BASE_URL = "https://pocketlist.ae"
+
+const OCCUPANCY_LABELS: Record<string, string> = { VACANT: "Vacant", RENTED: "Rented", OFFPLAN: "Off-plan" }
 
 export async function generateMetadata({
   params,
@@ -23,9 +25,9 @@ export async function generateMetadata({
   const { id } = await params
   const listing = await prisma.listing.findUnique({
     where: { id },
-    select: { title: true, projectName: true, location: true, priceLabel: true, price: true, description: true },
+    select: { title: true, projectName: true, location: true, priceLabel: true, price: true, description: true, status: true },
   })
-  if (!listing) return {}
+  if (!listing || !isPublicStatus(listing.status)) return {}
   const title = listing.title || listing.projectName
   const price = listing.priceLabel ?? `AED ${listing.price.toLocaleString("en-AE")}`
   const description = `${price} · ${listing.location}${listing.description ? ` · ${listing.description.slice(0, 120)}` : ""}`
@@ -68,7 +70,9 @@ export default async function ListingPage({
     }),
   ])
 
-  if (!listing || listing.status === "EXPIRED") notFound()
+  if (!listing) notFound()
+  // Owners can preview a listing that's waiting for review.
+  if (!isPublicStatus(listing.status) && session?.user?.id !== listing.agentId) notFound()
 
   // Count view (fire-and-forget, non-blocking)
   prisma.listing.update({ where: { id }, data: { viewCount: { increment: 1 } } }).catch(() => {})
@@ -149,7 +153,9 @@ export default async function ListingPage({
               {fieldRow("Floor", listing.floor ? listing.floor.charAt(0) + listing.floor.slice(1).toLowerCase() + " floor" : null)}
               {fieldRow("View", listing.view)}
               {fieldRow("Furnished", listing.furnished ? listing.furnished.charAt(0) + listing.furnished.slice(1).toLowerCase() : null)}
+              {fieldRow("Status", listing.occupancy ? OCCUPANCY_LABELS[listing.occupancy] : null)}
               {fieldRow("Handover", listing.handover)}
+              {fieldRow("Cheques", listing.chequeCount)}
               {fieldRow("Parking", listing.parkingSpots ? `${listing.parkingSpots} spot${listing.parkingSpots > 1 ? "s" : ""}` : null)}
               {listing.isRented && fieldRow("Rental income", listing.rentAmount ? formatPrice(listing.rentAmount) + "/yr" : "Rented")}
             </div>

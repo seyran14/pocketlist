@@ -27,6 +27,7 @@ model User {
   accounts      Account[]
   notifications Notification[]
   photos        ListingPhoto[]
+  documents     OwnerDocument[]
 }
 
 enum Role {
@@ -75,6 +76,8 @@ model Listing {
   isRented      Boolean         @default(false)
   rentAmount    Float?
   rentedUntil   String?
+  occupancy     Occupancy?
+  chequeCount   Int?
 
   description   String?
   viewCount     Int             @default(0)
@@ -85,6 +88,57 @@ model Listing {
   savedBy       SavedListing[]
   notifications Notification[]
   photos        ListingPhoto[]
+  documents     OwnerDocument[]
+  review        ListingReview?
+}
+
+// Kept out of Listing so that no public query can return these by accident.
+model ListingReview {
+  listingId      String    @id
+  propertyNumber String
+  isExclusive    Boolean
+  amountPaid     Float?
+  poaAvailable   Boolean
+  checks         String?
+  note           String?
+  reviewedAt     DateTime?
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+}
+
+// Encrypted files live on disk at <DOCUMENTS_DIR>/<id>.enc and are only served
+// through the admin area. listingId stays null for identity documents, and for
+// title deeds until the listing is submitted.
+model OwnerDocument {
+  id         String       @id
+  createdAt  DateTime     @default(now())
+  kind       DocumentKind
+  mimeType   String
+  fileName   String
+  sha256     String
+  deedNumber String?
+  uploaderId String
+  listingId  String?
+
+  uploader User     @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+  listing  Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([uploaderId, kind])
+  @@index([listingId])
+  @@index([sha256])
+  @@index([deedNumber])
+}
+
+enum DocumentKind {
+  TITLE_DEED
+  PASSPORT
+  EMIRATES_ID
+}
+
+enum Occupancy {
+  VACANT
+  RENTED
+  OFFPLAN
 }
 
 // Files live on disk at <UPLOAD_DIR>/<id>.webp and <id>-thumb.webp.
@@ -108,6 +162,8 @@ enum ListingStatus {
   RESERVED
   SOLD
   EXPIRED
+  PENDING_REVIEW
+  REJECTED
 }
 
 enum ListingType {
@@ -164,6 +220,8 @@ enum NotifType {
   LISTING_EXPIRING
   LISTING_EXPIRED
   CONTACT_REVEALED
+  LISTING_APPROVED
+  LISTING_REJECTED
 }
 
 model Account {

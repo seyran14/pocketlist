@@ -1,3 +1,4 @@
+import { SiteFooter } from "@/components/SiteFooter"
 import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 import { ThemeProvider } from "next-themes"
@@ -27,6 +28,7 @@ export default function RootLayout({
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
+            <SiteFooter />
             <Toaster />
           </ThemeProvider>
         </PostHogProvider>

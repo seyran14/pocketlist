@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
@@ -37,6 +38,7 @@ export default async function AdminPage({
     newUsers,
     recentListings,
     allUsers,
+    pendingReviews,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { role: "AGENT" } }),
@@ -68,6 +70,7 @@ export default async function AdminPage({
         _count: { select: { listings: true } },
       },
     }),
+    prisma.listing.count({ where: { status: "PENDING_REVIEW" } }),
   ])
 
   const stats: { label: string; value: number }[] = [
@@ -87,6 +90,9 @@ export default async function AdminPage({
         <div className="card-animate flex items-center justify-between mb-1">
           <div>
             <h1 className="text-2xl font-bold">Admin</h1>
+            <Link href="/admin/reviews" className="text-sm underline underline-offset-4">
+              Listings to review ({pendingReviews})
+            </Link>
             <p className="text-sm text-muted-foreground">PocketList overview</p>
           </div>
         </div>

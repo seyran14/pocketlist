@@ -8,7 +8,7 @@ DEST="$(cd "$(dirname "$0")/.." && pwd)/backups"
 KEEP_DAYS=30
 STAMP=$(date +%F-%H%M)
 
-mkdir -p "$DEST/db" "$DEST/uploads"
+mkdir -p "$DEST/db" "$DEST/uploads" "$DEST/private-docs"
 
 # .backup is safe while the app is writing; a plain cp of dev.db is not.
 ssh -o BatchMode=yes -o ConnectTimeout=20 "$SERVER" \
@@ -21,6 +21,8 @@ mv "$DEST/db/.incoming.db" "$DEST/db/prod-$STAMP.db"
 
 # No --delete: a photo lost on the server must survive here.
 rsync -a -e "ssh -o BatchMode=yes" "$SERVER:$APP/uploads/" "$DEST/uploads/"
+# Encrypted on the server and stay encrypted here: DOCUMENTS_KEY isn't copied.
+rsync -a -e "ssh -o BatchMode=yes" "$SERVER:$APP/private-docs/" "$DEST/private-docs/"
 
 find "$DEST/db" -name 'prod-*.db' -mtime +"$KEEP_DAYS" -delete
 

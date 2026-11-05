@@ -14,7 +14,7 @@ export default async function SavedPage() {
   if (session.user.role !== "BUYER") redirect("/dashboard")
 
   const saved = await prisma.savedListing.findMany({
-    where: { userId: session.user.id },
+    where: { userId: session.user.id, listing: { status: { notIn: ["PENDING_REVIEW", "REJECTED"] } } },
     include: {
       listing: {
         select: {

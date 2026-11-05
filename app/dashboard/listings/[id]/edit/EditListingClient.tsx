@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
-import { ParsedUnitCard, type UnitFormValues } from "@/components/listings/ParsedUnitCard"
+import { ParsedUnitCard, type UnitData, type UnitFormValues } from "@/components/listings/ParsedUnitCard"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -15,7 +15,6 @@ import {
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
-import type { ParsedListing } from "@/lib/ai"
 
 export function EditListingClient() {
   const params = useParams<{ id: string }>()
@@ -24,7 +23,7 @@ export function EditListingClient() {
     ACTIVE: "Active", RESERVED: "Under Offer", SOLD: "Sold",
   }
 
-  const [listing, setListing] = useState<(ParsedListing & { status: string; photos: { id: string }[] }) | null>(null)
+  const [listing, setListing] = useState<(UnitData & { status: string; reviewNote: string | null }) | null>(null)
   const [formValues, setFormValues] = useState<UnitFormValues | null>(null)
   const [status, setStatus] = useState("ACTIVE")
   const [listingType, setListingType] = useState<"SALE" | "RENT">("SALE")
@@ -45,6 +44,8 @@ export function EditListingClient() {
       })
   }, [params.id])
 
+  const inReview = listing?.status === "PENDING_REVIEW" || listing?.status === "REJECTED"
+
   async function handleSave() {
     if (!formValues) return
     setSaving(true)
@@ -54,9 +55,12 @@ export function EditListingClient() {
       body: JSON.stringify({ ...formValues, status, listingType }),
     })
     setSaving(false)
+    const data = await res.json().catch(() => ({}))
     if (res.ok) {
-      toast.success("Listing updated")
+      toast.success(data.status === "PENDING_REVIEW" ? "Sent for review. We'll email you when it's live." : "Listing updated")
       router.push("/dashboard")
+    } else if (data.error === "missing_fields") {
+      toast.error(`Add ${data.fields.join(", ")}.`)
     } else {
       toast.error("Failed to save changes")
     }
@@ -97,6 +101,25 @@ export function EditListingClient() {
         </div>
       ) : (
         <div className="space-y-4">
+          {inReview && (
+            <div role="status" className="rounded-xl border bg-card p-4 text-sm">
+              <p className="font-medium">
+                {listing.status === "REJECTED" ? "This listing needs changes" : "This listing is waiting for review"}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                {listing.reviewNote ?? "It isn't visible to buyers yet."}
+                {listing.status === "REJECTED" && " Save your changes to send it back for review."}
+              </p>
+            </div>
+          )}
+
+          {!inReview && (
+            <p className="text-xs text-muted-foreground">
+              Changing the building, location, type, area, parking, property number or title deed sends this listing back
+              for review, and it&apos;s hidden until approved.
+            </p>
+          )}
+
           <ParsedUnitCard
             index={0}
             total={1}
@@ -106,7 +129,7 @@ export function EditListingClient() {
             onUploadingChange={setUploading}
           />
 
-          <div className="rounded-xl border bg-card p-4">
+          {!inReview && <div className="rounded-xl border bg-card p-4">
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">Status</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v)}>
@@ -120,7 +143,7 @@ export function EditListingClient() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </div>}
 
           <Separator />
 
@@ -163,7 +186,7 @@ export function EditListingClient() {
                 Cancel
               </Button>
               <Button onClick={handleSave} disabled={saving || deleting || uploading || !listing}>
-                {uploading ? "Uploading photos…" : saving ? "Saving…" : "Save changes"}
+                {uploading ? "Uploading…" : saving ? "Saving…" : "Save changes"}
               </Button>
             </div>
           </div>

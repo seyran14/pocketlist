@@ -3,9 +3,9 @@ import { Resend } from "resend"
 import { supportEmailHtml } from "@/lib/emails/supportEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
+import { SUPPORT_EMAIL } from "@/lib/utils"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-const SUPPORT_INBOX = "saparovseyran@gmail.com"
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
@@ -35,13 +35,15 @@ export async function POST(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const pageUrl = typeof body.pageUrl === "string" ? body.pageUrl : undefined
 
-    await resend.emails.send({
+    // Resend reports most failures in the result rather than by throwing.
+    const { error } = await resend.emails.send({
       from: "PocketList <noreply@rncn8n.com>",
-      to: SUPPORT_INBOX,
+      to: SUPPORT_EMAIL,
       replyTo: email,
       subject: `[poketlist support] message from ${email}`,
       html: supportEmailHtml({ fromEmail: email, message: trimmed, pageUrl }),
     })
+    if (error) throw new Error(error.message)
 
     logger.info("support.sent", {
       fromEmail: logger.maskEmail(email),

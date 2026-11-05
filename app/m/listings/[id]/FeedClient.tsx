@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { SupportButton } from "@/components/SupportButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { cn, formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
 
@@ -214,6 +215,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   </Link>
                   <span className="text-sm font-medium truncate flex-1">{l.projectName}</span>
                   <span className="text-xs text-muted-foreground shrink-0">{daysAgo(new Date(l.createdAt))}</span>
+                  <SupportButton />
                 </div>
 
                 <div className="px-4 py-4 space-y-4">

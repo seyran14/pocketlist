@@ -1,13 +1,20 @@
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+}
+
 export function supportEmailHtml({
-  fromEmail,
+  fromEmail: rawEmail,
   message,
-  pageUrl,
+  pageUrl: rawPageUrl,
 }: {
   fromEmail: string
   message: string
   pageUrl?: string
 }): string {
-  const safeMessage = message.replace(/\n/g, "<br />")
+  // Anyone can submit this form, so nothing from it goes into the HTML as is.
+  const fromEmail = escapeHtml(rawEmail)
+  const pageUrl = rawPageUrl && escapeHtml(rawPageUrl)
+  const safeMessage = escapeHtml(message).replace(/\n/g, "<br />")
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

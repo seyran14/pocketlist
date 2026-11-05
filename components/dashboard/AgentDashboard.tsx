@@ -21,6 +21,7 @@ type Listing = {
   status: string
   createdAt: string
   viewCount: number
+  review: { note: string | null } | null
 }
 
 type Props = {
@@ -36,6 +37,8 @@ const STATUS_LABELS: Record<string, { label: string; variant: "default" | "secon
   RESERVED: { label: "Under Offer", variant: "secondary" },
   SOLD: { label: "Sold", variant: "outline" },
   EXPIRED: { label: "Expired", variant: "destructive" },
+  PENDING_REVIEW: { label: "In Review", variant: "secondary" },
+  REJECTED: { label: "Needs Changes", variant: "destructive" },
 }
 
 function bedsValue(bedrooms: string | null): number {
@@ -74,7 +77,7 @@ function SortTh({
 
 export function AgentDashboard({ listings }: Props) {
   const router = useRouter()
-  const [statusFilter, setStatusFilter] = useState<string[]>(["ACTIVE", "RESERVED"])
+  const [statusFilter, setStatusFilter] = useState<string[]>(["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED"])
   const [isPending, startTransition] = useTransition()
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [sorts, setSorts] = useState<SortEntry[]>([])
@@ -155,8 +158,12 @@ export function AgentDashboard({ listings }: Props) {
   }
 
   async function bulkUpdateStatus(status: string) {
+    // Listings under review only change status through the reviewer.
+    const ids = listings
+      .filter((l) => selectedIds.has(l.id) && !["PENDING_REVIEW", "REJECTED"].includes(l.status))
+      .map((l) => l.id)
     await Promise.all(
-      Array.from(selectedIds).map((id) =>
+      ids.map((id) =>
         fetch(`/api/listings/${id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -164,7 +171,7 @@ export function AgentDashboard({ listings }: Props) {
         })
       )
     )
-    toast.success(`${selectedIds.size} listing${selectedIds.size > 1 ? "s" : ""} marked as ${STATUS_LABELS[status]?.label ?? status}`)
+    toast.success(`${ids.length} listing${ids.length !== 1 ? "s" : ""} marked as ${STATUS_LABELS[status]?.label ?? status}`)
     clearSelection()
     startTransition(() => router.refresh())
   }
@@ -192,7 +199,7 @@ export function AgentDashboard({ listings }: Props) {
             onValueChange={(v) => setStatusFilter(v.length ? v : ["ACTIVE"])}
             className="gap-1"
           >
-            {["ACTIVE", "RESERVED", "SOLD", "EXPIRED"].map((s) => (
+            {["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED", "SOLD", "EXPIRED"].map((s) => (
               <ToggleGroupItem key={s} value={s} className="h-7 px-3 text-xs">
                 {STATUS_LABELS[s].label}
               </ToggleGroupItem>
@@ -308,6 +315,11 @@ export function AgentDashboard({ listings }: Props) {
                     <Link href={`/listings/${l.id}`} className="font-medium hover:underline truncate block max-w-[140px]">
                       {l.projectName}
                     </Link>
+                    {l.status === "REJECTED" && l.review?.note && (
+                      <Link href={`/dashboard/listings/${l.id}/edit`} className="mt-0.5 block max-w-[240px] text-xs text-destructive hover:underline">
+                        {l.review.note}
+                      </Link>
+                    )}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">{l.location}</td>
                   <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{formatBeds(l.bedrooms)}</td>

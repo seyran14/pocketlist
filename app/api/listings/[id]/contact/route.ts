@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { isPublicStatus } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
@@ -32,7 +33,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     },
   })
 
-  if (!listing) {
+  if (!listing || !isPublicStatus(listing.status)) {
     logger.warn("contact.listing_not_found", { listingId: id, userId: session.user.id })
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }

@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { LifeBuoy, Mail } from "lucide-react"
+import { SUPPORT_EMAIL } from "@/lib/utils"
 
 export function SupportButton() {
   const [open, setOpen] = useState(false)
@@ -134,6 +135,13 @@ export function SupportButton() {
               <Button type="submit" className="w-full" disabled={sending || !email || !message.trim()}>
                 {sending ? "Sending…" : "Send message →"}
               </Button>
+
+              <p className="text-center text-xs text-muted-foreground">
+                Or email us at{" "}
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="underline underline-offset-4 hover:text-foreground">
+                  {SUPPORT_EMAIL}
+                </a>
+              </p>
             </form>
           )}
         </DialogContent>

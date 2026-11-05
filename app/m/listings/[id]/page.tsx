@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { isPublicStatus } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { FeedClient } from "./FeedClient"
 
@@ -23,7 +24,7 @@ export default async function MobileFeedPage({
     }),
   ])
 
-  if (!targetListing || targetListing.status === "EXPIRED") notFound()
+  if (!targetListing || !isPublicStatus(targetListing.status)) notFound()
 
   const rest = await prisma.listing.findMany({
     where: {

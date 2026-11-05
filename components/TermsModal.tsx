@@ -56,7 +56,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">3. Owner Responsibilities</p>
-              <p>Owners are solely responsible for the accuracy of their listings. All property details, photos, prices, and availability must be truthful and up to date, and you must have the right to publish every photo you upload. Misrepresentation may result in account suspension.</p>
+              <p>Owners are solely responsible for the accuracy of their listings. All property details, photos, prices, and availability must be truthful and up to date, and you must have the right to publish every photo you upload. To list a property you must provide your title deed and passport, and may provide your Emirates ID. Listings are published only after we review them. Misrepresentation may result in account suspension.</p>
             </div>
 
             <div className="space-y-1">
@@ -93,7 +93,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">1. Data We Collect</p>
-              <p>We collect your email address and name when you register, listing information and photos you submit, and usage data (pages visited, clicks, session behaviour) to improve the platform.</p>
+              <p>We collect your email address and name when you register, listing information and photos you submit, your title deed, passport and, if provided, Emirates ID, and usage data (pages visited, clicks, session behaviour) to improve the platform. Identity and ownership documents are stored encrypted, used only to verify that you own the property, never shown to other users, and deleted when you delete the listing or your account.</p>
             </div>
 
             <div className="space-y-1">

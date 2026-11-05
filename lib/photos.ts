@@ -108,6 +108,17 @@ export async function storePhoto(input: Buffer): Promise<string> {
   return id
 }
 
+// Same re-encode as a photo: drops EXIF and makes HEIC viewable in a browser.
+export async function encodeDocumentImage(input: Buffer) {
+  try {
+    const image = await openImage(input)
+    return await image.rotate().resize(FULL_SIDE, FULL_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: 85 }).toBuffer()
+  } catch (err) {
+    if (err instanceof InvalidPhotoError) throw err
+    throw new InvalidPhotoError("We couldn't read this file. Use a PDF or a photo.")
+  }
+}
+
 export async function readPhotoFile(fileName: string): Promise<Buffer | null> {
   if (!FILE_NAME.test(fileName)) return null
   return readFile(join(UPLOAD_DIR, fileName)).catch(() => null)
