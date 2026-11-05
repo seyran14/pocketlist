@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -9,6 +10,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default async function SavedPage() {
+  const t = await getT()
   const session = await auth()
   if (!session?.user) redirect("/login")
   if (session.user.role !== "BUYER") redirect("/dashboard")
@@ -49,16 +51,16 @@ export default async function SavedPage() {
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <div className="card-animate flex items-center justify-between mb-1">
-          <h1 className="text-2xl font-bold">Saved Listings</h1>
+          <h1 className="text-2xl font-bold">{t("Saved Listings")}</h1>
           <span className="text-sm text-muted-foreground">{active.length} saved</span>
         </div>
         <Separator className="mb-6" />
 
         {active.length === 0 ? (
           <div className="rounded-xl border bg-card py-20 text-center">
-            <p className="text-muted-foreground text-sm mb-4">No saved listings yet.</p>
+            <p className="text-muted-foreground text-sm mb-4">{t("No saved listings yet.")}</p>
             <Link href="/">
-              <Button variant="outline" size="sm">Browse listings</Button>
+              <Button variant="outline" size="sm">{t("Browse listings")}</Button>
             </Link>
           </div>
         ) : (
@@ -76,13 +78,13 @@ export default async function SavedPage() {
                     "use server"
                     await unsaveListingAction(s.id)
                   }}
-                  className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover/saved:opacity-100 transition-opacity"
+                  className="absolute top-2 end-2 opacity-100 sm:opacity-0 sm:group-hover/saved:opacity-100 transition-opacity"
                 >
                   <button
                     type="submit"
                     className="rounded-lg bg-background/90 border px-2 py-1 text-xs text-muted-foreground hover:text-destructive hover:border-destructive transition-colors backdrop-blur"
                   >
-                    Remove
+                    {t("Remove")}
                   </button>
                 </form>
               </div>

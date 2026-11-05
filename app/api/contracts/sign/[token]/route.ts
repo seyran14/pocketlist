@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
-import { contractUrl, findContractByToken, sendContractEmail } from "@/lib/contracts"
+import { findContractByToken, sendContractEmail } from "@/lib/contracts"
 import { deleteDocuments, readDocument, storeGeneratedPdf } from "@/lib/documents"
 import { addTenantToPdf } from "@/lib/tenancy-pdf"
 import { tenantContractSchema } from "@/lib/tenancy-shared"
@@ -33,9 +33,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
     const { count } = await prisma.tenancyContract.updateMany({
       where: { id: contract.id, status: "AWAITING_TENANT" },
       data: {
-        status: "COMPLETED",
+        status: "AWAITING_OWNER",
         documentId: document.id,
-        pdfSha256: document.sha256,
         tenantName: parsed.data.tenantName,
         tenantSignedAt: signedAt,
         tenantIp: ip,
@@ -53,24 +52,17 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ token: str
         userId: contract.ownerId,
         listingId: contract.listingId,
         type: "CONTRACT_SIGNED",
-        message: `${parsed.data.tenantName} signed the tenancy contract. Register it on Ejari.`,
+        message: `${parsed.data.tenantName} signed the tenancy contract. Check it and add your signature.`,
       },
     })
-    const body = "Both parties have signed. The contract takes effect once the landlord registers it on Ejari."
     if (owner) {
-      await sendContractEmail(owner.email, "Your tenancy contract is signed", {
+      await sendContractEmail(owner.email, "The tenant signed. Your signature is next", {
         heading: "The tenant signed your contract",
-        body,
-        url: `${(process.env.NEXT_PUBLIC_BASE_URL ?? "https://pocketlist.ae")}/dashboard/listings/${contract.listingId}/contract`,
-        action: "Download the contract",
+        body: `${parsed.data.tenantName} added their details and signed. Check that everything is right, then add your signature. Both of you will get the finished contract by email.`,
+        url: `${process.env.NEXT_PUBLIC_BASE_URL ?? "https://pocketlist.ae"}/dashboard/listings/${contract.listingId}/contract`,
+        action: "Review and sign",
       })
     }
-    await sendContractEmail(contract.tenantEmail, "Your tenancy contract is signed", {
-      heading: "Your tenancy contract is signed",
-      body,
-      url: contractUrl(token),
-      action: "Download the contract",
-    })
 
     logger.info("contract.tenant_signed", { contractId: contract.id })
     return NextResponse.json({ ok: true })

@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { ImagePlus, Star, X } from "lucide-react"
@@ -14,6 +15,7 @@ type Props = {
 }
 
 export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props) {
+  const t = useT()
   const [ids, setIds] = useState(initialIds)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -35,7 +37,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
   async function upload(files: File[]) {
     const room = MAX_PHOTOS_PER_LISTING - ids.length
     if (files.length > room) {
-      toast.error(`You can add ${room} more photo${room !== 1 ? "s" : ""} (${MAX_PHOTOS_PER_LISTING} max).`)
+      toast.error(t("Photos you can still add: {room}, out of {max}.", { room, max: MAX_PHOTOS_PER_LISTING }))
     }
     const batch = files.slice(0, room)
     if (batch.length === 0) return
@@ -44,7 +46,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
     setProgress({ done: 0, total: batch.length })
     for (const [i, file] of batch.entries()) {
       if (file.size > MAX_PHOTO_BYTES) {
-        toast.error(`${file.name} is larger than ${MAX_PHOTO_MB} MB.`)
+        toast.error(t("{name} is larger than {mb} MB.", { name: file.name, mb: MAX_PHOTO_MB }))
       } else {
         const body = new FormData()
         body.append("file", file)
@@ -54,7 +56,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
           if (res.ok) setIds((prev) => [...prev, data.id])
           else toast.error(`${file.name}: ${data.error ?? "upload failed"}`)
         } catch {
-          toast.error(`${file.name}: network error`)
+          toast.error(`${file.name}: ${t("Network error. Please try again.")}`)
         }
       }
       setProgress({ done: i + 1, total: batch.length })
@@ -73,7 +75,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs text-muted-foreground">Photos</span>
+        <span className="text-xs text-muted-foreground">{t("Photos")}</span>
         <span className="text-xs text-muted-foreground tabular-nums">
           {ids.length} / {MAX_PHOTOS_PER_LISTING}
         </span>
@@ -84,16 +86,16 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
           <div key={id} className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
             <Image src={photoUrl(id, "thumb")} alt={`Photo ${i + 1}`} fill unoptimized className="object-cover" />
             {i === 0 ? (
-              <span className="absolute left-1 bottom-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                Cover
+              <span className="absolute start-1 bottom-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                {t("Cover")}
               </span>
             ) : (
               <button
                 type="button"
                 onClick={() => makeCover(id)}
                 aria-label={`Make photo ${i + 1} the cover`}
-                title="Make cover"
-                className="absolute left-1 bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                title={t("Make cover")}
+                className="absolute start-1 bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
               >
                 <Star size={14} />
               </button>
@@ -102,8 +104,8 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
               type="button"
               onClick={() => remove(id)}
               aria-label={`Remove photo ${i + 1}`}
-              title="Remove"
-              className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+              title={t("Remove")}
+              className="absolute end-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
             >
               <X size={14} />
             </button>
@@ -122,7 +124,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
           >
             <ImagePlus size={20} />
             <span className="px-1 text-center text-xs tabular-nums">
-              {progress ? `${progress.done} of ${progress.total}` : "Add photos"}
+              {progress ? t("{done} of {total}", progress) : t("Add photos")}
             </span>
           </button>
         )}
@@ -142,7 +144,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
       />
 
       <p className="text-xs text-muted-foreground">
-        JPG, PNG, HEIC, WebP and other photo formats, up to {MAX_PHOTO_MB} MB each. The first photo is the cover.
+        {t("JPG, PNG, HEIC, WebP and other photo formats, up to {mb} MB each. The first photo is the cover.", { mb: MAX_PHOTO_MB })}
       </p>
     </div>
   )

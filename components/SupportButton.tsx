@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import posthog from "posthog-js"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { LifeBuoy, Mail } from "lucide-react"
 import { SUPPORT_EMAIL } from "@/lib/utils"
 
 export function SupportButton() {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [message, setMessage] = useState("")
@@ -39,14 +41,14 @@ export function SupportButton() {
       })
       if (!res.ok) {
         const data = await res.json().catch(() => null)
-        setError(data?.error ?? "Something went wrong. Please try again.")
+        setError(data?.error ?? t("Something went wrong. Please try again."))
         setSending(false)
         return
       }
       posthog.capture("support_message_sent")
       setSent(true)
     } catch {
-      setError("Something went wrong. Please try again.")
+      setError(t("Something went wrong. Please try again."))
     }
     setSending(false)
   }
@@ -73,13 +75,13 @@ export function SupportButton() {
         onClick={() => setOpen(true)}
       >
         <LifeBuoy size={15} />
-        <span className="hidden sm:inline">Support</span>
+        <span className="hidden sm:inline">{t("Support")}</span>
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>{sent ? "Thank you!" : "Contact support"}</DialogTitle>
+            <DialogTitle>{sent ? t("Thank you!") : t("Contact support")}</DialogTitle>
           </DialogHeader>
 
           {sent ? (
@@ -97,22 +99,22 @@ export function SupportButton() {
                 </svg>
               </div>
               <div className="text-center space-y-0.5">
-                <p className="text-sm font-medium">Message sent!</p>
-                <p className="text-xs text-muted-foreground">We&apos;ll get back to you by email shortly.</p>
+                <p className="text-sm font-medium">{t("Message sent!")}</p>
+                <p className="text-xs text-muted-foreground">{t("We'll get back to you by email shortly.")}</p>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3 pt-1">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Have a question, an issue, or a suggestion for the site? Drop us a line — we read every message.
+                {t("Have a question, an issue, or a suggestion for the site? Drop us a line — we read every message.")}
               </p>
 
               {/* Email — required */}
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  className="pl-9"
-                  placeholder="Your email"
+                  className="ps-9"
+                  placeholder={t("Your email")}
                   type="email"
                   required
                   value={email}
@@ -122,7 +124,7 @@ export function SupportButton() {
 
               {/* Message — required */}
               <Textarea
-                placeholder="What's on your mind? Concerns or suggestions for the site…"
+                placeholder={t("What's on your mind? Concerns or suggestions for the site…")}
                 className="resize-none text-sm"
                 rows={4}
                 required
@@ -133,11 +135,11 @@ export function SupportButton() {
               {error && <p className="text-sm text-destructive">{error}</p>}
 
               <Button type="submit" className="w-full" disabled={sending || !email || !message.trim()}>
-                {sending ? "Sending…" : "Send message →"}
+                {sending ? t("Sending…") : t("Send message →")}
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Or email us at{" "}
+                {t("Or email us at")}{" "}
                 <a href={`mailto:${SUPPORT_EMAIL}`} className="underline underline-offset-4 hover:text-foreground">
                   {SUPPORT_EMAIL}
                 </a>

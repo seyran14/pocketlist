@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { cn, formatPrice, formatBeds, daysAgo } from "@/lib/utils"
+import { cn, formatPrice, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
 import { toast } from "sonner"
 
 type Listing = {
@@ -57,7 +58,7 @@ function SortTh({
   const idx = sorts.findIndex((s) => s.key === col)
   const isMulti = sorts.length > 1
   return (
-    <th className={cn("px-4 py-2.5 font-medium", className)}>
+    <th className={cn("px-2.5 py-2.5 font-medium", className)}>
       <button
         className={cn("flex items-center gap-1 hover:text-foreground transition-colors", entry && "text-foreground")}
         onClick={() => onSort(col)}
@@ -77,6 +78,7 @@ function SortTh({
 }
 
 export function AgentDashboard({ listings }: Props) {
+  const t = useT()
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<string[]>(["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED"])
   const [isPending, startTransition] = useTransition()
@@ -132,7 +134,7 @@ export function AgentDashboard({ listings }: Props) {
       body: JSON.stringify({ status }),
     })
     if (res.ok) {
-      toast.success(`${name} marked as ${STATUS_LABELS[status]?.label ?? status}`)
+      toast.success(t("{name}: {status}", { name, status: t(STATUS_LABELS[status]?.label ?? status) }))
       startTransition(() => router.refresh())
     }
   }
@@ -144,7 +146,7 @@ export function AgentDashboard({ listings }: Props) {
       body: JSON.stringify({ action: "refresh" }),
     })
     if (res.ok) {
-      toast.success(`${name} renewed for 30 days`)
+      toast.success(t("{name} renewed for 30 days", { name }))
       startTransition(() => router.refresh())
     }
   }
@@ -152,7 +154,7 @@ export function AgentDashboard({ listings }: Props) {
   async function deleteListing(id: string, name: string) {
     const res = await fetch(`/api/listings/${id}`, { method: "DELETE" })
     if (res.ok || res.status === 204) {
-      toast.success(`${name} deleted`)
+      toast.success(t("{name} deleted", { name }))
       setConfirmDeleteId(null)
       startTransition(() => router.refresh())
     }
@@ -172,7 +174,7 @@ export function AgentDashboard({ listings }: Props) {
         })
       )
     )
-    toast.success(`${ids.length} listing${ids.length !== 1 ? "s" : ""} marked as ${STATUS_LABELS[status]?.label ?? status}`)
+    toast.success(t("Updated: {n}", { n: ids.length }))
     clearSelection()
     startTransition(() => router.refresh())
   }
@@ -183,7 +185,7 @@ export function AgentDashboard({ listings }: Props) {
         fetch(`/api/listings/${id}`, { method: "DELETE" })
       )
     )
-    toast.success(`${selectedIds.size} listing${selectedIds.size > 1 ? "s" : ""} deleted`)
+    toast.success(t("Deleted: {n}", { n: selectedIds.size }))
     clearSelection()
     startTransition(() => router.refresh())
   }
@@ -202,7 +204,7 @@ export function AgentDashboard({ listings }: Props) {
           >
             {["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED", "SOLD", "EXPIRED"].map((s) => (
               <ToggleGroupItem key={s} value={s} className="h-7 px-3 text-xs">
-                {STATUS_LABELS[s].label}
+                {t(STATUS_LABELS[s].label)}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -212,7 +214,7 @@ export function AgentDashboard({ listings }: Props) {
               size="sm" variant="ghost" className="h-7 px-3 text-xs text-muted-foreground"
               onClick={() => setSorts([])}
             >
-              Reset sort
+              {t("Reset sort")}
             </Button>
           )}
 
@@ -234,19 +236,19 @@ export function AgentDashboard({ listings }: Props) {
                 <>
                   <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={isPending}
                     onClick={() => bulkUpdateStatus("RESERVED")}>
-                    Reserve
+                    {t("Reserve")}
                   </Button>
                   <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={isPending}
                     onClick={() => bulkUpdateStatus("ACTIVE")}>
-                    Unreserve
+                    {t("Unreserve")}
                   </Button>
                   <Button size="sm" variant="outline" className="h-7 px-2 text-xs" disabled={isPending}
                     onClick={() => bulkUpdateStatus("SOLD")}>
-                    Sold
+                    {t("Sold")}
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
                     onClick={() => setConfirmBulkDelete(true)}>
-                    Delete
+                    {t("Delete")}
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground"
                     onClick={clearSelection}>
@@ -261,14 +263,14 @@ export function AgentDashboard({ listings }: Props) {
                   </Button>
                   <Button size="sm" variant="ghost" className="h-7 px-2 text-xs"
                     onClick={() => setConfirmBulkDelete(false)}>
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                 </>
               )}
             </>
           ) : (
             <Link href="/dashboard/listings/new">
-              <Button size="sm">+ Add listing</Button>
+              <Button size="sm">{t("+ Add listing")}</Button>
             </Link>
           )}
         </div>
@@ -277,22 +279,22 @@ export function AgentDashboard({ listings }: Props) {
       {sorted.length === 0 ? (
         <div className="rounded-xl border bg-card py-16 text-center text-muted-foreground text-sm">
           No listings with the selected status.{" "}
-          <Link href="/dashboard/listings/new" className="underline underline-offset-4">Add your first listing →</Link>
+          <Link href="/dashboard/listings/new" className="underline underline-offset-4">{t("Add your first listing →")}</Link>
         </div>
       ) : (
         <div className="rounded-xl border bg-card overflow-x-auto">
-          <table className="w-full text-sm min-w-[480px]">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
                 <th className="w-10 px-3 py-2.5" />
-                <SortTh col="projectName" label="Project" className="text-left" sorts={sorts} onSort={handleSort} />
-                <th className="text-left px-4 py-2.5 font-medium hidden sm:table-cell">Location</th>
-                <SortTh col="bedrooms" label="Beds" className="text-left hidden md:table-cell" sorts={sorts} onSort={handleSort} />
-                <SortTh col="price" label="Price" className="text-left" sorts={sorts} onSort={handleSort} />
-                <th className="text-left px-4 py-2.5 font-medium hidden sm:table-cell">Status</th>
-                <SortTh col="createdAt" label="Posted" className="text-left hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
-                <SortTh col="viewCount" label="Views" className="text-left hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
-                <th className="px-4 py-2.5 w-56" />
+                <SortTh col="projectName" label={t("Project")} className="text-start" sorts={sorts} onSort={handleSort} />
+                <th className="text-start px-2.5 py-2.5 font-medium hidden lg:table-cell">{t("Location")}</th>
+                <SortTh col="bedrooms" label={t("Beds")} className="text-start hidden md:table-cell" sorts={sorts} onSort={handleSort} />
+                <SortTh col="price" label={t("Price")} className="text-start" sorts={sorts} onSort={handleSort} />
+                <th className="text-start px-2.5 py-2.5 font-medium hidden sm:table-cell">{t("Status")}</th>
+                <SortTh col="createdAt" label={t("Posted")} className="text-start hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
+                <SortTh col="viewCount" label={t("Views")} className="text-start hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
+                <th className="px-2.5 py-2.5" />
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -309,11 +311,11 @@ export function AgentDashboard({ listings }: Props) {
                     <Checkbox
                       checked={selectedIds.has(l.id)}
                       onCheckedChange={() => toggleSelect(l.id)}
-                      aria-label={`Select ${l.projectName}`}
+                      aria-label={t("Select {name}", { name: l.projectName })}
                     />
                   </td>
-                  <td className="px-4 py-3">
-                    <Link href={`/listings/${l.id}`} className="font-medium hover:underline truncate block max-w-[140px]">
+                  <td className="px-2.5 py-3">
+                    <Link href={`/listings/${l.id}`} className="font-medium hover:underline truncate block max-w-[170px]">
                       {l.projectName}
                     </Link>
                     {l.status === "REJECTED" && l.review?.note && (
@@ -322,67 +324,67 @@ export function AgentDashboard({ listings }: Props) {
                       </Link>
                     )}
                   </td>
-                  <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">{l.location}</td>
-                  <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">{formatBeds(l.bedrooms)}</td>
-                  <td className="px-4 py-3 font-medium tabular-nums whitespace-nowrap">{l.priceLabel ?? formatPrice(l.price)}</td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
+                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground">{l.location}</td>
+                  <td className="px-2.5 py-3 hidden md:table-cell text-muted-foreground">{formatBeds(l.bedrooms, t)}</td>
+                  <td className="px-2.5 py-3 font-medium tabular-nums whitespace-nowrap">{l.priceLabel ? localizePriceLabel(l.priceLabel, t) : formatPrice(l.price)}</td>
+                  <td className="px-2.5 py-3 hidden sm:table-cell">
                     <Badge variant={STATUS_LABELS[l.status]?.variant ?? "outline"} className="text-xs">
-                      {STATUS_LABELS[l.status]?.label ?? l.status}
+                      {t(STATUS_LABELS[l.status]?.label ?? l.status)}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
-                    {daysAgo(new Date(l.createdAt))}
+                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground text-xs">
+                    {daysAgo(new Date(l.createdAt), t)}
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs tabular-nums">
+                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground text-xs tabular-nums">
                     {l.viewCount}
                   </td>
-                  <td className="px-4 py-3 w-56">
-                    <div className="relative flex items-center justify-end h-7">
+                  <td className="px-2.5 py-3">
+                    <div className="relative flex items-center justify-end min-h-7">
                       <div className={cn(
-                        "flex items-center gap-1 transition-all duration-150",
+                        "flex flex-wrap items-center justify-end gap-x-0.5 transition-all duration-150",
                         confirmDeleteId === l.id ? "opacity-0 pointer-events-none" : "opacity-100"
                       )}>
                         <Link href={`/dashboard/listings/${l.id}/edit`}>
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Edit</Button>
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">{t("Edit")}</Button>
                         </Link>
                         {l.listingType === "RENT" && (l.status === "ACTIVE" || l.status === "RESERVED") && (
                           <Link href={`/dashboard/listings/${l.id}/contract`}>
-                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs">Contract</Button>
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs">{t("Contract")}</Button>
                           </Link>
                         )}
                         {l.status === "ACTIVE" && (
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                             onClick={() => updateStatus(l.id, "RESERVED", l.projectName)}>
-                            Reserve
+                            {t("Reserve")}
                           </Button>
                         )}
                         {l.status === "RESERVED" && (
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                             onClick={() => updateStatus(l.id, "ACTIVE", l.projectName)}>
-                            Unreserve
+                            {t("Unreserve")}
                           </Button>
                         )}
                         {(l.status === "ACTIVE" || l.status === "RESERVED") && (
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                             onClick={() => updateStatus(l.id, "SOLD", l.projectName)}>
-                            Sold
+                            {t("Sold")}
                           </Button>
                         )}
                         {l.status === "SOLD" && (
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                             onClick={() => updateStatus(l.id, "ACTIVE", l.projectName)}>
-                            Unsold
+                            {t("Unsold")}
                           </Button>
                         )}
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground"
                           disabled={isPending}
                           onClick={() => renewListing(l.id, l.projectName)}>
-                          Renew
+                          {t("Renew")}
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
                           disabled={isPending}
                           onClick={() => setConfirmDeleteId(l.id)}>
-                          Delete
+                          {t("Delete")}
                         </Button>
                       </div>
 
@@ -394,11 +396,11 @@ export function AgentDashboard({ listings }: Props) {
                       )}>
                         <Button variant="destructive" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                           onClick={() => deleteListing(l.id, l.projectName)}>
-                          Confirm
+                          {t("Confirm")}
                         </Button>
                         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs"
                           onClick={() => setConfirmDeleteId(null)}>
-                          Cancel
+                          {t("Cancel")}
                         </Button>
                       </div>
                     </div>

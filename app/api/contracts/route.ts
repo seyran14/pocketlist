@@ -5,7 +5,7 @@ import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
 import { CONTRACT_LINK_DAYS, contractUrl, newContractToken, sendContractEmail } from "@/lib/contracts"
 import { storeGeneratedPdf } from "@/lib/documents"
-import { createOwnerSignedPdf } from "@/lib/tenancy-pdf"
+import { createContractPdf } from "@/lib/tenancy-pdf"
 import { ownerContractSchema } from "@/lib/tenancy-shared"
 import { isPublicStatus } from "@/lib/utils"
 
@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const signedAt = new Date()
+    const createdAt = new Date()
     const { token, tokenHash } = newContractToken()
     const reference = tokenHash.slice(0, 10)
-    const pdf = await createOwnerSignedPdf(contract, reference, signedAt)
+    const pdf = await createContractPdf(contract, reference, createdAt)
     const document = await storeGeneratedPdf(pdf, `tenancy-contract-${reference}.pdf`, userId)
 
     const created = await prisma.tenancyContract.create({
@@ -49,20 +49,19 @@ export async function POST(req: NextRequest) {
         tenantEmail: contract.tenantEmail,
         tenantName: contract.tenantName || null,
         tokenHash,
-        ownerSignedAt: signedAt,
-        linkExpiresAt: new Date(signedAt.getTime() + CONTRACT_LINK_DAYS * 24 * 60 * 60 * 1000),
+        linkExpiresAt: new Date(createdAt.getTime() + CONTRACT_LINK_DAYS * 24 * 60 * 60 * 1000),
       },
     })
 
     const url = contractUrl(token)
     const emailed = await sendContractEmail(contract.tenantEmail, "Your tenancy contract is ready to sign", {
       heading: "Your tenancy contract is ready to sign",
-      body: `${contract.ownerName} signed a tenancy contract for ${listing.projectName}. Read it, add your details and sign. The link works for ${CONTRACT_LINK_DAYS} days.`,
+      body: `${contract.ownerName} prepared a tenancy contract for ${listing.projectName}. Read it, add your details and sign. The owner signs after you. The link works for ${CONTRACT_LINK_DAYS} days.`,
       url,
       action: "Review and sign",
     })
 
-    logger.info("contract.owner_signed", { userId, contractId: created.id, emailed })
+    logger.info("contract.created", { userId, contractId: created.id, emailed })
     return NextResponse.json({ id: created.id, url, emailed }, { status: 201 })
   } catch (err) {
     logger.error("contract.create_failed", err, { userId })

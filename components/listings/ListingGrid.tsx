@@ -1,13 +1,15 @@
+import { getT } from "@/lib/i18n/server"
 import { ListingCard } from "./ListingCard"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type ListingCardData = React.ComponentProps<typeof ListingCard>["listing"]
 
-export function ListingGrid({ listings }: { listings: ListingCardData[] }) {
+export async function ListingGrid({ listings }: { listings: ListingCardData[] }) {
+  const t = await getT()
   if (listings.length === 0) {
     return (
       <div className="col-span-full py-20 text-center text-muted-foreground">
-        No listings match your filters.
+        {t("No listings match your filters.")}
       </div>
     )
   }

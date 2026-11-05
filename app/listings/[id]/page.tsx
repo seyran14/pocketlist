@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
@@ -10,7 +11,7 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus } from "@/lib/utils"
+import { enumLabel, formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel } from "@/lib/utils"
 import Link from "next/link"
 
 const BASE_URL = "https://pocketlist.ae"
@@ -58,6 +59,7 @@ export default async function ListingPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  const t = await getT()
   const { id } = await params
   const [session, listing] = await Promise.all([
     auth(),
@@ -94,8 +96,8 @@ export default async function ListingPage({
     if (!value && value !== 0) return null
     return (
       <div className="flex justify-between py-2.5 border-b border-border last:border-0">
-        <span className="text-sm text-muted-foreground">{label}</span>
-        <span className="text-sm font-medium text-right">{value}</span>
+        <span className="text-sm text-muted-foreground">{t(label)}</span>
+        <span className="text-sm font-medium text-end">{value}</span>
       </div>
     )
   }
@@ -115,18 +117,18 @@ export default async function ListingPage({
 
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {listing.status === "RESERVED" && (
-                <Badge variant="secondary">Under Offer</Badge>
+                <Badge variant="secondary">{t("Under Offer")}</Badge>
               )}
               {listing.isDistress && (
-                <Badge variant="destructive">Distress Deal</Badge>
+                <Badge variant="destructive">{t("Distress Deal")}</Badge>
               )}
               <span className="text-xs text-muted-foreground">
-                {daysAgo(listing.createdAt)}
+                {daysAgo(listing.createdAt, t)}
               </span>
             </div>
 
             <h1 className="text-2xl font-bold mb-1">
-              {listing.title || `${formatBeds(listing.bedrooms)} in ${listing.location}`}
+              {t("{beds} in {location}", { beds: formatBeds(listing.bedrooms, t), location: listing.location })}
             </h1>
             <p className="text-muted-foreground mb-4">
               {listing.projectName}
@@ -134,10 +136,10 @@ export default async function ListingPage({
             </p>
 
             <p className="text-3xl font-bold mb-6">
-              {listing.priceLabel ?? formatPrice(listing.price)}
+              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : formatPrice(listing.price)}
               {listing.isDistress && listing.originalPrice && (
-                <span className="ml-3 text-base font-normal text-muted-foreground line-through">
-                  OP: {formatPrice(listing.originalPrice)}
+                <span className="ms-3 text-base font-normal text-muted-foreground line-through">
+                  {t("OP: {price}", { price: formatPrice(listing.originalPrice) })}
                 </span>
               )}
             </p>
@@ -146,23 +148,23 @@ export default async function ListingPage({
 
             <div className="rounded-lg border bg-card px-3">
               {fieldRow("Location", listing.location)}
-              {fieldRow("Property type", listing.propertyType.charAt(0) + listing.propertyType.slice(1).toLowerCase())}
-              {fieldRow("Bedrooms", formatBeds(listing.bedrooms))}
+              {fieldRow("Property type", t(enumLabel(listing.propertyType)))}
+              {fieldRow("Bedrooms", formatBeds(listing.bedrooms, t))}
               {fieldRow("Bathrooms", listing.bathrooms)}
-              {fieldRow("Area", formatArea(listing.areaSqft, listing.areaSqm))}
-              {fieldRow("Floor", listing.floor ? listing.floor.charAt(0) + listing.floor.slice(1).toLowerCase() + " floor" : null)}
+              {fieldRow("Area", formatArea(listing.areaSqft, listing.areaSqm, t))}
+              {fieldRow("Floor", listing.floor ? t(`${enumLabel(listing.floor)} floor`) : null)}
               {fieldRow("View", listing.view)}
-              {fieldRow("Furnished", listing.furnished ? listing.furnished.charAt(0) + listing.furnished.slice(1).toLowerCase() : null)}
-              {fieldRow("Status", listing.occupancy ? OCCUPANCY_LABELS[listing.occupancy] : null)}
-              {fieldRow("Handover", listing.handover)}
+              {fieldRow("Furnished", listing.furnished ? t(enumLabel(listing.furnished)) : null)}
+              {fieldRow("Status", listing.occupancy ? t(OCCUPANCY_LABELS[listing.occupancy]) : null)}
+              {fieldRow("Handover", listing.handover && t(listing.handover))}
               {fieldRow("Cheques", listing.chequeCount)}
-              {fieldRow("Parking", listing.parkingSpots ? `${listing.parkingSpots} spot${listing.parkingSpots > 1 ? "s" : ""}` : null)}
-              {listing.isRented && fieldRow("Rental income", listing.rentAmount ? formatPrice(listing.rentAmount) + "/yr" : "Rented")}
+              {fieldRow("Parking", listing.parkingSpots ? t("Spots: {n}", { n: listing.parkingSpots }) : null)}
+              {listing.isRented && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
             </div>
 
             {listing.description && (
               <div className="mt-6">
-                <h2 className="font-semibold mb-2">Notes</h2>
+                <h2 className="font-semibold mb-2">{t("Notes")}</h2>
                 <p className="text-sm text-muted-foreground whitespace-pre-wrap">{listing.description}</p>
               </div>
             )}
@@ -173,9 +175,9 @@ export default async function ListingPage({
             <div className="sticky top-20 rounded-xl border bg-card p-4 space-y-4">
               <div>
                 <Link href={`/owners/${listing.agent.id}`} className="font-semibold hover:underline underline-offset-4">
-                  {listing.agent.name ?? "Owner"}
+                  {listing.agent.name ?? t("Owner")}
                 </Link>
-                <p className="text-xs text-muted-foreground">Owner</p>
+                <p className="text-xs text-muted-foreground">{t("Owner")}</p>
                 {listing.agent.reraNumber && (
                   <p className="text-xs text-muted-foreground mt-1">
                     RERA: {listing.agent.reraNumber}
@@ -216,7 +218,7 @@ export default async function ListingPage({
                 <div className="flex flex-col gap-2 pt-2">
                   <Link href={`/dashboard/listings/${listing.id}/edit`}>
                     <Button variant="outline" size="sm" className="w-full">
-                      Edit listing
+                      {t("Edit listing")}
                     </Button>
                   </Link>
                 </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 
@@ -7,6 +8,7 @@ const WIDTH = 600
 const HEIGHT = 180
 
 export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) => void }) {
+  const t = useT()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
   const [empty, setEmpty] = useState(true)
@@ -62,7 +64,7 @@ export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) 
         ref={canvasRef}
         width={WIDTH}
         height={HEIGHT}
-        aria-label="Draw your signature"
+        aria-label={t("Draw your signature")}
         onPointerDown={start}
         onPointerMove={move}
         onPointerUp={end}
@@ -70,8 +72,8 @@ export function SignaturePad({ onChange }: { onChange: (dataUrl: string | null) 
         className="h-36 w-full touch-none rounded-lg border bg-white"
       />
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">Sign with your finger or mouse.</p>
-        <Button type="button" variant="ghost" size="sm" disabled={empty} onClick={clear}>Clear</Button>
+        <p className="text-xs text-muted-foreground">{t("Sign with your finger or mouse.")}</p>
+        <Button type="button" variant="ghost" size="sm" disabled={empty} onClick={clear}>{t("Clear")}</Button>
       </div>
     </div>
   )

@@ -1,10 +1,12 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 export function OTPForm({ email }: { email: string }) {
+  const t = useT()
   const router = useRouter()
   const [code, setCode] = useState("")
   const [error, setError] = useState("")
@@ -19,7 +21,7 @@ export function OTPForm({ email }: { email: string }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (code.length !== 6) {
-      setError("Enter the 6-digit code from your email.")
+      setError(t("Enter the 6-digit code from your email."))
       return
     }
     setLoading(true)
@@ -33,7 +35,7 @@ export function OTPForm({ email }: { email: string }) {
 
       // If final URL has an error or is still on auth pages — wrong code
       if (res.url.includes("error=") || res.url.includes("/login") || res.url.includes("/auth/")) {
-        setError("Wrong code. Please try again.")
+        setError(t("Wrong code. Please try again."))
         setCode("")
         setLoading(false)
         return
@@ -43,7 +45,7 @@ export function OTPForm({ email }: { email: string }) {
       router.push("/dashboard")
       router.refresh()
     } catch {
-      setError("Network error. Please try again.")
+      setError(t("Network error. Please try again."))
       setLoading(false)
     }
   }
@@ -51,7 +53,7 @@ export function OTPForm({ email }: { email: string }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="text-center space-y-1">
-        <p className="text-sm text-muted-foreground">Code sent to</p>
+        <p className="text-sm text-muted-foreground">{t("Code sent to")}</p>
         <p className="text-sm font-medium">{email}</p>
       </div>
 
@@ -77,7 +79,7 @@ export function OTPForm({ email }: { email: string }) {
         className="w-full"
         disabled={code.length !== 6 || loading}
       >
-        {loading ? "Verifying…" : "Verify →"}
+        {loading ? t("Verifying…") : t("Verify →")}
       </Button>
     </form>
   )

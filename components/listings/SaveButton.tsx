@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,7 @@ export function SaveButton({
   listingId: string
   initialSaved: boolean
 }) {
+  const t = useT()
   const [saved, setSaved] = useState(initialSaved)
   const [popping, setPopping] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -59,7 +61,7 @@ export function SaveButton({
           )}
         />
       </span>
-      <span>{saved ? "Saved" : "Save listing"}</span>
+      <span>{saved ? t("Saved") : t("Save listing")}</span>
     </Button>
   )
 }

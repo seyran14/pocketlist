@@ -1,8 +1,19 @@
 import { z } from "zod"
 
+export const MAX_ADDITIONAL_TERMS = 5
+
+export const PAYMENT_METHODS = {
+  CHEQUES: "Cheques",
+  BANK_TRANSFER: "Bank transfer",
+  CASH: "Cash",
+  CARD: "Credit or debit card",
+  DIRECT_DEBIT: "Direct debit",
+} as const
+export type PaymentMethod = keyof typeof PAYMENT_METHODS
+
 // The form is printed with a Latin font, and DLD contracts use Latin names here too.
-const latin = (max: number) =>
-  z.string().trim().max(max).regex(/^[\x20-\x7E]*$/, "Use English letters and numbers only.")
+export const LATIN_TEXT = /^[\x20-\x7E]*$/
+const latin = (max: number) => z.string().trim().max(max).regex(LATIN_TEXT, "Use English letters and numbers only.")
 const required = (max: number) => latin(max).min(1, "Required.")
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date.")
 const signature = z.string().startsWith("data:image/png;base64,").max(700_000)
@@ -28,17 +39,18 @@ export const ownerContractSchema = z
     annualRent: z.number().positive(),
     contractValue: z.number().positive(),
     deposit: z.number().min(0),
-    cheques: z.number().int().min(1).max(12),
-    additionalTerms: latin(90),
+    paymentMethod: z.enum(Object.keys(PAYMENT_METHODS) as [PaymentMethod, ...PaymentMethod[]]),
+    cheques: z.number().int().min(1).max(12).nullable(),
+    additionalTerms: z.array(latin(120)).max(MAX_ADDITIONAL_TERMS),
     tenantEmail: z.string().trim().email().max(80),
     tenantName: latin(70),
-    signature,
   })
   .refine((v) => v.ownerEmiratesId || v.ownerPassport, {
     path: ["ownerPassport"],
     message: "Add your passport or Emirates ID number.",
   })
   .refine((v) => v.endDate > v.startDate, { path: ["endDate"], message: "Must be after the start date." })
+  .refine((v) => v.paymentMethod !== "CHEQUES" || v.cheques, { path: ["cheques"], message: "Add the number of cheques." })
 
 export const tenantContractSchema = z
   .object({
@@ -52,6 +64,8 @@ export const tenantContractSchema = z
     path: ["tenantPassport"],
     message: "Add your passport or Emirates ID number.",
   })
+
+export const ownerSignatureSchema = z.object({ signature })
 
 export type OwnerContract = z.infer<typeof ownerContractSchema>
 export type TenantContract = z.infer<typeof tenantContractSchema>

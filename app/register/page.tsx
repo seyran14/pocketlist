@@ -1,8 +1,10 @@
+import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
 import { RegisterForm } from "./RegisterForm"
 import { HousePattern } from "@/components/HousePattern"
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const t = await getT()
   return (
     <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
       <HousePattern />
@@ -11,7 +13,7 @@ export default function RegisterPage() {
           <Link href="/" className="text-2xl font-bold">
             PocketList
           </Link>
-          <p className="text-muted-foreground text-sm mt-1">Create your account</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("Create your account")}</p>
         </div>
 
         <RegisterForm />

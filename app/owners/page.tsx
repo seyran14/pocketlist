@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
@@ -6,6 +7,7 @@ import Link from "next/link"
 export const metadata = { title: "Owners | PocketList" }
 
 export default async function OwnersPage() {
+  const t = await getT()
   const owners = await prisma.user.findMany({
     where: {
       role: "AGENT",
@@ -24,9 +26,9 @@ export default async function OwnersPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="text-2xl font-bold mb-1">Owners</h1>
+        <h1 className="text-2xl font-bold mb-1">{t("Owners")}</h1>
         <p className="text-sm text-muted-foreground mb-5">
-          {owners.length} owner{owners.length !== 1 ? "s" : ""} with active listings
+          {t("Owners with active listings: {n}", { n: owners.length })}
         </p>
         <Separator className="mb-6" />
 
@@ -45,7 +47,7 @@ export default async function OwnersPage() {
                   )}
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5">
-                  {a._count.listings} listing{a._count.listings !== 1 ? "s" : ""}
+                  {t("Listings: {n}", { n: a._count.listings })}
                 </span>
               </div>
             </Link>

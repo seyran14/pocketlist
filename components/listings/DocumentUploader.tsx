@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useRef, useState } from "react"
 import { Check, FileUp } from "lucide-react"
 import { toast } from "sonner"
@@ -28,12 +29,13 @@ type Props = {
 }
 
 export function DocumentUploader({ kind, label, hint, current, showError, accept, onUploaded, onUploadingChange }: Props) {
+  const t = useT()
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   async function upload(file: File) {
     if (file.size > MAX_PHOTO_BYTES) {
-      toast.error(`${file.name} is larger than ${MAX_PHOTO_MB} MB.`)
+      toast.error(t("{name} is larger than {mb} MB.", { name: file.name, mb: MAX_PHOTO_MB }))
       return
     }
     setUploading(true)
@@ -45,9 +47,9 @@ export function DocumentUploader({ kind, label, hint, current, showError, accept
       const res = await fetch("/api/documents", { method: "POST", body })
       const data = await res.json().catch(() => ({}))
       if (res.ok) onUploaded(data)
-      else toast.error(data.error ?? "Upload failed")
+      else toast.error(data.error ?? t("Upload failed"))
     } catch {
-      toast.error("Network error. Please try again.")
+      toast.error(t("Network error. Please try again."))
     } finally {
       setUploading(false)
       onUploadingChange?.(false)
@@ -58,14 +60,14 @@ export function DocumentUploader({ kind, label, hint, current, showError, accept
     <div className={cn("rounded-lg border p-3", showError && !current && "border-destructive")}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-medium">{label}</p>
+          <p className="text-sm font-medium">{t(label)}</p>
           {current ? (
             <p className="flex items-center gap-1 text-xs text-muted-foreground">
               <Check size={12} className="shrink-0 text-green-600" />
               <span className="truncate">{current.fileName}</span>
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground">{hint}</p>
+            <p className="text-xs text-muted-foreground">{t(hint)}</p>
           )}
         </div>
         <Button
@@ -76,8 +78,8 @@ export function DocumentUploader({ kind, label, hint, current, showError, accept
           disabled={uploading}
           onClick={() => inputRef.current?.click()}
         >
-          <FileUp size={14} className="mr-1" />
-          {uploading ? "Uploading…" : current ? "Replace" : "Upload"}
+          <FileUp size={14} className="me-1" />
+          {uploading ? t("Uploading…") : current ? t("Replace") : t("Upload")}
         </Button>
       </div>
       <input

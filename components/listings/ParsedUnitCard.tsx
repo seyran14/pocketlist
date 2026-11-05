@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Input } from "@/components/ui/input"
@@ -17,7 +18,7 @@ import { DocumentUploader, type UploadedDocument } from "@/components/listings/D
 import { PhotoUploader } from "@/components/listings/PhotoUploader"
 import { compareDeed, type DeedFields } from "@/lib/deed-shared"
 import { showsCheques } from "@/lib/listing-rules"
-import { cn } from "@/lib/utils"
+import { cn, formatBeds } from "@/lib/utils"
 import type { ParsedListing } from "@/lib/ai"
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
@@ -88,9 +89,10 @@ type Props = {
 }
 
 function YesNo({ label, value, onChange }: { label: string; value: boolean | null; onChange: (value: boolean) => void }) {
+  const t = useT()
   return (
     <div>
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-xs text-muted-foreground">{t(label)}</Label>
       <div className="mt-1 flex gap-1">
         {[true, false].map((option) => (
           <button
@@ -103,7 +105,7 @@ function YesNo({ label, value, onChange }: { label: string; value: boolean | nul
               value === option ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
-            {option ? "Yes" : "No"}
+            {option ? t("Yes") : t("No")}
           </button>
         ))}
       </div>
@@ -120,6 +122,7 @@ function Hint({ children, level = "warn" }: { children: string; level?: "warn" |
 }
 
 export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploadingChange }: Props) {
+  const t = useT()
   const { register, watch, setValue, getValues } = useForm<UnitFormValues>({
     defaultValues: {
       listingType: data.listingType ?? "SALE",
@@ -204,7 +207,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
     <div className="rounded-xl border bg-card p-4 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">
-          Unit {index + 1} of {total}
+          {t("Unit {n} of {total}", { n: index + 1, total })}
         </span>
         {total > 1 && (
           <Button
@@ -213,33 +216,9 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             className="h-6 px-2 text-xs text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(index)}
           >
-            Remove
+            {t("Remove")}
           </Button>
         )}
-      </div>
-
-      {/* Sale / Rent toggle */}
-      <div className="flex gap-1 pb-1 border-b">
-        <button
-          type="button"
-          className={cn(
-            "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-            !isRent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-          )}
-          onClick={() => setValue("listingType", "SALE")}
-        >
-          For Sale
-        </button>
-        <button
-          type="button"
-          className={cn(
-            "flex-1 rounded-md py-1.5 text-sm font-medium transition-colors",
-            isRent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-          )}
-          onClick={() => setValue("listingType", "RENT")}
-        >
-          For Rent
-        </button>
       </div>
 
       <PhotoUploader
@@ -259,45 +238,45 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
           onUploadingChange={onUploadingChange}
         />
         {deedUnreadable && (
-          <Hint level="info">We couldn&apos;t read this file automatically. A reviewer will check it by hand.</Hint>
+          <Hint level="info">{t("We couldn't read this file automatically. A reviewer will check it by hand.")}</Hint>
         )}
         {deedMismatches.map((check) => (
-          <Hint key={check.key}>{`${check.label} doesn't match the deed: ${check.found}`}</Hint>
+          <Hint key={check.key}>{t("{label} doesn't match the deed: {found}", { label: t(check.label), found: check.found })}</Hint>
         ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         {/* Location */}
         <div className="col-span-2 sm:col-span-1">
-          <Label className="text-xs text-muted-foreground">Location</Label>
+          <Label className="text-xs text-muted-foreground">{t("Location")}</Label>
           <Input {...register("location")} className="h-8 text-sm mt-1" />
         </div>
 
         {/* Building */}
         <div className="col-span-2 sm:col-span-1">
-          <Label className="text-xs text-muted-foreground">Building name</Label>
+          <Label className="text-xs text-muted-foreground">{t("Building name")}</Label>
           <Input {...register("projectName")} className="h-8 text-sm mt-1" />
         </div>
 
         {/* Property number */}
         <div className="col-span-2 sm:col-span-1">
-          <Label className="text-xs text-muted-foreground">Property number</Label>
-          <Input {...register("propertyNumber")} className="h-8 text-sm mt-1" placeholder="Not shown to buyers" />
+          <Label className="text-xs text-muted-foreground">{t("Property number")}</Label>
+          <Input {...register("propertyNumber")} className="h-8 text-sm mt-1" placeholder={t("Not shown to buyers")} />
         </div>
 
         {/* Property type */}
         <div className="col-span-2 sm:col-span-1">
-          <Label className="text-xs text-muted-foreground">Property type</Label>
+          <Label className="text-xs text-muted-foreground">{t("Property type")}</Label>
           <Select
             value={watch("propertyType")}
             onValueChange={(v) => v && setValue("propertyType", v as UnitFormValues["propertyType"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{PROPERTY_TYPE_LABELS[watch("propertyType")] ?? watch("propertyType")}</span>
+              <span>{t(PROPERTY_TYPE_LABELS[watch("propertyType")] ?? watch("propertyType"))}</span>
             </SelectTrigger>
             <SelectContent>
-              {(["APARTMENT", "TOWNHOUSE", "VILLA", "PENTHOUSE", "DUPLEX"] as const).map((t) => (
-                <SelectItem key={t} value={t}>{PROPERTY_TYPE_LABELS[t]}</SelectItem>
+              {(["APARTMENT", "TOWNHOUSE", "VILLA", "PENTHOUSE", "DUPLEX"] as const).map((type) => (
+                <SelectItem key={type} value={type}>{t(PROPERTY_TYPE_LABELS[type])}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -305,17 +284,17 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Bedrooms */}
         <div>
-          <Label className="text-xs text-muted-foreground">Bedrooms</Label>
+          <Label className="text-xs text-muted-foreground">{t("Bedrooms")}</Label>
           <Select
             value={watch("bedrooms") ?? ""}
             onValueChange={(v) => setValue("bedrooms", v || null)}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("bedrooms") ? (watch("bedrooms") === "Studio" ? "Studio" : `${watch("bedrooms")}BR`) : "—"}</span>
+              <span>{watch("bedrooms") ? formatBeds(watch("bedrooms")!, t) : "—"}</span>
             </SelectTrigger>
             <SelectContent>
               {["Studio", "1", "2", "3", "4", "5+"].map((b) => (
-                <SelectItem key={b} value={b}>{b === "Studio" ? "Studio" : `${b}BR`}</SelectItem>
+                <SelectItem key={b} value={b}>{formatBeds(b, t)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -323,13 +302,13 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Bathrooms */}
         <div>
-          <Label className="text-xs text-muted-foreground">Bathrooms</Label>
+          <Label className="text-xs text-muted-foreground">{t("Bathrooms")}</Label>
           <Input {...register("bathrooms")} className="h-8 text-sm mt-1" placeholder="—" />
         </div>
 
         {/* Parking */}
         <div>
-          <Label className="text-xs text-muted-foreground">Parking spaces</Label>
+          <Label className="text-xs text-muted-foreground">{t("Parking spaces")}</Label>
           <Input
             {...register("parkingSpots", { valueAsNumber: true })}
             type="number"
@@ -340,56 +319,56 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Furnished */}
         <div>
-          <Label className="text-xs text-muted-foreground">Furnished</Label>
+          <Label className="text-xs text-muted-foreground">{t("Furnished")}</Label>
           <Select
             value={watch("furnished") ?? ""}
             onValueChange={(v) => setValue("furnished", (v || null) as UnitFormValues["furnished"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("furnished") ? FURNISHED_LABELS[watch("furnished")!] : "—"}</span>
+              <span>{watch("furnished") ? t(FURNISHED_LABELS[watch("furnished")!]) : "—"}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="FURNISHED">Furnished</SelectItem>
-              <SelectItem value="UNFURNISHED">Unfurnished</SelectItem>
-              <SelectItem value="PARTIAL">Partial</SelectItem>
+              <SelectItem value="FURNISHED">{t("Furnished")}</SelectItem>
+              <SelectItem value="UNFURNISHED">{t("Unfurnished")}</SelectItem>
+              <SelectItem value="PARTIAL">{t("Partial")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* View */}
         <div>
-          <Label className="text-xs text-muted-foreground">Unit view</Label>
-          <Input {...register("view")} className="h-8 text-sm mt-1" placeholder="e.g. Canal, Sea" />
+          <Label className="text-xs text-muted-foreground">{t("Unit view")}</Label>
+          <Input {...register("view")} className="h-8 text-sm mt-1" placeholder={t("e.g. Canal, Sea")} />
         </div>
 
         {/* Status */}
         <div>
-          <Label className="text-xs text-muted-foreground">Status</Label>
+          <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
           <Select
             value={occupancy ?? ""}
             onValueChange={(v) => setValue("occupancy", (v || null) as UnitFormValues["occupancy"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{occupancy ? OCCUPANCY_LABELS[occupancy] : "—"}</span>
+              <span>{occupancy ? t(OCCUPANCY_LABELS[occupancy]) : "—"}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="VACANT">Vacant</SelectItem>
-              <SelectItem value="RENTED">Rented</SelectItem>
-              <SelectItem value="OFFPLAN">Off-plan</SelectItem>
+              <SelectItem value="VACANT">{t("Vacant")}</SelectItem>
+              <SelectItem value="RENTED">{t("Rented")}</SelectItem>
+              <SelectItem value="OFFPLAN">{t("Off-plan")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {occupancy === "OFFPLAN" && (
           <div>
-            <Label className="text-xs text-muted-foreground">Handover date</Label>
-            <Input {...register("handover")} className="h-8 text-sm mt-1" placeholder="e.g. Q1 2027" />
+            <Label className="text-xs text-muted-foreground">{t("Handover date")}</Label>
+            <Input {...register("handover")} className="h-8 text-sm mt-1" placeholder={t("e.g. Q1 2027")} />
           </div>
         )}
 
         {occupancy === "RENTED" && !isRent && (
           <div>
-            <Label className="text-xs text-muted-foreground">Annual rent (AED)</Label>
+            <Label className="text-xs text-muted-foreground">{t("Annual rent (AED)")}</Label>
             <Input
               {...register("rentAmount", { valueAsNumber: true })}
               type="number"
@@ -404,32 +383,32 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {/* Price */}
         <div className="col-span-2 sm:col-span-1">
           <Label className="text-xs text-muted-foreground">
-            {isRent ? "Asking rent, per year (AED)" : "Asking price (AED)"}
+            {isRent ? t("Asking rent, per year (AED)") : t("Asking price (AED)")}
           </Label>
-          {!price && <Hint>Adding a price gets 3× more views</Hint>}
+          {!price && <Hint>{t("Adding a price gets 3× more views")}</Hint>}
           <Input
             {...register("price", { valueAsNumber: true })}
             type="number"
             className="h-8 text-sm mt-1"
-            placeholder="e.g. 1500000"
+            placeholder={t("e.g. 1500000")}
           />
         </div>
 
         {occupancy === "OFFPLAN" && (
           <div className="col-span-2 sm:col-span-1">
-            <Label className="text-xs text-muted-foreground">Amount paid to the developer (AED)</Label>
+            <Label className="text-xs text-muted-foreground">{t("Amount paid to the developer (AED)")}</Label>
             <Input
               {...register("amountPaid", { valueAsNumber: true })}
               type="number"
               className="h-8 text-sm mt-1"
-              placeholder="Not shown to buyers"
+              placeholder={t("Not shown to buyers")}
             />
           </div>
         )}
 
         {showsCheques(watched) && (
           <div className="col-span-2 sm:col-span-1">
-            <Label className="text-xs text-muted-foreground">Number of cheques</Label>
+            <Label className="text-xs text-muted-foreground">{t("Number of cheques")}</Label>
             <Input
               {...register("chequeCount", { valueAsNumber: true })}
               type="number"
@@ -441,8 +420,8 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Area sqft */}
         <div>
-          <Label className="text-xs text-muted-foreground">BUA (sqft)</Label>
-          {!areaSqft && <Hint>Buyers filter by size — add sqft if you have it</Hint>}
+          <Label className="text-xs text-muted-foreground">{t("BUA (built-up area), sqft")}</Label>
+          {!areaSqft && <Hint>{t("Buyers filter by size — add sqft if you have it")}</Hint>}
           <Input
             {...register("areaSqft", { valueAsNumber: true })}
             type="number"
@@ -453,7 +432,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Area sqm */}
         <div>
-          <Label className="text-xs text-muted-foreground">BUA (sqm)</Label>
+          <Label className="text-xs text-muted-foreground">{t("BUA (built-up area), sqm")}</Label>
           <Input
             {...register("areaSqm", { valueAsNumber: true })}
             type="number"
@@ -463,18 +442,18 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Plot sqft */}
         <div>
-          <Label className="text-xs text-muted-foreground">Plot (sqft)</Label>
+          <Label className="text-xs text-muted-foreground">{t("Plot (sqft)")}</Label>
           <Input
             {...register("plotSqft", { valueAsNumber: true })}
             type="number"
             className="h-8 text-sm mt-1"
-            placeholder="Villas / townhouses"
+            placeholder={t("Villas / townhouses")}
           />
         </div>
 
         {/* Plot sqm */}
         <div>
-          <Label className="text-xs text-muted-foreground">Plot (sqm)</Label>
+          <Label className="text-xs text-muted-foreground">{t("Plot (sqm)")}</Label>
           <Input
             {...register("plotSqm", { valueAsNumber: true })}
             type="number"
@@ -484,19 +463,19 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
         {/* Floor */}
         <div>
-          <Label className="text-xs text-muted-foreground">Floor</Label>
-          {!watch("floor") && <Hint level="info">Floor level helps buyers decide quickly</Hint>}
+          <Label className="text-xs text-muted-foreground">{t("Floor")}</Label>
+          {!watch("floor") && <Hint level="info">{t("Floor level helps buyers decide quickly")}</Hint>}
           <Select
             value={watch("floor") ?? ""}
             onValueChange={(v) => setValue("floor", (v || null) as UnitFormValues["floor"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("floor") ? FLOOR_LABELS[watch("floor")!] : "—"}</span>
+              <span>{watch("floor") ? t(FLOOR_LABELS[watch("floor")!]) : "—"}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="LOW">Low</SelectItem>
-              <SelectItem value="MIDDLE">Middle</SelectItem>
-              <SelectItem value="HIGH">High</SelectItem>
+              <SelectItem value="LOW">{t("Low")}</SelectItem>
+              <SelectItem value="MIDDLE">{t("Middle")}</SelectItem>
+              <SelectItem value="HIGH">{t("High")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -509,29 +488,29 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             onCheckedChange={(c) => setValue("isDistress", !!c)}
           />
           <Label htmlFor={`distress-${index}`} className="text-sm cursor-pointer">
-            Distress deal (below OP price)
+            {t("Distress deal (below OP price)")}
           </Label>
         </div>
 
         {isDistress && (
           <div className="col-span-2 sm:col-span-1">
-            <Label className="text-xs text-muted-foreground">Original price (OP)</Label>
+            <Label className="text-xs text-muted-foreground">{t("Original price (OP)")}</Label>
             <Input
               {...register("originalPrice", { valueAsNumber: true })}
               type="number"
               className="h-8 text-sm mt-1"
-              placeholder="OP price"
+              placeholder={t("OP price")}
             />
           </div>
         )}
 
         {/* Notes */}
         <div className="col-span-2">
-          <Label className="text-xs text-muted-foreground">Notes (optional)</Label>
+          <Label className="text-xs text-muted-foreground">{t("Notes (optional)")}</Label>
           <Textarea
             {...register("notes")}
             className="text-sm mt-1 min-h-16 resize-none"
-            placeholder="Any additional details…"
+            placeholder={t("Any additional details…")}
           />
         </div>
       </div>

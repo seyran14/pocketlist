@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
@@ -8,6 +9,7 @@ import { ProfileBanner } from "@/components/dashboard/ProfileBanner"
 import { Separator } from "@/components/ui/separator"
 
 export default async function DashboardPage() {
+  const t = await getT()
   const session = await auth()
   if (!session?.user) redirect("/login")
 
@@ -63,14 +65,14 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="card-animate flex items-center justify-between mb-1" style={{ animationDelay: "0ms" }}>
-          <h1 className="text-2xl font-bold">My Listings</h1>
+          <h1 className="text-2xl font-bold">{t("My Listings")}</h1>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span>{listings.length} total</span>
+            <span>{t("Total: {n}", { n: listings.length })}</span>
             {listings.filter((l) => l.status === "ACTIVE").length > 0 && (
               <span className="text-green-600 dark:text-green-400">
-                {listings.filter((l) => l.status === "ACTIVE").length} active
+                {t("Active: {n}", { n: listings.filter((l) => l.status === "ACTIVE").length })}
               </span>
             )}
             {listings.filter((l) => l.status === "RESERVED").length > 0 && (

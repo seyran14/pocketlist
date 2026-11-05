@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
@@ -127,6 +128,7 @@ async function getLocations() {
 }
 
 async function ListingsSection({ searchParams }: { searchParams: SearchParams }) {
+  const t = await getT()
   const data = await getListings(searchParams)
   const serialized = data.listings.map((l) => ({
     ...l,
@@ -137,7 +139,7 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
   return (
     <>
       <p className="text-sm text-muted-foreground mb-4">
-        {data.total} listing{data.total !== 1 ? "s" : ""}
+        {t("Listings: {n}", { n: data.total })}
       </p>
       <ListingGrid listings={serialized} />
       {data.pages > 1 && (
@@ -165,6 +167,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<SearchParams>
 }) {
+  const t = await getT()
   const sp = await searchParams
   const locations = await getLocations()
 
@@ -174,9 +177,9 @@ export default async function HomePage({
       <main className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
           <>
-            <h1 className="text-2xl font-bold mb-1 text-center">Dubai Properties</h1>
+            <h1 className="text-2xl font-bold mb-1 text-center">{t("Dubai Properties")}</h1>
             <p className="text-muted-foreground text-sm mb-5 text-center">
-              Homes listed directly by their owners.
+              {t("Homes listed directly by their owners.")}
             </p>
           </>
         )}

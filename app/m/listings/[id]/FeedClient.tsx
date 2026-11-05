@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -15,7 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SupportButton } from "@/components/SupportButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
-import { cn, formatPrice, formatArea, formatBeds, daysAgo } from "@/lib/utils"
+import { cn, enumLabel, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
 
 type Owner = { id: string; name: string | null }
 
@@ -70,11 +71,12 @@ function telegramHref(value: string): string {
 }
 
 function FieldRow({ label, value }: { label: string; value: string | number | null | undefined }) {
+  const t = useT()
   if (!value && value !== 0) return null
   return (
     <div className="flex justify-between py-2.5 border-b border-border last:border-0">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-right">{value}</span>
+      <span className="text-sm text-muted-foreground">{t(label)}</span>
+      <span className="text-sm font-medium text-end">{value}</span>
     </div>
   )
 }
@@ -104,6 +106,7 @@ function SideBtn({
 }
 
 export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
+  const t = useT()
   const router = useRouter()
   const [savedSet, setSavedSet] = useState<Set<string>>(new Set(savedIds))
   const [contactOpen, setContactOpen] = useState(false)
@@ -214,7 +217,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     <ChevronLeft size={20} />
                   </Link>
                   <span className="text-sm font-medium truncate flex-1">{l.projectName}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">{daysAgo(new Date(l.createdAt))}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{daysAgo(new Date(l.createdAt), t)}</span>
                   <SupportButton />
                 </div>
 
@@ -223,14 +226,14 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
 
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2">
-                    {l.status === "RESERVED" && <Badge variant="secondary">Under Offer</Badge>}
-                    {l.isDistress && <Badge variant="destructive">Distress Deal</Badge>}
+                    {l.status === "RESERVED" && <Badge variant="secondary">{t("Under Offer")}</Badge>}
+                    {l.isDistress && <Badge variant="destructive">{t("Distress Deal")}</Badge>}
                   </div>
 
                   {/* Title */}
                   <div>
                     <h1 className="text-xl font-bold leading-snug">
-                      {l.title || `${formatBeds(l.bedrooms)} in ${l.location}`}
+                      {t("{beds} in {location}", { beds: formatBeds(l.bedrooms, t), location: l.location })}
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {l.projectName}
@@ -241,11 +244,11 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   {/* Price */}
                   <div>
                     <p className="text-2xl font-bold">
-                      {l.priceLabel ?? formatPrice(l.price)}
+                      {l.priceLabel ? localizePriceLabel(l.priceLabel, t) : formatPrice(l.price)}
                     </p>
                     {l.isDistress && l.originalPrice && (
                       <p className="text-sm text-muted-foreground line-through mt-0.5">
-                        OP: {formatPrice(l.originalPrice)}
+                        {t("OP: {price}", { price: formatPrice(l.originalPrice) })}
                       </p>
                     )}
                   </div>
@@ -255,22 +258,22 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   {/* Field rows */}
                   <div className="rounded-lg border bg-card px-3">
                     <FieldRow label="Location" value={l.location} />
-                    <FieldRow label="Property type" value={l.propertyType.charAt(0) + l.propertyType.slice(1).toLowerCase()} />
-                    <FieldRow label="Bedrooms" value={formatBeds(l.bedrooms)} />
+                    <FieldRow label="Property type" value={t(enumLabel(l.propertyType))} />
+                    <FieldRow label="Bedrooms" value={formatBeds(l.bedrooms, t)} />
                     <FieldRow label="Bathrooms" value={l.bathrooms} />
-                    <FieldRow label="Area" value={formatArea(l.areaSqft, l.areaSqm)} />
-                    <FieldRow label="Floor" value={l.floor ? l.floor.charAt(0) + l.floor.slice(1).toLowerCase() + " floor" : null} />
+                    <FieldRow label="Area" value={formatArea(l.areaSqft, l.areaSqm, t)} />
+                    <FieldRow label="Floor" value={l.floor ? t(`${enumLabel(l.floor)} floor`) : null} />
                     <FieldRow label="View" value={l.view} />
-                    <FieldRow label="Furnished" value={l.furnished ? l.furnished.charAt(0) + l.furnished.slice(1).toLowerCase() : null} />
-                    <FieldRow label="Handover" value={l.handover} />
-                    <FieldRow label="Parking" value={l.parkingSpots ? `${l.parkingSpots} spot${l.parkingSpots > 1 ? "s" : ""}` : null} />
-                    {l.isRented && <FieldRow label="Rental income" value={l.rentAmount ? formatPrice(l.rentAmount) + "/yr" : "Rented"} />}
+                    <FieldRow label="Furnished" value={l.furnished ? t(enumLabel(l.furnished)) : null} />
+                    <FieldRow label="Handover" value={l.handover && t(l.handover)} />
+                    <FieldRow label="Parking" value={l.parkingSpots ? t("Spots: {n}", { n: l.parkingSpots }) : null} />
+                    {l.isRented && <FieldRow label="Rental income" value={l.rentAmount ? `${formatPrice(l.rentAmount)} ${t("/ yr")}` : t("Rented")} />}
                   </div>
 
                   {/* Description */}
                   {l.description && (
                     <div>
-                      <h2 className="font-semibold mb-1.5 text-sm">Notes</h2>
+                      <h2 className="font-semibold mb-1.5 text-sm">{t("Notes")}</h2>
                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{l.description}</p>
                     </div>
                   )}
@@ -278,9 +281,9 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   {/* Owner */}
                   <div className="rounded-xl border bg-card p-3">
                     <Link href={`/owners/${l.agent.id}`} className="font-medium text-sm hover:underline underline-offset-4">
-                      {l.agent.name ?? "Owner"}
+                      {l.agent.name ?? t("Owner")}
                     </Link>
-                    <p className="text-xs text-muted-foreground">Owner</p>
+                    <p className="text-xs text-muted-foreground">{t("Owner")}</p>
                   </div>
 
                   {/* Bottom spacer so last content isn't hidden behind bottom padding */}
@@ -300,13 +303,13 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                       className={cn("transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")}
                     />
                   }
-                  label="Save"
+                  label={t("Save")}
                   active={isSaved}
                   onClick={() => toggleSave(l.id)}
                 />
                 <SideBtn
                   icon={<Phone size={20} className="text-muted-foreground" />}
-                  label="Contact"
+                  label={t("Contact")}
                   onClick={() => openContact(l.id)}
                 />
                 <SideBtn
@@ -316,7 +319,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                       className={cn("transition-colors", isCopied ? "text-green-500" : "text-muted-foreground")}
                     />
                   }
-                  label={isCopied ? "Copied!" : "Share"}
+                  label={isCopied ? t("Copied!") : t("Share")}
                   onClick={() => copyLink(l.id)}
                 />
               </div>
@@ -330,13 +333,13 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {isLoggedIn ? (contactInfo?.name ?? "Owner Contact") : "Leave your details"}
+              {isLoggedIn ? (contactInfo?.name ?? t("Owner Contact")) : t("Leave your details")}
             </DialogTitle>
           </DialogHeader>
 
           {isLoggedIn ? (
             contactLoading ? (
-              <p className="text-sm text-muted-foreground py-2">Loading…</p>
+              <p className="text-sm text-muted-foreground py-2">{t("Loading…")}</p>
             ) : hasContactInfo ? (
               <div className="flex flex-col gap-2">
                 {contactInfo!.phone && (
@@ -383,28 +386,28 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground py-2">No contact info available.</p>
+              <p className="text-sm text-muted-foreground py-2">{t("No contact info available.")}</p>
             )
           ) : inquirySent ? (
             <div className="py-4 text-center space-y-1">
-              <p className="text-sm font-medium">Sent!</p>
-              <p className="text-sm text-muted-foreground">The owner will reach out to you shortly.</p>
+              <p className="text-sm font-medium">{t("Sent!")}</p>
+              <p className="text-sm text-muted-foreground">{t("The owner will reach out to you shortly.")}</p>
             </div>
           ) : (
             <form onSubmit={sendInquiry} className="space-y-3 pt-1">
-              <p className="text-sm text-muted-foreground">The owner will contact you via email.</p>
+              <p className="text-sm text-muted-foreground">{t("The owner will contact you via email.")}</p>
               <p className="text-sm text-muted-foreground -mt-1">
                 To view contact details directly,{" "}
-                <a href="/login" className="underline underline-offset-4 text-foreground">sign in</a>.
+                <a href="/login" className="underline underline-offset-4 text-foreground">{t("sign in")}</a>.
               </p>
-              <Input placeholder="Your email" type="email" required
+              <Input placeholder={t("Your email")} type="email" required
                 value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)} />
-              <Input placeholder="Your name (optional)"
+              <Input placeholder={t("Your name (optional)")}
                 value={inquiryName} onChange={(e) => setInquiryName(e.target.value)} />
-              <Textarea placeholder="Message (optional)" className="resize-none text-sm" rows={3}
+              <Textarea placeholder={t("Message (optional)")} className="resize-none text-sm" rows={3}
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
               <Button type="submit" className="w-full" disabled={inquirySending || !inquiryEmail}>
-                {inquirySending ? "Sending…" : "Send to owner →"}
+                {inquirySending ? t("Sending…") : t("Send to owner →")}
               </Button>
             </form>
           )}

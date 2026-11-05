@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
   const privateFields = pickPrivateFields(body) as Prisma.ListingReviewUncheckedCreateWithoutListingInput
   const beds = rest.bedrooms ?? "Studio"
   const price = rest.price ?? 0
-  const isRent = rest.listingType === "RENT"
+  const isRent = true // Rentals only for now.
   const bedsLabel = beds === "Studio" ? "Studio" : `${beds}BR`
 
   try {
@@ -192,6 +192,7 @@ export async function POST(req: NextRequest) {
         data: {
           ...rest,
           agentId: session.user.id,
+          listingType: "RENT",
           status: "PENDING_REVIEW",
           review: { create: privateFields },
           expiresAt,

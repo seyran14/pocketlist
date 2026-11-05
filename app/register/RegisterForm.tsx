@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,7 @@ import { TermsModal } from "@/components/TermsModal"
 import { registerAction } from "@/lib/actions/auth"
 
 export function RegisterForm() {
+  const t = useT()
   const [agreed, setAgreed] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
 
@@ -19,7 +21,7 @@ export function RegisterForm() {
 
       <form action={registerAction} className="space-y-5">
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email address</Label>
+          <Label htmlFor="email">{t("Email address")}</Label>
           <Input
             id="email"
             name="email"
@@ -31,19 +33,19 @@ export function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <Label>I am…</Label>
+          <Label>{t("I am…")}</Label>
           <div className="grid grid-cols-2 gap-3">
             <RoleCard
               id="role-buyer"
               value="BUYER"
-              title="Looking to buy"
+              title={t("Looking to buy")}
               description="Browse listings and contact owners"
               defaultChecked
             />
             <RoleCard
               id="role-owner"
               value="AGENT"
-              title="Property owner"
+              title={t("Property owner")}
               description="List your property and get contacted by buyers"
             />
           </div>
@@ -64,20 +66,20 @@ export function RegisterForm() {
               onClick={() => setShowTerms(true)}
               className="text-foreground underline underline-offset-4 hover:opacity-70 transition-opacity"
             >
-              Terms of Service & Privacy Policy
+              {t("Terms of Service & Privacy Policy")}
             </button>
           </label>
         </div>
 
         <Button type="submit" className="w-full" disabled={!agreed}>
-          Continue →
+          {t("Continue →")}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted-foreground mt-5">
         Already have an account?{" "}
         <Link href="/login" className="text-foreground underline underline-offset-4">
-          Sign in
+          {t("Sign in")}
         </Link>
       </p>
     </>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
@@ -32,6 +33,7 @@ function mergeContactPref(existing: string | null, contact: OwnerContact) {
 }
 
 export function NewListingClient() {
+  const t = useT()
   const router = useRouter()
   const [step, setStep] = useState<Step>("paste")
   const [rawText, setRawText] = useState("")
@@ -100,11 +102,11 @@ export function NewListingClient() {
       const data = await res.json()
       if (!res.ok) {
         if (res.status === 429) {
-          toast.error("Daily parse limit reached (5/day). Use 'Fill manually' or try again tomorrow.")
+          toast.error(t("Daily parse limit reached (5/day). Use 'Fill manually' or try again tomorrow."))
         } else if (res.status === 422) {
-          toast.error("No listings detected. Try pasting a single unit first.")
+          toast.error(t("No listings detected. Try pasting a single unit first."))
         } else {
-          toast.error("AI parsing unavailable. Fill in the form manually below.")
+          toast.error(t("AI parsing unavailable. Fill in the form manually below."))
           setUnits([withUid(blankUnit())])
           setFormValues([blankFormValues()])
           setStep("review")
@@ -115,7 +117,7 @@ export function NewListingClient() {
       setFormValues(data.units.map(() => ({} as UnitFormValues)))
       setStep("review")
     } catch {
-      toast.error("Network error. Please try again.")
+      toast.error(t("Network error. Please try again."))
     } finally {
       setParsing(false)
     }
@@ -138,18 +140,17 @@ export function NewListingClient() {
     const valid = formValues
     const incomplete = valid.findIndex((v) => missingFields(v).length > 0)
     if (incomplete >= 0) {
-      const prefix = valid.length > 1 ? `Unit ${incomplete + 1}: add` : "Add"
-      toast.error(`${prefix} ${missingFields(valid[incomplete]).join(", ")}.`)
+      toast.error(t("Unit {n}: add {fields}.", { n: incomplete + 1, fields: missingFields(valid[incomplete]).map((field) => t(field)).join(", ") }))
       return
     }
     if (!contact || !hasRequiredContact(contact)) {
       setContactError(true)
-      toast.error("Add your name and phone number.")
+      toast.error(t("Add your name and phone number."))
       return
     }
     if (!identity.passport) {
       setIdentityError(true)
-      toast.error("Upload your passport to publish.")
+      toast.error(t("Upload your passport to publish."))
       return
     }
     setContactError(false)
@@ -157,7 +158,7 @@ export function NewListingClient() {
     setPublishing(true)
     try {
       if (!(await saveContact())) {
-        toast.error("Couldn't save your contact details. Please try again.")
+        toast.error(t("Couldn't save your contact details. Please try again."))
         return
       }
       // In order, so that near the limit the first units are the ones that get published.
@@ -179,22 +180,22 @@ export function NewListingClient() {
       }
 
       if (limitReached) {
-        toast.error(`You've reached the limit of ${MAX_LISTINGS_PER_USER} listings. Delete one to add another.`)
+        toast.error(t("You've reached the limit of {n} listings. Delete one to add another.", { n: MAX_LISTINGS_PER_USER }))
       }
       if (duplicates.length > 0 && !force) {
         toast.warning(
-          `Possible duplicate: "${duplicates.join(", ")}" already active. Publish anyway?`,
+          t("Possible duplicate: {names} already active. Publish anyway?", { names: duplicates.join(", ") }),
           {
-            action: { label: "Publish anyway", onClick: () => handlePublish(true) },
+            action: { label: t("Publish anyway"), onClick: () => handlePublish(true) },
             duration: 8000,
           }
         )
       }
       if (succeeded > 0) {
-        toast.success(`${succeeded} listing${succeeded !== 1 ? "s" : ""} sent for review. We'll email you when it's live.`)
+        toast.success(t("Sent for review: {n}. We'll email you when it's live.", { n: succeeded }))
         router.push("/dashboard")
       } else if (duplicates.length === 0 && !limitReached) {
-        toast.error("Failed to publish listings. Please try again.")
+        toast.error(t("Failed to publish listings. Please try again."))
       }
     } finally {
       setPublishing(false)
@@ -209,11 +210,11 @@ export function NewListingClient() {
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t("Back")}
         </button>
-        <h1 className="text-2xl font-bold">Add New Listing</h1>
+        <h1 className="text-2xl font-bold">{t("Add New Listing")}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Describe your property or paste an existing ad, and AI fills in the details. You&apos;ll add photos, your title deed and your passport on the next step.
+          {t("Describe your property or paste an existing ad, and AI fills in the details. You'll add photos, your title deed and your passport on the next step.")}
         </p>
       </div>
 
@@ -236,7 +237,7 @@ export function NewListingClient() {
               disabled={!rawText.trim() || parsing}
               className="flex-1 sm:flex-none"
             >
-              {parsing ? "Parsing…" : "Parse with AI →"}
+              {parsing ? t("Parsing…") : t("Parse with AI →")}
             </Button>
             <Button
               variant="outline"
@@ -246,7 +247,7 @@ export function NewListingClient() {
                 setStep("review")
               }}
             >
-              Fill manually
+              {t("Fill manually")}
             </Button>
           </div>
 
@@ -262,8 +263,7 @@ export function NewListingClient() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              {units.length} unit{units.length !== 1 ? "s" : ""} detected — review and edit before
-              publishing
+              {t("Units detected: {n}. Review and edit before publishing.", { n: units.length })}
             </p>
             <Button
               variant="ghost"
@@ -275,7 +275,7 @@ export function NewListingClient() {
                 setFormValues([])
               }}
             >
-              ← Start over
+              {t("← Start over")}
             </Button>
           </div>
 
@@ -300,7 +300,7 @@ export function NewListingClient() {
               setFormValues((prev) => [...prev, blankFormValues()])
             }}
           >
-            + Add another unit
+            {t("+ Add another unit")}
           </Button>
 
           {contact && (
@@ -334,7 +334,7 @@ export function NewListingClient() {
               }}
               disabled={publishing}
             >
-              Start over
+              {t("Start over")}
             </Button>
             <Button
               onClick={() => handlePublish()}
@@ -342,10 +342,10 @@ export function NewListingClient() {
               className="min-w-36"
             >
               {uploadingCount > 0
-                ? "Uploading…"
+                ? t("Uploading…")
                 : publishing
-                ? "Submitting…"
-                : `Submit ${units.length} Listing${units.length !== 1 ? "s" : ""} for Review`}
+                ? t("Submitting…")
+                : t("Submit for review ({n})", { n: units.length })}
             </Button>
           </div>
         </div>
@@ -354,13 +354,14 @@ export function NewListingClient() {
   )
 }
 
+// Rentals only for now, whatever the pasted ad says.
 function withUid(unit: ParsedListing): Unit {
-  return { ...unit, uid: crypto.randomUUID() }
+  return { ...unit, listingType: "RENT", uid: crypto.randomUUID() }
 }
 
 function blankUnit(): ParsedListing {
   return {
-    listingType: "SALE",
+    listingType: "RENT",
     projectName: "",
     location: "",
     propertyType: "APARTMENT",

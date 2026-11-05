@@ -3,7 +3,9 @@ import type { Metadata } from "next"
 import { Geist } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
+import { I18nProvider } from "@/components/I18nProvider"
 import { PostHogProvider } from "@/components/PostHogProvider"
+import { getLocale } from "@/lib/i18n/server"
 import "./globals.css"
 
 const geist = Geist({
@@ -17,19 +19,23 @@ export const metadata: Metadata = {
   description: "Browse Dubai property listed directly by owners. Post your own home with photos in minutes.",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full bg-background font-sans">
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-            <SiteFooter />
-            <Toaster />
+            <I18nProvider locale={locale}>
+              {children}
+              <SiteFooter />
+              <Toaster />
+            </I18nProvider>
           </ThemeProvider>
         </PostHogProvider>
       </body>

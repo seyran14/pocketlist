@@ -22,8 +22,13 @@ export function findContractByToken(token: string) {
   return prisma.tenancyContract.findUnique({ where: { tokenHash: hashToken(token) } })
 }
 
-// A failed email doesn't undo a signature: the owner can still share the link by hand.
-export async function sendContractEmail(to: string, subject: string, content: Parameters<typeof contractEmailHtml>[0]) {
+// A failed email doesn't undo a signature: both sides can still open the contract on the site.
+export async function sendContractEmail(
+  to: string,
+  subject: string,
+  content: Parameters<typeof contractEmailHtml>[0],
+  pdf?: Buffer
+) {
   try {
     const { error } = await new Resend(process.env.RESEND_API_KEY).emails.send({
       from: "PocketList <noreply@rncn8n.com>",
@@ -31,6 +36,7 @@ export async function sendContractEmail(to: string, subject: string, content: Pa
       replyTo: SUPPORT_EMAIL,
       subject,
       html: contractEmailHtml(content),
+      attachments: pdf && [{ filename: "tenancy-contract.pdf", content: pdf }],
     })
     if (error) {
       logger.error("contract.email_failed", error)

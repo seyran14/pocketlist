@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,18 +16,19 @@ const ERROR_MESSAGES: Record<string, string> = {
   Default: "Something went wrong. Please try again.",
 }
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>
 }) {
+  const t = await getT()
   return (
     <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
       <HousePattern />
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">PocketList</Link>
-          <p className="text-muted-foreground text-sm mt-1">Sign in to your account</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("Sign in to your account")}</p>
         </div>
 
         <StatusBanner searchParams={searchParams} />
@@ -34,7 +36,7 @@ export default function LoginPage({
         <div className="rounded-xl border bg-card p-6 space-y-4">
           <form action={loginAction} className="space-y-3">
             <div className="space-y-1">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">{t("Email address")}</Label>
               <Input
                 id="email"
                 name="email"
@@ -45,7 +47,7 @@ export default function LoginPage({
               />
             </div>
             <Button type="submit" className="w-full">
-              Send code →
+              {t("Send code →")}
             </Button>
           </form>
 
@@ -54,7 +56,7 @@ export default function LoginPage({
         <p className="text-center text-sm text-muted-foreground mt-4">
           New here?{" "}
           <Link href="/register" className="text-foreground underline underline-offset-4">
-            Create an account
+            {t("Create an account")}
           </Link>
         </p>
       </div>
@@ -67,12 +69,13 @@ async function StatusBanner({
 }: {
   searchParams: Promise<{ error?: string }>
 }) {
+  const t = await getT()
   const { error } = await searchParams
   if (!error) return null
   const isInfo = error === "already_registered"
   return (
     <div className={`rounded-lg border px-4 py-3 text-sm mb-4 ${isInfo ? "border-blue-300/50 bg-blue-50/50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400" : "border-destructive/30 bg-destructive/5 text-destructive"}`}>
-      {ERROR_MESSAGES[error] ?? ERROR_MESSAGES.Default}
+      {t(ERROR_MESSAGES[error] ?? ERROR_MESSAGES.Default)}
     </div>
   )
 }

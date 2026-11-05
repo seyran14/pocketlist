@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth"
 import { parseDeed } from "@/lib/deed-shared"
 import { extractText, readDocument } from "@/lib/documents"
 import { prisma } from "@/lib/prisma"
-import { formatBeds, isPublicStatus } from "@/lib/utils"
+import { isPublicStatus } from "@/lib/utils"
 import { ContractClient } from "./ContractClient"
 
 async function readDeed(listingId: string) {
@@ -32,7 +32,6 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
   const eligible = listing.listingType === "RENT" && isPublicStatus(listing.status)
   const deed = await readDeed(id)
   const sqm = listing.areaSqm ?? deed.areaSqm
-  const beds = formatBeds(listing.bedrooms)
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +53,7 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
           plotNumber: deed.plotNumber ?? "",
           buildingName: deed.buildingName ?? listing.projectName,
           propertyNumber: listing.review?.propertyNumber ?? deed.propertyNumber ?? "",
-          propertyType: beds === "Studio" ? "Studio" : `${listing.bedrooms} Bedroom`,
+          propertyType: listing.bedrooms === "Studio" ? "Studio" : `${listing.bedrooms} Bedroom`,
           areaSqm: sqm ? String(sqm) : "",
           location: deed.community ?? listing.location,
           annualRent: listing.price,

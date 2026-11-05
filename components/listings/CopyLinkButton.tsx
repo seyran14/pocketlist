@@ -1,10 +1,12 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Link } from "lucide-react"
 
 export function CopyLinkButton() {
+  const t = useT()
   const [copied, setCopied] = useState(false)
 
   async function handleClick() {
@@ -27,8 +29,8 @@ export function CopyLinkButton() {
 
   return (
     <Button variant="outline" size="sm" className="w-full" onClick={handleClick}>
-      <Link className="w-4 h-4 mr-2" />
-      {copied ? "Copied!" : "Copy link"}
+      <Link className="w-4 h-4 me-2" />
+      {copied ? t("Copied!") : t("Copy link")}
     </Button>
   )
 }

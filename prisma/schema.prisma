@@ -151,7 +151,7 @@ model TenancyContract {
   tenantName     String?
   tokenHash      String         @unique
   linkExpiresAt  DateTime
-  ownerSignedAt  DateTime
+  ownerSignedAt  DateTime?
   tenantSignedAt DateTime?
   tenantIp       String?
   pdfSha256      String?
@@ -165,6 +165,7 @@ model TenancyContract {
 
 enum ContractStatus {
   AWAITING_TENANT
+  AWAITING_OWNER
   COMPLETED
 }
 

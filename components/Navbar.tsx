@@ -1,12 +1,15 @@
+import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { signOutAction } from "@/lib/actions/auth"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { NotificationBell } from "@/components/NotificationBell"
+import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { SupportButton } from "@/components/SupportButton"
 
 export async function Navbar() {
+  const t = await getT()
   const session = await auth()
   const user = session?.user
   const isAgent = user?.role === "AGENT"
@@ -21,6 +24,7 @@ export async function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-1">
+          <LanguageSwitcher />
           <ThemeToggle />
           <SupportButton />
           {user ? (
@@ -29,12 +33,12 @@ export async function Navbar() {
                 <>
                   <Link href="/dashboard/listings/new" className="hidden sm:block">
                     <Button variant="ghost" size="sm" className="text-sm">
-                      + Add listing
+                      {t("+ Add listing")}
                     </Button>
                   </Link>
                   <Link href="/dashboard">
                     <Button variant="ghost" size="sm" className="text-sm">
-                      Dashboard
+                      {t("Dashboard")}
                     </Button>
                   </Link>
                   <NotificationBell />
@@ -42,7 +46,7 @@ export async function Navbar() {
               ) : (
                 <Link href="/dashboard/saved">
                   <Button variant="ghost" size="sm" className="text-sm">
-                    Saved
+                    {t("Saved")}
                   </Button>
                 </Link>
               )}
@@ -50,7 +54,7 @@ export async function Navbar() {
               {user?.email === process.env.ADMIN_EMAIL && (
                 <Link href="/admin">
                   <Button variant="ghost" size="sm" className="text-sm">
-                    Admin
+                    {t("Admin")}
                   </Button>
                 </Link>
               )}
@@ -68,13 +72,13 @@ export async function Navbar() {
 
               <form action={signOutAction}>
                 <Button variant="outline" size="sm" type="submit" className="text-sm">
-                  Sign out
+                  {t("Sign out")}
                 </Button>
               </form>
             </>
           ) : (
             <Link href="/login">
-              <Button size="sm">Sign in</Button>
+              <Button size="sm">{t("Sign in")}</Button>
             </Link>
           )}
         </nav>

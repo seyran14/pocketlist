@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ type ExpiringListing = {
 }
 
 export function NotificationBanner({ listings }: { listings: ExpiringListing[] }) {
+  const t = useT()
   const router = useRouter()
   const [dismissed, setDismissed] = useState(false)
   const [hidden, setHidden] = useState<Set<string>>(new Set())
@@ -31,7 +33,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
     })
     if (res.ok) {
       setHidden((prev) => new Set([...prev, id]))
-      toast.success(`${projectName} renewed for 30 days`)
+      toast.success(t("{name} renewed for 30 days", { name: projectName }))
       startTransition(() => router.refresh())
     }
   }
@@ -44,7 +46,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
     })
     if (res.ok) {
       setHidden((prev) => new Set([...prev, id]))
-      toast.success(`${projectName} marked as sold`)
+      toast.success(t("{name}: {status}", { name: projectName, status: t("Sold") }))
       startTransition(() => router.refresh())
     }
   }
@@ -53,7 +55,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
     const res = await fetch(`/api/listings/${id}`, { method: "DELETE" })
     if (res.ok || res.status === 204) {
       setHidden((prev) => new Set([...prev, id]))
-      toast.success(`${projectName} deleted`)
+      toast.success(t("{name} deleted", { name: projectName }))
       startTransition(() => router.refresh())
     }
   }
@@ -62,7 +64,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
     <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-semibold text-amber-800">
-          {visible.length} listing{visible.length !== 1 ? "s are" : " is"} over 30 days old. Still active?
+          {t("Listings over 30 days old: {n}. Still active?", { n: visible.length })}
         </p>
         <Button
           variant="ghost"
@@ -70,7 +72,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
           className="h-6 px-2 text-xs text-amber-700 hover:text-amber-900 hover:bg-amber-100 shrink-0"
           onClick={() => setDismissed(true)}
         >
-          Dismiss
+          {t("Dismiss")}
         </Button>
       </div>
 
@@ -79,8 +81,8 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
           <div key={l.id} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg bg-card border border-amber-100 px-3 py-2">
             <span className="text-sm font-medium flex-1 min-w-0 truncate">
               {l.projectName} · {l.location}
-              <span className="ml-2 text-xs text-muted-foreground font-normal">
-                posted {daysAgo(new Date(l.createdAt))}
+              <span className="ms-2 text-xs text-muted-foreground font-normal">
+                {daysAgo(new Date(l.createdAt), t)}
               </span>
             </span>
             <div className="flex gap-1.5 shrink-0">
@@ -91,7 +93,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
                 disabled={isPending}
                 onClick={() => keepActive(l.id, l.projectName)}
               >
-                Keep Active
+                {t("Keep Active")}
               </Button>
               <Button
                 variant="outline"
@@ -100,7 +102,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
                 disabled={isPending}
                 onClick={() => markSold(l.id, l.projectName)}
               >
-                Mark Sold
+                {t("Mark Sold")}
               </Button>
               <Button
                 variant="ghost"
@@ -109,7 +111,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
                 disabled={isPending}
                 onClick={() => deleteListing(l.id, l.projectName)}
               >
-                Delete
+                {t("Delete")}
               </Button>
             </div>
           </div>

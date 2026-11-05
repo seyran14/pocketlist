@@ -52,7 +52,7 @@ export function missingFields(values: Values) {
     require(filled(values.handover), "handover date")
     require(isNumber(values.amountPaid), "amount paid to the developer")
   }
-  if (values.listingType === "RENT") require(isNumber(values.chequeCount), "number of cheques")
+  require(isNumber(values.chequeCount), "number of cheques")
 
   return missing
 }

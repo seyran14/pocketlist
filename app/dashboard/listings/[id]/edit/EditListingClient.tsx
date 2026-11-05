@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
@@ -17,10 +18,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 
 export function EditListingClient() {
+  const t = useT()
   const params = useParams<{ id: string }>()
   const router = useRouter()
   const STATUS_DISPLAY: Record<string, string> = {
-    ACTIVE: "Active", RESERVED: "Under Offer", SOLD: "Sold",
+    ACTIVE: t("Active"), RESERVED: t("Under Offer"), SOLD: t("Sold"),
   }
 
   const [listing, setListing] = useState<(UnitData & { status: string; reviewNote: string | null }) | null>(null)
@@ -57,12 +59,12 @@ export function EditListingClient() {
     setSaving(false)
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
-      toast.success(data.status === "PENDING_REVIEW" ? "Sent for review. We'll email you when it's live." : "Listing updated")
+      toast.success(data.status === "PENDING_REVIEW" ? t("Sent for review. We'll email you when it's live.") : t("Listing updated"))
       router.push("/dashboard")
     } else if (data.error === "missing_fields") {
-      toast.error(`Add ${data.fields.join(", ")}.`)
+      toast.error(t("Add {fields}.", { fields: data.fields.map((field: string) => t(field)).join(", ") }))
     } else {
-      toast.error("Failed to save changes")
+      toast.error(t("Failed to save changes"))
     }
   }
 
@@ -70,10 +72,10 @@ export function EditListingClient() {
     setDeleting(true)
     const res = await fetch(`/api/listings/${params.id}`, { method: "DELETE" })
     if (res.ok || res.status === 204) {
-      toast.success("Listing deleted")
+      toast.success(t("Listing deleted"))
       router.push("/dashboard")
     } else {
-      toast.error("Failed to delete listing")
+      toast.error(t("Failed to delete listing"))
       setDeleting(false)
       setConfirmDelete(false)
     }
@@ -87,10 +89,10 @@ export function EditListingClient() {
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back
+          {t("Back")}
         </button>
-        <h1 className="text-2xl font-bold">Edit Listing</h1>
-        <p className="text-muted-foreground text-sm mt-1">Update details or change status.</p>
+        <h1 className="text-2xl font-bold">{t("Edit Listing")}</h1>
+        <p className="text-muted-foreground text-sm mt-1">{t("Update details or change status.")}</p>
       </div>
 
       <Separator className="mb-6" />
@@ -104,19 +106,18 @@ export function EditListingClient() {
           {inReview && (
             <div role="status" className="rounded-xl border bg-card p-4 text-sm">
               <p className="font-medium">
-                {listing.status === "REJECTED" ? "This listing needs changes" : "This listing is waiting for review"}
+                {listing.status === "REJECTED" ? t("This listing needs changes") : t("This listing is waiting for review")}
               </p>
               <p className="mt-1 text-muted-foreground">
-                {listing.reviewNote ?? "It isn't visible to buyers yet."}
-                {listing.status === "REJECTED" && " Save your changes to send it back for review."}
+                {listing.reviewNote ?? t("It isn't visible to buyers yet.")}
+                {listing.status === "REJECTED" && t(" Save your changes to send it back for review.")}
               </p>
             </div>
           )}
 
           {!inReview && (
             <p className="text-xs text-muted-foreground">
-              Changing the building, location, type, area, parking, property number or title deed sends this listing back
-              for review, and it&apos;s hidden until approved.
+              {t("Changing the building, location, type, area, parking, property number or title deed sends this listing back for review, and it's hidden until approved.")}
             </p>
           )}
 
@@ -131,15 +132,15 @@ export function EditListingClient() {
 
           {!inReview && <div className="rounded-xl border bg-card p-4">
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">Status</Label>
+              <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v)}>
                 <SelectTrigger className="h-8 w-48 text-sm">
                   <span>{STATUS_DISPLAY[status] ?? status}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">Active</SelectItem>
-                  <SelectItem value="RESERVED">Under Offer</SelectItem>
-                  <SelectItem value="SOLD">Sold</SelectItem>
+                  <SelectItem value="ACTIVE">{t("Active")}</SelectItem>
+                  <SelectItem value="RESERVED">{t("Under Offer")}</SelectItem>
+                  <SelectItem value="SOLD">{t("Sold")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -156,7 +157,7 @@ export function EditListingClient() {
                     onClick={handleDelete}
                     disabled={deleting}
                   >
-                    {deleting ? "Deleting…" : "Confirm delete"}
+                    {deleting ? t("Deleting…") : t("Confirm delete")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -164,7 +165,7 @@ export function EditListingClient() {
                     onClick={() => setConfirmDelete(false)}
                     disabled={deleting}
                   >
-                    Cancel
+                    {t("Cancel")}
                   </Button>
                 </>
               ) : (
@@ -173,7 +174,7 @@ export function EditListingClient() {
                   onClick={() => setConfirmDelete(true)}
                   disabled={saving}
                 >
-                  Delete listing
+                  {t("Delete listing")}
                 </Button>
               )}
             </div>
@@ -183,10 +184,10 @@ export function EditListingClient() {
                 onClick={() => router.push("/dashboard")}
                 disabled={saving || deleting}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button onClick={handleSave} disabled={saving || deleting || uploading || !listing}>
-                {uploading ? "Uploading…" : saving ? "Saving…" : "Save changes"}
+                {uploading ? t("Uploading…") : saving ? t("Saving…") : t("Save changes")}
               </Button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -41,6 +42,7 @@ function parsePrefs(pref: string | null): Set<string> {
 }
 
 export function ProfileForm({ user }: { user: ProfileData }) {
+  const t = useT()
   const [prefs, setPrefs] = useState<Set<string>>(() => parsePrefs(user.contactPref))
   const [saving, setSaving] = useState(false)
   const isAgent = user.role === "AGENT"
@@ -88,9 +90,9 @@ export function ProfileForm({ user }: { user: ProfileData }) {
     })
     setSaving(false)
     if (res.ok) {
-      toast.success("Profile saved")
+      toast.success(t("Profile saved"))
     } else {
-      toast.error("Failed to save profile")
+      toast.error(t("Failed to save profile"))
     }
   }
 
@@ -98,26 +100,26 @@ export function ProfileForm({ user }: { user: ProfileData }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="rounded-xl border bg-card p-5 space-y-4">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Basic info
+          {t("Basic info")}
         </h2>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("Email")}</Label>
           <Input
             id="email"
             value={user.email ?? ""}
             disabled
             className="text-muted-foreground"
           />
-          <p className="text-xs text-muted-foreground">Email is managed through your sign-in method.</p>
+          <p className="text-xs text-muted-foreground">{t("Email is managed through your sign-in method.")}</p>
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="name">Display name</Label>
+          <Label htmlFor="name">{t("Display name")}</Label>
           <Input
             id="name"
             {...register("name")}
-            placeholder="Your full name"
+            placeholder={t("Name and surname as in your passport")}
           />
         </div>
       </div>
@@ -125,15 +127,15 @@ export function ProfileForm({ user }: { user: ProfileData }) {
       {isAgent && (
         <div className="rounded-xl border bg-card p-5 space-y-4">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Contact details
+            {t("Contact details")}
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            Buyers see these when they click &quot;Show Contact&quot; on your listings.
+            {t("Buyers see these when they click \"Show Contact\" on your listings.")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">{t("Phone")}</Label>
               <Input
                 id="phone"
                 {...register("phone", { onBlur: (e) => showNewChannel("PHONE", user.phone, e.target.value) })}
@@ -159,13 +161,13 @@ export function ProfileForm({ user }: { user: ProfileData }) {
                 {...register("telegram", { onBlur: (e) => showNewChannel("TELEGRAM", user.telegram, e.target.value) })}
                 placeholder="@username or +123 456 7890"
               />
-              <p className="text-xs text-muted-foreground">Username or phone number</p>
+              <p className="text-xs text-muted-foreground">{t("Username or phone number")}</p>
             </div>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>How buyers can reach you</Label>
+              <Label>{t("How buyers can reach you")}</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -173,7 +175,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
                 className="h-7 px-3 text-xs"
                 onClick={selectAll}
               >
-                All
+                {t("All")}
               </Button>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -185,7 +187,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
                     onCheckedChange={() => togglePref(key)}
                   />
                   <Label htmlFor={`pref-${key}`} className="text-sm cursor-pointer font-normal">
-                    {label}
+                    {t(label)}
                   </Label>
                 </div>
               ))}
@@ -193,7 +195,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="reraNumber">RERA number (optional)</Label>
+            <Label htmlFor="reraNumber">{t("RERA number (optional)")}</Label>
             <Input
               id="reraNumber"
               {...register("reraNumber")}
@@ -206,7 +208,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
 
       <div className="flex justify-end">
         <Button type="submit" disabled={saving} className="min-w-32">
-          {saving ? "Saving…" : "Save changes"}
+          {saving ? t("Saving…") : t("Save changes")}
         </Button>
       </div>
     </form>

@@ -1,3 +1,4 @@
+import { getT } from "@/lib/i18n/server"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
@@ -7,6 +8,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 export default async function OwnerPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = await getT()
   const { id } = await params
 
   const owner = await prisma.user.findUnique({
@@ -53,7 +55,6 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
     expiresAt: l.expiresAt ? l.expiresAt.toISOString() : null,
   }))
 
-  const plural = listings.length === 1 ? "" : "s"
 
   return (
     <>
@@ -64,13 +65,13 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Browse listings
+          {t("Browse listings")}
         </Link>
 
         <div className="card-animate">
           <h1 className="text-2xl font-bold">{owner.name ?? "Owner"}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Owner · {listings.length} active listing{plural}
+            {t("Owner")} · {t("Active: {n}", { n: listings.length })}
             {owner.reraNumber && ` · RERA ${owner.reraNumber}`}
           </p>
         </div>
@@ -79,7 +80,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
 
         {listings.length === 0 ? (
           <div className="rounded-xl border bg-card py-16 text-center text-muted-foreground text-sm">
-            No active listings at the moment.
+            {t("No active listings at the moment.")}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

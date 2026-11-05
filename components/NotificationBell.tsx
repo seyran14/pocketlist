@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState, useEffect, useRef } from "react"
 import { Bell } from "lucide-react"
 import Link from "next/link"
@@ -14,6 +15,7 @@ type Notif = {
 }
 
 export function NotificationBell() {
+  const t = useT()
   const [notifs, setNotifs] = useState<Notif[]>([])
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -51,7 +53,7 @@ export function NotificationBell() {
       <button
         onClick={handleOpen}
         className="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent transition-colors"
-        aria-label="Notifications"
+        aria-label={t("Notifications")}
       >
         <Bell className="w-4 h-4" />
         {notifs.length > 0 && (
@@ -66,14 +68,14 @@ export function NotificationBell() {
 
       {open && (
         <div className={cn(
-          "absolute right-0 top-10 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-xl border bg-card shadow-lg",
+          "absolute end-0 top-10 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-xl border bg-card shadow-lg",
           "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-150"
         )}>
           <div className="px-4 py-3 border-b">
-            <p className="text-sm font-semibold">Notifications</p>
+            <p className="text-sm font-semibold">{t("Notifications")}</p>
           </div>
           {notifs.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-muted-foreground">All caught up</p>
+            <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t("All caught up")}</p>
           ) : (
             <div className="max-h-80 overflow-y-auto divide-y">
               {notifs.map((n) => (

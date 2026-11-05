@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useRef, useState } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -7,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { photoUrl } from "@/lib/photos-shared"
 
 export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: string }) {
+  const t = useT()
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
 
@@ -20,7 +22,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
   const multiple = photos.length > 1
 
   return (
-    <div className="space-y-2">
+    <div dir="ltr" className="space-y-2">
       <div className="relative overflow-hidden rounded-xl border bg-muted">
         <div
           ref={trackRef}
@@ -50,8 +52,8 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               type="button"
               onClick={() => goTo(active - 1)}
               disabled={active === 0}
-              aria-label="Previous photo"
-              className="absolute left-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
+              aria-label={t("Previous photo")}
+              className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
             >
               <ChevronLeft size={18} />
             </button>
@@ -59,12 +61,12 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               type="button"
               onClick={() => goTo(active + 1)}
               disabled={active === photos.length - 1}
-              aria-label="Next photo"
-              className="absolute right-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
+              aria-label={t("Next photo")}
+              className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
             >
               <ChevronRight size={18} />
             </button>
-            <span className="absolute bottom-2 right-2 rounded bg-black/70 px-2 py-0.5 text-xs font-medium text-white tabular-nums">
+            <span className="absolute bottom-2 end-2 rounded bg-black/70 px-2 py-0.5 text-xs font-medium text-white tabular-nums">
               {active + 1} / {photos.length}
             </span>
           </>

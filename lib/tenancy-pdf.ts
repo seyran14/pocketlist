@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises"
 import { join } from "path"
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib"
-import type { OwnerContract, TenantContract } from "@/lib/tenancy-shared"
+import { PAYMENT_METHODS, type OwnerContract, type TenantContract } from "@/lib/tenancy-shared"
 
 const TEMPLATE = join(process.cwd(), "templates", "tenancy-contract.pdf")
 const TEXT_SIZE = 10
@@ -37,8 +37,9 @@ const FIELDS = {
   annualRent: { page: 0, x: 91, y: 247, width: 150 },
   deposit: { page: 0, x: 416, y: 248, width: 110 },
   paymentMode: { page: 0, x: 139, y: 226, width: 300 },
-  additionalTerms: { page: 1, x: 49, y: 274, width: 490 },
 }
+
+const ADDITIONAL_TERM_LINES = [274, 251.5, 229, 206.5, 184].map((y) => ({ page: 1, x: 49, y, width: 490 }))
 
 const SIGNATURE_BOXES = {
   tenant: [
@@ -51,11 +52,16 @@ const SIGNATURE_BOXES = {
   ],
 }
 
-function draw(pages: PDFPage[], font: PDFFont, field: keyof typeof FIELDS, value: string) {
-  const { page, x, y, width } = FIELDS[field]
+type Spot = { page: number; x: number; y: number; width: number }
+
+function drawAt(pages: PDFPage[], font: PDFFont, { page, x, y, width }: Spot, value: string) {
   let size = TEXT_SIZE
   while (size > MIN_TEXT_SIZE && font.widthOfTextAtSize(value, size) > width) size -= 0.25
   pages[page].drawText(value, { x, y, size, font, color: INK })
+}
+
+function draw(pages: PDFPage[], font: PDFFont, field: keyof typeof FIELDS, value: string) {
+  drawAt(pages, font, FIELDS[field], value)
 }
 
 export function contractDate(iso: string) {
@@ -72,8 +78,11 @@ function money(amount: number) {
   return `AED ${Math.round(amount).toLocaleString("en-US")}`
 }
 
-function paymentMode(cheques: number) {
-  return `${cheques} (${NUMBER_WORDS[cheques]}) CHEQUE${cheques > 1 ? "S" : ""}`
+function paymentMode({ paymentMethod, cheques }: OwnerContract) {
+  if (paymentMethod === "CHEQUES" && cheques) {
+    return `${cheques} (${NUMBER_WORDS[cheques]}) CHEQUE${cheques > 1 ? "S" : ""}`
+  }
+  return PAYMENT_METHODS[paymentMethod].toUpperCase()
 }
 
 // Without an Emirates ID the passport goes on the name line, as DLD contracts do it.
@@ -90,7 +99,7 @@ async function sign(pdf: PDFDocument, pages: PDFPage[], font: PDFFont, party: "t
   }
 }
 
-export async function createOwnerSignedPdf(contract: OwnerContract, reference: string, signedAt: Date) {
+export async function createContractPdf(contract: OwnerContract, reference: string, createdAt: Date) {
   const pdf = await PDFDocument.load(await readFile(TEMPLATE))
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const pages = pdf.getPages()
@@ -99,7 +108,7 @@ export async function createOwnerSignedPdf(contract: OwnerContract, reference: s
   }
 
   const name = nameLine(contract.ownerName, contract.ownerEmiratesId, contract.ownerPassport)
-  put("date", contractDate(signedAt.toISOString().slice(0, 10)))
+  put("date", contractDate(createdAt.toISOString().slice(0, 10)))
   put("ownerName", name)
   put("lessorName", name)
   put("lessorEmiratesId", contract.ownerEmiratesId)
@@ -119,10 +128,10 @@ export async function createOwnerSignedPdf(contract: OwnerContract, reference: s
   put("contractValue", money(contract.contractValue))
   put("annualRent", money(contract.annualRent))
   put("deposit", money(contract.deposit))
-  put("paymentMode", paymentMode(contract.cheques))
-  put("additionalTerms", contract.additionalTerms)
-
-  await sign(pdf, pages, font, "lessor", contract.signature, signedAt)
+  put("paymentMode", paymentMode(contract))
+  contract.additionalTerms
+    .filter((term) => term.trim())
+    .forEach((term, i) => drawAt(pages, font, ADDITIONAL_TERM_LINES[i], term))
 
   for (const page of pages) {
     page.drawText(`Prepared on PocketList, ref. ${reference}. Takes effect once registered on Ejari.`, {
@@ -132,8 +141,8 @@ export async function createOwnerSignedPdf(contract: OwnerContract, reference: s
   return pdf.save()
 }
 
-export async function addTenantToPdf(ownerSigned: Buffer, tenant: TenantContract, signedAt: Date) {
-  const pdf = await PDFDocument.load(ownerSigned)
+export async function addTenantToPdf(contract: Buffer, tenant: TenantContract, signedAt: Date) {
+  const pdf = await PDFDocument.load(contract)
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const pages = pdf.getPages()
 
@@ -141,5 +150,12 @@ export async function addTenantToPdf(ownerSigned: Buffer, tenant: TenantContract
   if (tenant.tenantEmiratesId) draw(pages, font, "tenantEmiratesId", tenant.tenantEmiratesId)
   draw(pages, font, "tenantPhone", tenant.tenantPhone)
   await sign(pdf, pages, font, "tenant", tenant.signature, signedAt)
+  return pdf.save()
+}
+
+export async function addOwnerSignature(tenantSigned: Buffer, signature: string, signedAt: Date) {
+  const pdf = await PDFDocument.load(tenantSigned)
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
+  await sign(pdf, pdf.getPages(), font, "lessor", signature, signedAt)
   return pdf.save()
 }

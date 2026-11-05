@@ -1,5 +1,6 @@
 "use client"
 
+import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import posthog from "posthog-js"
 import { Button } from "@/components/ui/button"
@@ -55,6 +56,7 @@ function ContactRow({ icon, label, value, href, external, colorClass }: {
 }
 
 export function ContactButton({ listingId, isLoggedIn }: Props) {
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [contact, setContact] = useState<ContactInfo | null>(null)
   const [loading, setLoading] = useState(false)
@@ -104,24 +106,24 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
   return (
     <>
       <Button className="w-full" onClick={handleReveal}>
-        {isLoggedIn ? "Show Contact" : "Request Contact"}
+        {isLoggedIn ? t("Show Contact") : t("Request Contact")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {isLoggedIn ? (contact?.name ?? "Owner Contact") : "Leave your details"}
+              {isLoggedIn ? (contact?.name ?? t("Owner Contact")) : t("Leave your details")}
             </DialogTitle>
           </DialogHeader>
 
           {isLoggedIn ? (
             loading ? (
-              <p className="text-sm text-muted-foreground py-2">Loading…</p>
+              <p className="text-sm text-muted-foreground py-2">{t("Loading…")}</p>
             ) : hasAny ? (
               <div className="flex flex-col gap-2">
                 {contact.phone && (
-                  <ContactRow icon={<Phone size={16} />} label="Phone" value={contact.phone}
+                  <ContactRow icon={<Phone size={16} />} label={t("Phone")} value={contact.phone}
                     href={`tel:${contact.phone}`} colorClass="text-zinc-500" />
                 )}
                 {contact.whatsapp && (
@@ -133,16 +135,16 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                     href={telegramHref(contact.telegram)} external colorClass="text-blue-500" />
                 )}
                 {contact.email && (
-                  <ContactRow icon={<Mail size={16} />} label="Email" value={contact.email}
+                  <ContactRow icon={<Mail size={16} />} label={t("Email")} value={contact.email}
                     href={`mailto:${contact.email}`} colorClass="text-zinc-500" />
                 )}
               </div>
             ) : contact?.name === "__limit__" ? (
               <p className="text-sm text-muted-foreground py-2">
-                You&apos;ve reached the daily limit (20 contacts). Try again tomorrow.
+                {t("You've reached the daily limit (20 contacts). Try again tomorrow.")}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground py-2">Could not load contact info.</p>
+              <p className="text-sm text-muted-foreground py-2">{t("Could not load contact info.")}</p>
             )
           ) : sent ? (
             <div className="py-6 flex flex-col items-center gap-3">
@@ -159,8 +161,8 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                 </svg>
               </div>
               <div className="text-center space-y-0.5">
-                <p className="text-sm font-medium">Message sent!</p>
-                <p className="text-xs text-muted-foreground">The owner will reach out to you shortly.</p>
+                <p className="text-sm font-medium">{t("Message sent!")}</p>
+                <p className="text-xs text-muted-foreground">{t("The owner will reach out to you shortly.")}</p>
               </div>
             </div>
           ) : (
@@ -168,45 +170,45 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 The owner will contact you via email.{" "}
                 <a href="/login" className="underline underline-offset-4 text-foreground hover:opacity-70">
-                  Sign in
+                  {t("Sign in")}
                 </a>{" "}
                 to see their contact details directly.
               </p>
 
               {/* Email — required */}
               <div className="relative">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Your email" type="email" required
+                <Mail className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="ps-9" placeholder={t("Your email")} type="email" required
                   value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)} />
               </div>
 
               {/* Name — optional */}
               <div className="relative">
-                <User className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Your name (optional)"
+                <User className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="ps-9" placeholder={t("Your name (optional)")}
                   value={inquiryName} onChange={(e) => setInquiryName(e.target.value)} />
               </div>
 
               {/* Phone — optional */}
               <div className="relative">
-                <Phone className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Phone (optional)" type="tel"
+                <Phone className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="ps-9" placeholder={t("Phone (optional)")} type="tel"
                   value={inquiryPhone} onChange={(e) => setInquiryPhone(e.target.value)} />
               </div>
 
               {/* Social — optional */}
               <div className="relative">
-                <AtSign className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder="WhatsApp, Telegram or Instagram (optional)"
+                <AtSign className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="ps-9" placeholder={t("WhatsApp, Telegram or Instagram (optional)")}
                   value={inquirySocial} onChange={(e) => setInquirySocial(e.target.value)} />
               </div>
 
               {/* Message — optional */}
-              <Textarea placeholder="Message (optional)" className="resize-none text-sm" rows={3}
+              <Textarea placeholder={t("Message (optional)")} className="resize-none text-sm" rows={3}
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
 
               <Button type="submit" className="w-full" disabled={sending || !inquiryEmail}>
-                {sending ? "Sending…" : "Send to owner →"}
+                {sending ? t("Sending…") : t("Send to owner →")}
               </Button>
             </form>
           )}
