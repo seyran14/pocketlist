@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 -50 170 170" width="512" height="512" role="img" aria-label="PocketList PL">
+<defs>
+<pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="4.6" fill="#ffffff"/></pattern>
+<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#666666"/></linearGradient>
+<mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="110" height="70"><rect x="0" y="0" width="110" height="70" fill="url(#fade)"/></mask>
+</defs>
+<rect x="-30" y="-50" width="170" height="170" fill="#000000"/>
+<g fill="url(#dots)" mask="url(#m)">
+<rect x="0" y="0" width="40" height="10"/>
+<rect x="0" y="0" width="10" height="70"/>
+<rect x="40" y="10" width="10" height="20"/>
+<rect x="0" y="30" width="40" height="10"/>
+<rect x="60" y="0" width="10" height="70"/>
+<rect x="60" y="60" width="50" height="10"/>
+</g>
+</svg>

@@ -103,17 +103,12 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         )}
       </div>
 
-      {/* Rent only for now; sale is hidden until it comes back */}
-      <div className="flex gap-1">
-        <Button variant={!listingType ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
-          onClick={() => update("listingType", null)}>{t("All")}</Button>
-        <Button variant={listingType === "RENT" ? "default" : "outline"} size="sm" className="h-7 px-3 text-xs"
-          onClick={() => update("listingType", "RENT")}>{t("For Rent")}</Button>
-        {hasFilters && (
+      {hasFilters && (
+        <div className="flex">
           <Button variant="ghost" size="sm" className="h-7 px-3 text-xs text-muted-foreground ms-auto"
             onClick={() => router.push(pathname)}>{t("Clear")}</Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Row 1: Sort + Price | Property type */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
