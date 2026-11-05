@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
 import { InvalidPhotoError, removePhotoFiles, removeStaleUploads, storePhoto } from "@/lib/photos"
-import { MAX_PHOTO_BYTES } from "@/lib/photos-shared"
+import { MAX_PHOTO_BYTES, MAX_PHOTO_MB } from "@/lib/photos-shared"
 
 export async function POST(req: NextRequest) {
   const session = await auth()
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const file = form?.get("file")
   if (!(file instanceof File)) return NextResponse.json({ error: "No file" }, { status: 400 })
   if (file.size > MAX_PHOTO_BYTES) {
-    return NextResponse.json({ error: "Photo is larger than 15 MB." }, { status: 413 })
+    return NextResponse.json({ error: `Photo is larger than ${MAX_PHOTO_MB} MB.` }, { status: 413 })
   }
 
   let id: string

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/generated/prisma/client"
+import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import { logger } from "@/lib/logger"
 import { setListingPhotos } from "@/lib/photos"
 
@@ -104,6 +105,16 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// The app runs as one PM2 process, so chaining here is enough to stop parallel
+// requests from all passing the count before any of them has created a listing.
+let listingCreates: Promise<unknown> = Promise.resolve()
+
+function oneAtATime<T>(task: () => Promise<T>) {
+  const run = listingCreates.then(task)
+  listingCreates = run.catch(() => {})
+  return run
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session?.user) {
@@ -151,23 +162,33 @@ export async function POST(req: NextRequest) {
   const bedsLabel = beds === "Studio" ? "Studio" : `${beds}BR`
 
   try {
-    const listing = await prisma.listing.create({
-      data: {
-        ...rest,
-        agentId: session.user.id,
-        expiresAt,
-        bedrooms: beds,
-        description: notes ?? null,
-        priceLabel: price
-          ? isRent
-            ? `AED ${Number(price).toLocaleString("en-AE")} / yr`
-            : `AED ${Number(price).toLocaleString("en-AE")}`
-          : null,
-        title: isRent
-          ? `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K/yr`
-          : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
-      },
+    const listing = await oneAtATime(async () => {
+      const owned = await prisma.listing.count({ where: { agentId: session.user.id } })
+      if (owned >= MAX_LISTINGS_PER_USER) return null
+
+      return prisma.listing.create({
+        data: {
+          ...rest,
+          agentId: session.user.id,
+          expiresAt,
+          bedrooms: beds,
+          description: notes ?? null,
+          priceLabel: price
+            ? isRent
+              ? `AED ${Number(price).toLocaleString("en-AE")} / yr`
+              : `AED ${Number(price).toLocaleString("en-AE")}`
+            : null,
+          title: isRent
+            ? `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K/yr`
+            : `${bedsLabel} in ${rest.location} – AED ${Math.round(price / 1000)}K`,
+        },
+      })
     })
+
+    if (!listing) {
+      logger.warn("listing.limit_reached", { userId: session.user.id })
+      return NextResponse.json({ error: "listing_limit" }, { status: 403 })
+    }
 
     await setListingPhotos(listing.id, session.user.id, photoIds)
 

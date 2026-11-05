@@ -1,7 +1,9 @@
+import { spawn } from "child_process"
 import { randomUUID } from "crypto"
 import { mkdir, readFile, unlink, writeFile } from "fs/promises"
 import { join } from "path"
-import sharp from "sharp"
+import bmp from "bmp-js"
+import sharp, { type Sharp } from "sharp"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { MAX_PHOTOS_PER_LISTING } from "@/lib/photos-shared"
@@ -10,35 +12,91 @@ import { MAX_PHOTOS_PER_LISTING } from "@/lib/photos-shared"
 // and outside .next/ because every deploy wipes it.
 const UPLOAD_DIR = process.env.UPLOAD_DIR ?? join(process.cwd(), "uploads")
 const STALE_UPLOAD_MS = 24 * 60 * 60 * 1000
+const MAX_INPUT_PIXELS = 100_000_000
+const FULL_SIDE = 2000
+const THUMB_SIDE = 960
+const HEIC_SCRIPT = join(process.cwd(), "scripts", "heic-to-png.mjs")
+const HEIC_TIMEOUT_MS = 60_000
+
+// SVG stays out: sharp can read it, but it's markup rather than a photo.
+const SHARP_FORMATS = new Set(["jpeg", "png", "webp", "tiff", "gif", "heif"])
 
 const FILE_NAME = /^[a-f0-9]{32}(-thumb)?\.webp$/
 
+const UNSUPPORTED_FORMAT = "This file format isn't supported. Try a JPG or PNG."
+
 export class InvalidPhotoError extends Error {}
 
-function isSupportedImage(b: Buffer) {
-  const isJpeg = b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff
-  const isPng = b.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47]))
-  const isWebp =
-    b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP"
-  return isJpeg || isPng || isWebp
+let heicQueue: Promise<unknown> = Promise.resolve()
+
+function assertPixelLimit(width: number, height: number) {
+  if (width * height > MAX_INPUT_PIXELS) throw new InvalidPhotoError("This image is too large.")
+}
+
+function convertHeic(input: Buffer) {
+  return new Promise<Buffer>((resolve, reject) => {
+    const child = spawn(process.execPath, [HEIC_SCRIPT, String(FULL_SIDE)], {
+      stdio: ["pipe", "pipe", "inherit"],
+      timeout: HEIC_TIMEOUT_MS,
+    })
+    const chunks: Buffer[] = []
+    child.stdout.on("data", (chunk) => chunks.push(chunk))
+    child.stdin.on("error", () => {}) // EPIPE if the decoder dies early; "close" reports it.
+    child.on("error", reject)
+    child.on("close", (code) => {
+      if (code === 0) resolve(Buffer.concat(chunks))
+      else reject(new Error(`heic-to-png exited with ${code}`))
+    })
+    child.stdin.end(input)
+  })
+}
+
+// sharp's prebuilt binaries can't decode HEVC, which is what iPhones save as HEIC.
+// One at a time: a 48 MP HEIC takes about 650 MB while it decodes.
+async function openHeic(input: Buffer, width: number, height: number) {
+  assertPixelLimit(width, height)
+  const png = heicQueue.then(() => convertHeic(input))
+  heicQueue = png.catch(() => {})
+  return sharp(await png)
+}
+
+// sharp doesn't read BMP at all. bmp-js returns ABGR, so it's repacked to RGB.
+function openBmp(input: Buffer) {
+  assertPixelLimit(input.readInt32LE(18), Math.abs(input.readInt32LE(22)))
+  const { data, width, height } = bmp.decode(input)
+  const rgb = Buffer.alloc(width * height * 3)
+  for (let src = 0, dst = 0; src < data.length; src += 4, dst += 3) {
+    rgb[dst] = data[src + 3]
+    rgb[dst + 1] = data[src + 2]
+    rgb[dst + 2] = data[src + 1]
+  }
+  return sharp(rgb, { raw: { width, height, channels: 3 } })
+}
+
+async function openImage(input: Buffer): Promise<Sharp> {
+  if (input[0] === 0x42 && input[1] === 0x4d) return openBmp(input)
+
+  const options = { failOn: "error", limitInputPixels: MAX_INPUT_PIXELS } as const
+  const meta = await sharp(input, options).metadata()
+  if (!SHARP_FORMATS.has(meta.format)) throw new InvalidPhotoError(UNSUPPORTED_FORMAT)
+  if (meta.compression === "hevc") return openHeic(input, meta.width, meta.height)
+  return sharp(input, options)
 }
 
 // Re-encoding drops EXIF, so GPS coordinates in phone photos never reach the site.
 export async function storePhoto(input: Buffer): Promise<string> {
-  if (!isSupportedImage(input)) {
-    throw new InvalidPhotoError("Use a JPG, PNG or WebP image.")
-  }
-
-  const image = sharp(input, { failOn: "error", limitInputPixels: 100_000_000 }).rotate()
   let full: Buffer
   let thumb: Buffer
   try {
+    const image = (await openImage(input)).rotate()
     ;[full, thumb] = await Promise.all([
-      image.clone().resize(1600, 1600, { fit: "inside", withoutEnlargement: true }).webp({ quality: 80 }).toBuffer(),
-      image.clone().resize(640, 640, { fit: "inside", withoutEnlargement: true }).webp({ quality: 72 }).toBuffer(),
+      image.clone().resize(FULL_SIDE, FULL_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: 85 }).toBuffer(),
+      image.clone().resize(THUMB_SIDE, THUMB_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: 80 }).toBuffer(),
     ])
-  } catch {
-    throw new InvalidPhotoError("This image is damaged or too large.")
+  } catch (err) {
+    if (err instanceof InvalidPhotoError) throw err
+    // sharp reports anything it can't identify the same way as a broken file.
+    throw new InvalidPhotoError("We couldn't read this file. It may be damaged or not a photo.")
   }
 
   const id = randomUUID().replaceAll("-", "")

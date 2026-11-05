@@ -30,3 +30,7 @@ export function daysAgo(date: Date): string {
   if (diff === 1) return "Yesterday"
   return `${diff} days ago`
 }
+
+// Counts every listing the user has, sold and expired included. Together with
+// MAX_PHOTOS_PER_LISTING this caps a user at 120 published photos.
+export const MAX_LISTINGS_PER_USER = 10

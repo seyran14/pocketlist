@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import type { ParsedListing } from "@/lib/ai"
 
 type Step = "paste" | "review"
@@ -141,26 +142,27 @@ export function NewListingClient() {
         toast.error("Couldn't save your contact details. Please try again.")
         return
       }
-      const results = await Promise.allSettled(
-        valid.map((unit) =>
-          fetch(`/api/listings${force ? "?force=1" : ""}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(unit),
-          }).then(async (res) => {
-            if (res.status === 409) {
-              const data = await res.json()
-              throw { duplicate: true, name: unit.projectName, id: data.listingId }
-            }
-            return res
-          })
-        )
-      )
-      const duplicates = results
-        .filter((r): r is PromiseRejectedResult => r.status === "rejected" && r.reason?.duplicate)
-        .map((r) => r.reason.name as string)
-      const succeeded = results.filter((r) => r.status === "fulfilled").length
+      // In order, so that near the limit the first units are the ones that get published.
+      const duplicates: string[] = []
+      let succeeded = 0
+      let limitReached = false
+      for (const unit of valid) {
+        const res = await fetch(`/api/listings${force ? "?force=1" : ""}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(unit),
+        }).catch(() => null)
+        if (res?.status === 403) {
+          limitReached = true
+          break
+        }
+        if (res?.status === 409) duplicates.push(unit.projectName)
+        else if (res?.ok) succeeded++
+      }
 
+      if (limitReached) {
+        toast.error(`You've reached the limit of ${MAX_LISTINGS_PER_USER} listings. Delete one to add another.`)
+      }
       if (duplicates.length > 0 && !force) {
         toast.warning(
           `Possible duplicate: "${duplicates.join(", ")}" already active. Publish anyway?`,
@@ -173,7 +175,7 @@ export function NewListingClient() {
       if (succeeded > 0) {
         toast.success(`${succeeded} listing${succeeded !== 1 ? "s" : ""} published`)
         router.push("/dashboard")
-      } else if (duplicates.length === 0) {
+      } else if (duplicates.length === 0 && !limitReached) {
         toast.error("Failed to publish listings. Please try again.")
       }
     } finally {

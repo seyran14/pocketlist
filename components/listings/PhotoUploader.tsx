@@ -5,7 +5,7 @@ import Image from "next/image"
 import { ImagePlus, Star, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { MAX_PHOTOS_PER_LISTING, MAX_PHOTO_BYTES, photoUrl } from "@/lib/photos-shared"
+import { MAX_PHOTOS_PER_LISTING, MAX_PHOTO_BYTES, MAX_PHOTO_MB, photoUrl } from "@/lib/photos-shared"
 
 type Props = {
   initialIds: string[]
@@ -44,7 +44,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
     setProgress({ done: 0, total: batch.length })
     for (const [i, file] of batch.entries()) {
       if (file.size > MAX_PHOTO_BYTES) {
-        toast.error(`${file.name} is larger than 15 MB.`)
+        toast.error(`${file.name} is larger than ${MAX_PHOTO_MB} MB.`)
       } else {
         const body = new FormData()
         body.append("file", file)
@@ -131,7 +131,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*,.heic,.heif"
         multiple
         hidden
         onChange={(e) => {
@@ -141,7 +141,9 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
         }}
       />
 
-      <p className="text-xs text-muted-foreground">JPG, PNG or WebP, up to 15 MB each. The first photo is the cover.</p>
+      <p className="text-xs text-muted-foreground">
+        JPG, PNG, HEIC, WebP and other photo formats, up to {MAX_PHOTO_MB} MB each. The first photo is the cover.
+      </p>
     </div>
   )
 }
