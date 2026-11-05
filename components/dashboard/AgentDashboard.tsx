@@ -19,6 +19,7 @@ type Listing = {
   price: number
   priceLabel: string | null
   status: string
+  listingType: string
   createdAt: string
   viewCount: number
   review: { note: string | null } | null
@@ -344,6 +345,11 @@ export function AgentDashboard({ listings }: Props) {
                         <Link href={`/dashboard/listings/${l.id}/edit`}>
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Edit</Button>
                         </Link>
+                        {l.listingType === "RENT" && (l.status === "ACTIVE" || l.status === "RESERVED") && (
+                          <Link href={`/dashboard/listings/${l.id}/contract`}>
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs">Contract</Button>
+                          </Link>
+                        )}
                         {l.status === "ACTIVE" && (
                           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                             onClick={() => updateStatus(l.id, "RESERVED", l.projectName)}>

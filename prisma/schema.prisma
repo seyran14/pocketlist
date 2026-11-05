@@ -28,6 +28,7 @@ model User {
   notifications Notification[]
   photos        ListingPhoto[]
   documents     OwnerDocument[]
+  contracts     TenancyContract[]
 }
 
 enum Role {
@@ -90,6 +91,7 @@ model Listing {
   photos        ListingPhoto[]
   documents     OwnerDocument[]
   review        ListingReview?
+  contracts     TenancyContract[]
 }
 
 // Kept out of Listing so that no public query can return these by accident.
@@ -133,6 +135,37 @@ enum DocumentKind {
   TITLE_DEED
   PASSPORT
   EMIRATES_ID
+  TENANCY_CONTRACT
+}
+
+// The PDF is an OwnerDocument with no listing, so deleting a listing keeps a signed
+// contract. Only a hash of the tenant's link is stored.
+model TenancyContract {
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  status         ContractStatus @default(AWAITING_TENANT)
+  ownerId        String
+  listingId      String?
+  documentId     String
+  tenantEmail    String
+  tenantName     String?
+  tokenHash      String         @unique
+  linkExpiresAt  DateTime
+  ownerSignedAt  DateTime
+  tenantSignedAt DateTime?
+  tenantIp       String?
+  pdfSha256      String?
+
+  owner   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  listing Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId])
+  @@index([listingId])
+}
+
+enum ContractStatus {
+  AWAITING_TENANT
+  COMPLETED
 }
 
 enum Occupancy {
@@ -222,6 +255,7 @@ enum NotifType {
   CONTACT_REVEALED
   LISTING_APPROVED
   LISTING_REJECTED
+  CONTRACT_SIGNED
 }
 
 model Account {

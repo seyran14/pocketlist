@@ -110,6 +110,19 @@ export async function storeDocument(input: Buffer, fileName: string, kind: Docum
   return { id, mimeType, fields, hasText: !!text.trim() }
 }
 
+// For files the site generates, which need none of the checks on an upload.
+export async function storeGeneratedPdf(bytes: Uint8Array, fileName: string, userId: string) {
+  const id = randomUUID().replaceAll("-", "")
+  const buffer = Buffer.from(bytes)
+  await mkdir(DOCUMENTS_DIR, { recursive: true, mode: 0o700 })
+  await writeFile(documentPath(id), encrypt(buffer), { mode: 0o600 })
+  const sha256 = createHash("sha256").update(buffer).digest("hex")
+  await prisma.ownerDocument.create({
+    data: { id, kind: "TENANCY_CONTRACT", mimeType: PDF, fileName, sha256, uploaderId: userId },
+  })
+  return { id, sha256 }
+}
+
 export async function readDocument(id: string) {
   return decrypt(await readFile(documentPath(id)))
 }

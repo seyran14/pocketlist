@@ -4,6 +4,7 @@ export type DeedFields = {
   isDldDocument: boolean
   isPreTitle: boolean
   propertyNumber: string | null
+  plotNumber: string | null
   buildingName: string | null
   community: string | null
   propertyType: string | null
@@ -95,6 +96,7 @@ export function parseDeed(text: string): DeedFields {
     isDldDocument: /DUBAI LAND DEPARTMENT/i.test(flat),
     isPreTitle: buyers.length > 0,
     propertyNumber: labelled(lines, /^Property No\s*:/i)?.value.split(" ")[0] ?? null,
+    plotNumber: labelled(lines, /^Plot No\s*:/i)?.value.split(" ")[0] ?? null,
     buildingName: building ? [building.value, wrapped].filter(Boolean).join(" ") : null,
     community: labelled(lines, /^Community\s*:/i)?.value ?? null,
     propertyType: labelled(lines, /^Property Type\s*:/i)?.value ?? null,

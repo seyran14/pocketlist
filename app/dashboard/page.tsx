@@ -30,6 +30,7 @@ export default async function DashboardPage() {
         price: true,
         priceLabel: true,
         status: true,
+        listingType: true,
         createdAt: true,
         expiresAt: true,
         viewCount: true,
