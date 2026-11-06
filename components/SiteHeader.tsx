@@ -26,7 +26,7 @@ export function SiteHeader({ initialPinned, children }: { initialPinned: boolean
   const label = pinned ? t("Unpin header") : t("Pin header")
 
   return (
-    <header className={cn("header-fade z-50 border-b pt-3", pinned ? "sticky top-0" : "relative")}>
+    <header className={cn("header-cover z-50 border-b bg-card", pinned ? "sticky top-0" : "relative")}>
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <BrandLogo />
         <nav className="flex items-center gap-1">
