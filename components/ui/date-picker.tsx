@@ -19,7 +19,7 @@ function monthDays(year: number, month: number) {
   return { offset, days: Array.from({ length: count }, (_, i) => iso(year, month, i + 1)) }
 }
 
-const NAV = "flex size-8 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-30"
+const NAV = "flex size-8 max-sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-30"
 
 export function DatePicker({
   id, value, onChange, min, label, clearable = false, className,
@@ -59,6 +59,7 @@ export function DatePicker({
       <Popover.Trigger
         id={id}
         aria-label={label}
+        data-touch-target
         className={cn(
           "flex h-8 items-center gap-2 rounded-lg border border-input bg-card px-2.5 text-start text-sm outline-none transition-colors hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
           className

@@ -1,7 +1,7 @@
 "use client"
 
 import { useT } from "@/components/I18nProvider"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import Image from "next/image"
 import { Dialog } from "@base-ui/react/dialog"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
@@ -15,11 +15,12 @@ function PhotoViewer({ photos, alt, start, onClose }: {
   onClose: (index: number) => void
 }) {
   const t = useT()
-  const trackRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(start)
 
-  useEffect(() => {
-    const track = trackRef.current
+  // The dialog mounts its content later than this component, so an effect here finds no track.
+  const placeTrack = useCallback((track: HTMLDivElement | null) => {
+    trackRef.current = track
     if (track) track.scrollLeft = start * track.clientWidth
   }, [start])
 
@@ -45,7 +46,7 @@ function PhotoViewer({ photos, alt, start, onClose }: {
           className="fixed inset-0 z-[60] bg-black outline-none"
         >
           <div
-            ref={trackRef}
+            ref={placeTrack}
             onScroll={(e) => {
               const { scrollLeft, clientWidth } = e.currentTarget
               setActive(Math.round(scrollLeft / clientWidth))

@@ -333,49 +333,49 @@ export function AgentDashboard({ listings }: Props) {
                         {l.review.note}
                       </Link>
                     )}
-                    <div className="relative -ms-2 mt-1.5 min-h-7">
+                    <div className="relative mt-2 min-h-7 sm:-ms-2 sm:mt-1.5">
                       <div className={cn(
-                        "flex flex-wrap items-center gap-x-0.5 transition-all duration-150",
+                        "flex flex-wrap items-center gap-1.5 transition-all sm:gap-x-0.5 sm:gap-y-0 duration-150",
                         confirmDeleteId === l.id ? "opacity-0 pointer-events-none" : "opacity-100"
                       )}>
                         <Link href={`/dashboard/listings/${l.id}/edit`}>
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">{t("Edit")}</Button>
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border">{t("Edit")}</Button>
                         </Link>
                         {l.listingType === "RENT" && (l.status === "ACTIVE" || l.status === "RESERVED") && (
                           <Link href={`/dashboard/listings/${l.id}/contract`}>
-                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs">{t("Contract")}</Button>
+                            <Button size="sm" variant="ghost" className="h-7 px-2 text-xs max-sm:border-border">{t("Contract")}</Button>
                           </Link>
                         )}
                         {l.status === "ACTIVE" && (
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border" disabled={isPending}
                             onClick={() => updateStatus(l.id, "RESERVED", l.projectName)}>
                             {t("Reserve")}
                           </Button>
                         )}
                         {l.status === "RESERVED" && (
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border" disabled={isPending}
                             onClick={() => updateStatus(l.id, "ACTIVE", l.projectName)}>
                             {t("Unreserve")}
                           </Button>
                         )}
                         {(l.status === "ACTIVE" || l.status === "RESERVED") && (
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border" disabled={isPending}
                             onClick={() => updateStatus(l.id, "SOLD", l.projectName)}>
                             {t("Sold")}
                           </Button>
                         )}
                         {l.status === "SOLD" && (
-                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border" disabled={isPending}
                             onClick={() => updateStatus(l.id, "ACTIVE", l.projectName)}>
                             {t("Unsold")}
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground"
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border text-muted-foreground"
                           disabled={isPending}
                           onClick={() => renewListing(l.id, l.projectName)}>
                           {t("Renew")}
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-destructive hover:bg-destructive/10"
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border text-destructive hover:bg-destructive/10"
                           disabled={isPending}
                           onClick={() => setConfirmDeleteId(l.id)}>
                           {t("Delete")}
@@ -383,16 +383,16 @@ export function AgentDashboard({ listings }: Props) {
                       </div>
 
                       <div className={cn(
-                        "absolute inset-0 flex items-start gap-1 ps-2 transition-all duration-150",
+                        "absolute inset-0 flex items-start gap-1.5 transition-all sm:ps-2 duration-150",
                         confirmDeleteId === l.id
                           ? "opacity-100"
                           : "opacity-0 pointer-events-none"
                       )}>
-                        <Button variant="destructive" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
+                        <Button variant="destructive" size="sm" className="h-7 px-2 text-xs max-sm:border-border" disabled={isPending}
                           onClick={() => deleteListing(l.id, l.projectName)}>
                           {t("Confirm")}
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs"
+                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs max-sm:border-border"
                           onClick={() => setConfirmDeleteId(null)}>
                           {t("Cancel")}
                         </Button>

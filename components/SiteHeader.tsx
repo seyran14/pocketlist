@@ -58,7 +58,7 @@ export function SiteHeader({ initialPinned, action, children }: { initialPinned:
             ref={buttonRef}
             variant="ghost"
             size="sm"
-            className="relative size-9 px-0"
+            className="relative size-9 px-0 max-sm:size-11"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("Menu")}
             aria-expanded={open}

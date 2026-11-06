@@ -483,4 +483,5 @@ export const ar: Record<string, string> = {
   "Already have an account?": "لديك حساب بالفعل؟",
   "Terms of Service and Privacy Policy": "الشروط وسياسة الخصوصية",
   "Open photo {n} full size": "فتح الصورة {n} بالحجم الكامل",
+  "Hold a photo and drag it to change the order.": "اضغط مطولًا على الصورة واسحبها لتغيير الترتيب.",
 }

@@ -148,6 +148,36 @@
   will-change: transform;
 }
 
+/* ── Larger controls on phones ───────────────────────────────── */
+/* Outside any layer on purpose, so it wins over the compact sizes set per component. */
+@media (max-width: 639px) {
+  [data-slot="button"],
+  [data-slot="toggle-group-item"],
+  [data-slot="select-trigger"],
+  [data-touch-target] {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    font-size: 0.9375rem;
+  }
+  [data-slot="button"]:not(.px-0),
+  [data-slot="toggle-group-item"] {
+    padding-inline: 0.875rem;
+  }
+  /* iOS zooms the page when a focused field's text is under 16px. */
+  [data-slot="input"] {
+    height: 2.75rem;
+    font-size: 1rem;
+  }
+  [data-slot="select-item"] {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  [data-slot="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
 /* ── Matte/grain texture overlay ─────────────────────────────── */
 body::before {
   content: '';

@@ -1,8 +1,13 @@
 "use client"
 
 import { useT } from "@/components/I18nProvider"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import Image from "next/image"
+import {
+  DndContext, KeyboardSensor, MouseSensor, TouchSensor, closestCenter, useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core"
+import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates, useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { ImagePlus, Star, X } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -14,12 +19,68 @@ type Props = {
   onUploadingChange?: (uploading: boolean) => void
 }
 
+function PhotoTile({ id, index, onCover, onRemove }: {
+  id: string
+  index: number
+  onCover: () => void
+  onRemove: () => void
+}) {
+  const t = useT()
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      {...attributes}
+      {...listeners}
+      className={cn(
+        "relative aspect-square cursor-grab touch-manipulation overflow-hidden rounded-lg border bg-muted select-none [-webkit-touch-callout:none]",
+        isDragging && "z-10 cursor-grabbing opacity-90 shadow-lg ring-2 ring-foreground"
+      )}
+    >
+      <Image src={photoUrl(id, "thumb")} alt={`Photo ${index + 1}`} fill unoptimized draggable={false} className="pointer-events-none object-cover" />
+      {index === 0 ? (
+        <span className="absolute start-1 bottom-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white max-sm:text-xs">
+          {t("Cover")}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={onCover}
+          aria-label={`Make photo ${index + 1} the cover`}
+          title={t("Make cover")}
+          className="absolute start-1 bottom-1 flex size-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 max-sm:size-9"
+        >
+          <Star size={14} />
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Remove photo ${index + 1}`}
+        title={t("Remove")}
+        className="absolute end-1 top-1 flex size-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 max-sm:size-9"
+      >
+        <X size={14} />
+      </button>
+    </div>
+  )
+}
+
 export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props) {
   const t = useT()
   const [ids, setIds] = useState(initialIds)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const uploading = progress !== null
+  const dndId = useId()
+  // A touch has to hold still first, so swiping over the photos still scrolls the page.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   useEffect(() => {
     onChange(ids)
@@ -72,6 +133,11 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
     setIds((prev) => [id, ...prev.filter((p) => p !== id)])
   }
 
+  function onDragEnd({ active, over }: DragEndEvent) {
+    if (!over || active.id === over.id) return
+    setIds((prev) => arrayMove(prev, prev.indexOf(String(active.id)), prev.indexOf(String(over.id))))
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-2">
@@ -82,36 +148,13 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-        {ids.map((id, i) => (
-          <div key={id} className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
-            <Image src={photoUrl(id, "thumb")} alt={`Photo ${i + 1}`} fill unoptimized className="object-cover" />
-            {i === 0 ? (
-              <span className="absolute start-1 bottom-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                {t("Cover")}
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => makeCover(id)}
-                aria-label={`Make photo ${i + 1} the cover`}
-                title={t("Make cover")}
-                className="absolute start-1 bottom-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
-              >
-                <Star size={14} />
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={() => remove(id)}
-              aria-label={`Remove photo ${i + 1}`}
-              title={t("Remove")}
-              className="absolute end-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
-
+        <DndContext id={dndId} sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={ids} strategy={rectSortingStrategy}>
+            {ids.map((id, i) => (
+              <PhotoTile key={id} id={id} index={i} onCover={() => makeCover(id)} onRemove={() => remove(id)} />
+            ))}
+          </SortableContext>
+        </DndContext>
         {ids.length < MAX_PHOTOS_PER_LISTING && (
           <button
             type="button"
@@ -143,6 +186,9 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
         }}
       />
 
+      {ids.length > 1 && (
+        <p className="text-xs text-muted-foreground">{t("Hold a photo and drag it to change the order.")}</p>
+      )}
       <p className="text-xs text-muted-foreground">
         {t("JPG, PNG, HEIC, WebP and other photo formats, up to {mb} MB each. The first photo is the cover.", { mb: MAX_PHOTO_MB })}
       </p>
