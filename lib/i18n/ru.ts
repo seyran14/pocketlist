@@ -479,4 +479,8 @@ export const ru: Record<string, string> = {
   "Free by": "Свободно к дате",
   "Available from": "Свободно с",
   "available from date": "дату, когда жильё освободится",
+  "Pick a date": "Выберите дату",
+  "Clear date": "Сбросить дату",
+  "Previous month": "Предыдущий месяц",
+  "Next month": "Следующий месяц",
 }

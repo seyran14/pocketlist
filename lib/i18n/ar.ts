@@ -479,4 +479,8 @@ export const ar: Record<string, string> = {
   "Free by": "متاح بحلول",
   "Available from": "متاح من",
   "available from date": "تاريخ التوفر",
+  "Pick a date": "اختر تاريخًا",
+  "Clear date": "مسح التاريخ",
+  "Previous month": "الشهر السابق",
+  "Next month": "الشهر التالي",
 }

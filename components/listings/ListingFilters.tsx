@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Search, SlidersHorizontal, X } from "lucide-react"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { Input } from "@/components/ui/input"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
@@ -226,14 +227,13 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
               {status === "soon" && (
-                <Input
-                  type="date"
-                  aria-label={t("Free by")}
-                  title={t("Free by")}
+                <DatePicker
+                  label={t("Free by")}
                   min={today}
-                  className="h-8 w-36 bg-card text-xs"
+                  clearable
+                  className="w-40 text-xs"
                   value={current("availableBy")}
-                  onChange={(e) => update("availableBy", e.target.value || null)}
+                  onChange={(day) => update("availableBy", day || null)}
                 />
               )}
               <ToggleGroup

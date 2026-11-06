@@ -18,6 +18,7 @@ import { DocumentUploader, type UploadedDocument } from "@/components/listings/D
 import { PhotoUploader } from "@/components/listings/PhotoUploader"
 import { compareDeed, type DeedFields } from "@/lib/deed-shared"
 import { showsCheques } from "@/lib/listing-rules"
+import { DatePicker } from "@/components/ui/date-picker"
 import { cn, formatBeds } from "@/lib/utils"
 import type { ParsedListing } from "@/lib/ai"
 
@@ -362,12 +363,13 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {occupancy === "RENTED" && (
           <div>
             <Label htmlFor={`available-from-${index}`} className="text-xs text-muted-foreground">{t("Available from")}</Label>
-            <Input
-              {...register("availableFrom")}
+            <DatePicker
               id={`available-from-${index}`}
-              type="date"
+              label={t("Available from")}
               min={new Date().toISOString().slice(0, 10)}
-              className="h-8 text-sm mt-1"
+              className="mt-1 w-full"
+              value={watch("availableFrom") ?? ""}
+              onChange={(day) => setValue("availableFrom", day)}
             />
           </div>
         )}
