@@ -25,8 +25,9 @@ export function SiteHeader({ initialPinned, children }: { initialPinned: boolean
 
   const label = pinned ? t("Unpin header") : t("Pin header")
 
+  // Never sticky on phones: iOS Safari shows the page above a stuck header, behind the status bar.
   return (
-    <header className={cn("header-cover z-50 border-b bg-card", pinned ? "sticky top-0" : "relative")}>
+    <header className={cn("relative z-50 border-b bg-card", pinned && "sm:sticky sm:top-0")}>
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <BrandLogo />
         <nav className="flex items-center gap-1">

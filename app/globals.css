@@ -242,16 +242,3 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .heart-pop { animation: none; }
 }
-
-/*
- * iOS Safari draws the page behind the status bar, above where a sticky header
- * stops. This extends the header upwards so nothing shows through up there.
- */
-.header-cover::before {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 100%;
-  height: 8rem;
-  background: var(--card);
-}
