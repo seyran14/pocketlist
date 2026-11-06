@@ -93,6 +93,9 @@ export default async function AdminPage({
             <Link href="/admin/reviews" className="text-sm underline underline-offset-4">
               Listings to review ({pendingReviews})
             </Link>
+            <Link href="/admin/listings" className="ms-4 text-sm underline underline-offset-4">
+              All listings ({totalListings})
+            </Link>
             <p className="text-sm text-muted-foreground">PocketList overview</p>
           </div>
         </div>
@@ -134,7 +137,9 @@ export default async function AdminPage({
                 {recentListings.map((listing) => (
                   <tr key={listing.id} className="border-b last:border-0 hover:bg-muted/20">
                     <td className="px-4 py-2 font-medium truncate max-w-[140px]">
-                      {listing.projectName}
+                      <Link href={`/admin/listings/${listing.id}/edit`} className="hover:underline">
+                        {listing.projectName}
+                      </Link>
                     </td>
                     <td className="px-4 py-2 text-muted-foreground truncate max-w-[120px]">
                       {listing.location}

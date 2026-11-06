@@ -85,6 +85,7 @@ type Props = {
   onChange: (index: number, values: UnitFormValues) => void
   onRemove: (index: number) => void
   onUploadingChange?: (uploading: boolean) => void
+  ownerTools?: boolean
 }
 
 function Hint({ children, level = "warn" }: { children: string; level?: "warn" | "info" }) {
@@ -95,7 +96,7 @@ function Hint({ children, level = "warn" }: { children: string; level?: "warn" |
   )
 }
 
-export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploadingChange }: Props) {
+export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploadingChange, ownerTools = true }: Props) {
   const t = useT()
   const { register, watch, setValue, getValues } = useForm<UnitFormValues>({
     defaultValues: {
@@ -198,9 +199,10 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         initialIds={data.photos?.map((p) => p.id) ?? []}
         onChange={(ids) => setValue("photoIds", ids)}
         onUploadingChange={onUploadingChange}
+        canUpload={ownerTools}
       />
 
-      <div className="ph-no-capture space-y-2">
+      {ownerTools && <div className="ph-no-capture space-y-2">
         <DocumentUploader
           kind="TITLE_DEED"
           label="Title deed"
@@ -216,7 +218,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {deedMismatches.map((check) => (
           <Hint key={check.key}>{t("{label} doesn't match the deed: {found}", { label: t(check.label), found: check.found })}</Hint>
         ))}
-      </div>
+      </div>}
 
       <div className="grid grid-cols-2 gap-3">
         {/* Location */}

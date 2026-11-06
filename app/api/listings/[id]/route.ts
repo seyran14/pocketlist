@@ -7,6 +7,7 @@ import { attachDeed, deleteDocuments } from "@/lib/documents"
 import { refreshChecks } from "@/lib/listing-review"
 import {
   VERIFIED_FIELDS,
+  applyDerivedFields,
   missingFields,
   isValidDate,
   occupancyFields,
@@ -125,23 +126,7 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     logger.info("listing.refreshed", { userId: session.user.id, listingId: id })
   }
 
-  const isRent = (data.listingType ?? listing.listingType) === "RENT"
-
-  if (data.price !== undefined) {
-    data.priceLabel = isRent
-      ? `AED ${Number(data.price).toLocaleString("en-AE")} / yr`
-      : `AED ${Number(data.price).toLocaleString("en-AE")}`
-  }
-
-  const beds = (data.bedrooms ?? listing.bedrooms) as string
-  const loc = (data.location ?? listing.location) as string
-  const price = (data.price ?? listing.price) as number
-  const bedsLabel = beds === "Studio" ? "Studio" : `${beds}BR`
-  if (data.bedrooms !== undefined || data.location !== undefined || data.price !== undefined || data.listingType !== undefined) {
-    data.title = isRent
-      ? `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K/yr`
-      : `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K`
-  }
+  applyDerivedFields(data, listing)
 
   const changedFields = Object.keys(rest).filter((k) => rest[k] !== current[k])
 

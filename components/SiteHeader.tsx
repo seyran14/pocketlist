@@ -24,6 +24,8 @@ export function SiteHeader({ initialPinned, action, children }: { initialPinned:
     if (!open) return
     function onPointerDown(e: PointerEvent) {
       const target = e.target as Element
+      // The menu button toggles by itself: closing here too would let its click reopen the menu.
+      if (buttonRef.current?.contains(target)) return
       // The language list and the support dialog open in portals outside the menu.
       if (menuRef.current?.contains(target) || target.closest('[role="listbox"], [role="dialog"]')) return
       setOpen(false)

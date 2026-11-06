@@ -17,6 +17,7 @@ type Props = {
   initialIds: string[]
   onChange: (ids: string[]) => void
   onUploadingChange?: (uploading: boolean) => void
+  canUpload?: boolean
 }
 
 function PhotoTile({ id, index, onCover, onRemove }: {
@@ -68,7 +69,7 @@ function PhotoTile({ id, index, onCover, onRemove }: {
   )
 }
 
-export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props) {
+export function PhotoUploader({ initialIds, onChange, onUploadingChange, canUpload = true }: Props) {
   const t = useT()
   const [ids, setIds] = useState(initialIds)
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
@@ -155,7 +156,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange }: Props
             ))}
           </SortableContext>
         </DndContext>
-        {ids.length < MAX_PHOTOS_PER_LISTING && (
+        {canUpload && ids.length < MAX_PHOTOS_PER_LISTING && (
           <button
             type="button"
             disabled={uploading}

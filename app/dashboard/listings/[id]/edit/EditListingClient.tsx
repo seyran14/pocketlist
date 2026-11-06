@@ -17,10 +17,12 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 
-export function EditListingClient() {
+export function EditListingClient({ admin = false }: { admin?: boolean }) {
   const t = useT()
   const params = useParams<{ id: string }>()
   const router = useRouter()
+  const apiPath = `${admin ? "/admin/api" : "/api"}/listings/${params.id}`
+  const homePath = admin ? "/admin/listings" : "/dashboard"
   const STATUS_DISPLAY: Record<string, string> = {
     ACTIVE: t("Active"), RESERVED: t("Under Offer"), SOLD: t("Sold"),
   }
@@ -35,7 +37,7 @@ export function EditListingClient() {
   const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    fetch(`/api/listings/${params.id}`)
+    fetch(apiPath)
       .then((r) => r.json())
       .then((data) => {
         const normalized = { ...data, notes: data.description ?? null }
@@ -44,14 +46,14 @@ export function EditListingClient() {
         setListingType(data.listingType ?? "SALE")
         setFormValues(normalized)
       })
-  }, [params.id])
+  }, [apiPath])
 
   const inReview = listing?.status === "PENDING_REVIEW" || listing?.status === "REJECTED"
 
   async function handleSave() {
     if (!formValues) return
     setSaving(true)
-    const res = await fetch(`/api/listings/${params.id}`, {
+    const res = await fetch(apiPath, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...formValues, status, listingType }),
@@ -60,7 +62,8 @@ export function EditListingClient() {
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
       toast.success(data.status === "PENDING_REVIEW" ? t("Sent for review. We'll email you when it's live.") : t("Listing updated"))
-      router.push("/dashboard")
+      router.push(homePath)
+      if (admin) router.refresh()
     } else if (data.error === "missing_fields") {
       toast.error(t("Add {fields}.", { fields: data.fields.map((field: string) => t(field)).join(", ") }))
     } else {
@@ -70,10 +73,11 @@ export function EditListingClient() {
 
   async function handleDelete() {
     setDeleting(true)
-    const res = await fetch(`/api/listings/${params.id}`, { method: "DELETE" })
+    const res = await fetch(apiPath, { method: "DELETE" })
     if (res.ok || res.status === 204) {
       toast.success(t("Listing deleted"))
-      router.push("/dashboard")
+      router.push(homePath)
+      if (admin) router.refresh()
     } else {
       toast.error(t("Failed to delete listing"))
       setDeleting(false)
@@ -85,7 +89,7 @@ export function EditListingClient() {
     <main className="card-animate mx-auto max-w-3xl px-4 py-6">
       <div className="mb-6">
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push(homePath)}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -115,7 +119,7 @@ export function EditListingClient() {
             </div>
           )}
 
-          {!inReview && (
+          {!inReview && !admin && (
             <p className="text-xs text-muted-foreground">
               {t("Changing the building, location, type, area, parking, property number or title deed sends this listing back for review, and it's hidden until approved.")}
             </p>
@@ -128,6 +132,7 @@ export function EditListingClient() {
             onChange={(_, values) => setFormValues(values)}
             onRemove={() => {}}
             onUploadingChange={setUploading}
+            ownerTools={!admin}
           />
 
           {!inReview && <div className="rounded-xl border bg-card p-4">
@@ -181,7 +186,7 @@ export function EditListingClient() {
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push(homePath)}
                 disabled={saving || deleting}
               >
                 {t("Cancel")}

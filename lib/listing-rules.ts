@@ -56,6 +56,27 @@ export function missingFields(values: Values) {
   return missing
 }
 
+// The price label and the title are built from other fields, so they follow any change to those.
+export function applyDerivedFields(data: Values, listing: { listingType: string; bedrooms: string; location: string; price: number }) {
+  const isRent = (data.listingType ?? listing.listingType) === "RENT"
+
+  if (data.price !== undefined) {
+    data.priceLabel = isRent
+      ? `AED ${Number(data.price).toLocaleString("en-AE")} / yr`
+      : `AED ${Number(data.price).toLocaleString("en-AE")}`
+  }
+
+  const beds = (data.bedrooms ?? listing.bedrooms) as string
+  const loc = (data.location ?? listing.location) as string
+  const price = (data.price ?? listing.price) as number
+  const bedsLabel = beds === "Studio" ? "Studio" : `${beds}BR`
+  if (data.bedrooms !== undefined || data.location !== undefined || data.price !== undefined || data.listingType !== undefined) {
+    data.title = isRent
+      ? `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K/yr`
+      : `${bedsLabel} in ${loc} – AED ${Math.round(price / 1000)}K`
+  }
+}
+
 export function isValidDate(value: unknown) {
   if (value instanceof Date) return true
   return typeof value === "string" && !Number.isNaN(Date.parse(value))
