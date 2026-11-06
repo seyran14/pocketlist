@@ -306,6 +306,8 @@ export const ru: Record<string, string> = {
   "Submit for review ({n})": "Отправить на проверку ({n})",
   "Submitting…": "Отправляем…",
   "Support": "Поддержка",
+  "Pin header": "Закрепить шапку",
+  "Unpin header": "Открепить шапку",
   "Taken from your listing and title deed. Check that it's right.": "Взято из объявления и title deed. Проверьте, что всё верно.",
   "Tenancy contract": "Договор аренды",
   "Tenant": "Арендатор",

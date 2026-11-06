@@ -54,3 +54,4 @@ export function isPublicStatus(status: string) {
 
 export const SUPPORT_EMAIL = "support@pocketlist.ae"
 export const EMAIL_FROM = "PocketList <noreply@pocketlist.ae>"
+export const HEADER_PIN_COOKIE = "header_pinned"
