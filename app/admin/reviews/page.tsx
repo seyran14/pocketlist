@@ -53,7 +53,7 @@ export default async function ReviewsPage() {
   })
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="ph-no-capture mx-auto max-w-4xl space-y-6 px-4 py-8">
         <div>

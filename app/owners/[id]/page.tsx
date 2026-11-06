@@ -61,7 +61,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
 
 
   return (
-    <>
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Link
@@ -90,6 +90,6 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
           <ListingGrid listings={listings} savedIds={savedIds} />
         )}
       </main>
-    </>
+    </div>
   )
 }

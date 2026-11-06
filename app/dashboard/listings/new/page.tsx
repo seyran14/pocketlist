@@ -15,7 +15,7 @@ export default async function NewListingPage() {
     : 0
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       {owned >= MAX_LISTINGS_PER_USER ? (
         <main className="mx-auto max-w-md px-4 py-16 text-center">

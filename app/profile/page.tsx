@@ -29,7 +29,7 @@ export default async function ProfilePage() {
   if (!user) redirect("/login")
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-6">
         <div className="mb-6">

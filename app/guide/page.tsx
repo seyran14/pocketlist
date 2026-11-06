@@ -24,7 +24,7 @@ export default async function GuidePage({ searchParams }: { searchParams: Promis
       : session?.user?.role === "BUYER" ? "tenant" : "owner"
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">{t("How PocketList works")}</h1>

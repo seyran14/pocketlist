@@ -5,7 +5,7 @@ import Link from "next/link"
 
 export function AdminGate({ error }: { error?: boolean }) {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="flex-1 bg-background flex items-center justify-center p-4">
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">

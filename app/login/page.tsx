@@ -23,7 +23,7 @@ export default async function LoginPage({
 }) {
   const t = await getT()
   return (
-    <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="relative flex-1 bg-background flex items-center justify-center p-4">
       <DotMatrix />
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">

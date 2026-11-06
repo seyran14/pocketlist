@@ -49,7 +49,7 @@ export default async function SavedPage() {
   const active = saved.filter((s) => s.listing.status !== "EXPIRED")
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <div className="card-animate flex items-center justify-between mb-1">

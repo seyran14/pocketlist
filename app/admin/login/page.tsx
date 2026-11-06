@@ -15,7 +15,7 @@ export default async function AdminLoginPage({
   const { error } = await searchParams
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="flex-1 bg-background flex items-center justify-center p-4">
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">PocketList</Link>

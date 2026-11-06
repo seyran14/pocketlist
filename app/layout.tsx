@@ -28,7 +28,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${geist.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full bg-background font-sans">
+      <body className="flex min-h-dvh flex-col bg-background font-sans">
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <I18nProvider locale={locale}>

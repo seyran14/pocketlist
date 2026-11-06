@@ -34,7 +34,7 @@ export default async function ContractPage({ params }: { params: Promise<{ id: s
   const sqm = listing.areaSqm ?? deed.areaSqm
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <ContractClient
         listingId={id}

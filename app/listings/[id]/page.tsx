@@ -103,7 +103,7 @@ export default async function ListingPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-5xl px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6">

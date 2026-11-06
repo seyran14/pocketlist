@@ -11,7 +11,7 @@ export default function Error({
   unstable_retry: () => void
 }) {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="flex-1 bg-background flex items-center justify-center p-4">
       <div className="card-animate w-full max-w-sm text-center">
         <h1 className="text-xl font-semibold">Something went wrong</h1>
         <p className="text-sm text-muted-foreground mt-1 mb-6">

@@ -84,7 +84,7 @@ export default async function AdminPage({
   ]
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="card-animate flex items-center justify-between mb-1">

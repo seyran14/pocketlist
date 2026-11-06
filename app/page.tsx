@@ -175,7 +175,7 @@ export default async function HomePage({
   const locations = await getLocations()
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
