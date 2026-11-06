@@ -192,6 +192,13 @@ export function AgentDashboard({ listings }: Props) {
 
   const hasSelection = selectedIds.size > 0
 
+  const price = (l: Listing) => (l.priceLabel ? localizePriceLabel(l.priceLabel, t) : formatPrice(l.price))
+  const statusBadge = (status: string) => (
+    <Badge variant={STATUS_LABELS[status]?.variant ?? "outline"} className="text-xs">
+      {t(STATUS_LABELS[status]?.label ?? status)}
+    </Badge>
+  )
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -200,7 +207,7 @@ export function AgentDashboard({ listings }: Props) {
             multiple
             value={statusFilter}
             onValueChange={(v) => setStatusFilter(v.length ? v : ["ACTIVE"])}
-            className="gap-1"
+            className="max-w-full flex-wrap gap-1"
           >
             {["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED", "SOLD", "EXPIRED"].map((s) => (
               <ToggleGroupItem key={s} value={s} className="h-7 px-3 text-xs">
@@ -228,7 +235,7 @@ export function AgentDashboard({ listings }: Props) {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {hasSelection ? (
             <>
               <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
@@ -282,7 +289,7 @@ export function AgentDashboard({ listings }: Props) {
           <Link href="/dashboard/listings/new" className="underline underline-offset-4">{t("Add your first listing →")}</Link>
         </div>
       ) : (
-        <div className="rounded-xl border bg-card overflow-x-auto">
+        <div className="overflow-hidden rounded-xl border bg-card">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/40 text-xs text-muted-foreground">
@@ -290,11 +297,10 @@ export function AgentDashboard({ listings }: Props) {
                 <SortTh col="projectName" label={t("Project")} className="text-start" sorts={sorts} onSort={handleSort} />
                 <th className="text-start px-2.5 py-2.5 font-medium hidden lg:table-cell">{t("Location")}</th>
                 <SortTh col="bedrooms" label={t("Beds")} className="text-start hidden md:table-cell" sorts={sorts} onSort={handleSort} />
-                <SortTh col="price" label={t("Price")} className="text-start" sorts={sorts} onSort={handleSort} />
+                <SortTh col="price" label={t("Price")} className="text-start hidden sm:table-cell" sorts={sorts} onSort={handleSort} />
                 <th className="text-start px-2.5 py-2.5 font-medium hidden sm:table-cell">{t("Status")}</th>
                 <SortTh col="createdAt" label={t("Posted")} className="text-start hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
                 <SortTh col="viewCount" label={t("Views")} className="text-start hidden lg:table-cell" sorts={sorts} onSort={handleSort} />
-                <th className="px-2.5 py-2.5" />
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -307,7 +313,7 @@ export function AgentDashboard({ listings }: Props) {
                   )}
                   style={{ animationDelay: `${i * 30}ms` }}
                 >
-                  <td className="w-10 px-3 py-3">
+                  <td className="w-10 px-3 py-3 align-top">
                     <Checkbox
                       checked={selectedIds.has(l.id)}
                       onCheckedChange={() => toggleSelect(l.id)}
@@ -315,33 +321,21 @@ export function AgentDashboard({ listings }: Props) {
                     />
                   </td>
                   <td className="px-2.5 py-3">
-                    <Link href={`/listings/${l.id}`} className="font-medium hover:underline truncate block max-w-[170px]">
+                    <Link href={`/listings/${l.id}`} className="block font-medium [overflow-wrap:anywhere] hover:underline">
                       {l.projectName}
                     </Link>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 sm:hidden">
+                      <span className="text-sm font-medium tabular-nums">{price(l)}</span>
+                      {statusBadge(l.status)}
+                    </div>
                     {l.status === "REJECTED" && l.review?.note && (
-                      <Link href={`/dashboard/listings/${l.id}/edit`} className="mt-0.5 block max-w-[240px] text-xs text-destructive hover:underline">
+                      <Link href={`/dashboard/listings/${l.id}/edit`} className="mt-0.5 block text-xs text-destructive [overflow-wrap:anywhere] hover:underline">
                         {l.review.note}
                       </Link>
                     )}
-                  </td>
-                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground">{l.location}</td>
-                  <td className="px-2.5 py-3 hidden md:table-cell text-muted-foreground">{formatBeds(l.bedrooms, t)}</td>
-                  <td className="px-2.5 py-3 font-medium tabular-nums whitespace-nowrap">{l.priceLabel ? localizePriceLabel(l.priceLabel, t) : formatPrice(l.price)}</td>
-                  <td className="px-2.5 py-3 hidden sm:table-cell">
-                    <Badge variant={STATUS_LABELS[l.status]?.variant ?? "outline"} className="text-xs">
-                      {t(STATUS_LABELS[l.status]?.label ?? l.status)}
-                    </Badge>
-                  </td>
-                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground text-xs">
-                    {daysAgo(new Date(l.createdAt), t)}
-                  </td>
-                  <td className="px-2.5 py-3 hidden lg:table-cell text-muted-foreground text-xs tabular-nums">
-                    {l.viewCount}
-                  </td>
-                  <td className="px-2.5 py-3">
-                    <div className="relative flex items-center justify-end min-h-7">
+                    <div className="relative -ms-2 mt-1.5 min-h-7">
                       <div className={cn(
-                        "flex flex-wrap items-center justify-end gap-x-0.5 transition-all duration-150",
+                        "flex flex-wrap items-center gap-x-0.5 transition-all duration-150",
                         confirmDeleteId === l.id ? "opacity-0 pointer-events-none" : "opacity-100"
                       )}>
                         <Link href={`/dashboard/listings/${l.id}/edit`}>
@@ -389,10 +383,10 @@ export function AgentDashboard({ listings }: Props) {
                       </div>
 
                       <div className={cn(
-                        "absolute inset-0 flex items-center justify-end gap-1 transition-all duration-150",
+                        "absolute inset-0 flex items-start gap-1 ps-2 transition-all duration-150",
                         confirmDeleteId === l.id
-                          ? "opacity-100 translate-x-0"
-                          : "opacity-0 translate-x-2 pointer-events-none"
+                          ? "opacity-100"
+                          : "opacity-0 pointer-events-none"
                       )}>
                         <Button variant="destructive" size="sm" className="h-7 px-2 text-xs" disabled={isPending}
                           onClick={() => deleteListing(l.id, l.projectName)}>
@@ -404,6 +398,16 @@ export function AgentDashboard({ listings }: Props) {
                         </Button>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-2.5 py-3 hidden lg:table-cell align-top text-muted-foreground">{l.location}</td>
+                  <td className="px-2.5 py-3 hidden md:table-cell align-top text-muted-foreground">{formatBeds(l.bedrooms, t)}</td>
+                  <td className="hidden whitespace-nowrap px-2.5 py-3 align-top font-medium tabular-nums sm:table-cell">{price(l)}</td>
+                  <td className="px-2.5 py-3 hidden sm:table-cell align-top">{statusBadge(l.status)}</td>
+                  <td className="px-2.5 py-3 hidden lg:table-cell align-top text-muted-foreground text-xs">
+                    {daysAgo(new Date(l.createdAt), t)}
+                  </td>
+                  <td className="px-2.5 py-3 hidden lg:table-cell align-top text-muted-foreground text-xs tabular-nums">
+                    {l.viewCount}
                   </td>
                 </tr>
               ))}

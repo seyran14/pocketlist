@@ -7,7 +7,7 @@ export const PUBLIC_FIELDS = [
   "occupancy", "chequeCount", "availableFrom",
 ] as const
 
-export const PRIVATE_FIELDS = ["propertyNumber", "isExclusive", "amountPaid", "poaAvailable"] as const
+export const PRIVATE_FIELDS = ["propertyNumber", "amountPaid"] as const
 
 // Changing any of these on an approved listing sends it back to review, because
 // they are what was compared with the title deed.
@@ -44,8 +44,6 @@ export function missingFields(values: Values) {
   require(filled(values.view), "unit view")
   require(filled(values.occupancy), "status")
   require(isNumber(values.price) && (values.price as number) > 0, "asking price")
-  require(typeof values.isExclusive === "boolean", "exclusive")
-  require(typeof values.poaAvailable === "boolean", "POA")
   require(filled(values.deedId), "title deed")
 
   if (values.occupancy === "OFFPLAN") {

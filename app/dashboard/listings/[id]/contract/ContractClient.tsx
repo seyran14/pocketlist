@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Check, Plus, X } from "lucide-react"
@@ -89,6 +89,7 @@ const CONTRACT_STEP = 3
 
 function StatusRow({ contract, onChanged }: { contract: Contract; onChanged: () => void }) {
   const t = useT()
+  const router = useRouter()
   const [signature, setSignature] = useState<string | null>(null)
   const [signing, setSigning] = useState(false)
   const awaitingOwner = contract.status === "AWAITING_OWNER"
@@ -115,7 +116,7 @@ function StatusRow({ contract, onChanged }: { contract: Contract; onChanged: () 
     setSigning(false)
     if (res.ok) {
       toast.success(t("Signed. We emailed the contract to you and the tenant."))
-      onChanged()
+      router.push("/dashboard")
     } else {
       toast.error(t("Failed to sign. Please try again."))
     }
@@ -161,7 +162,9 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CHEQUES")
   const [terms, setTerms] = useState([""])
   const [step, setStep] = useState(0)
+  const [movedBack, setMovedBack] = useState(false)
   const [reached, setReached] = useState(0)
+  const stepsRef = useRef<HTMLOListElement>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState<{ url: string; emailed: boolean } | null>(null)
@@ -169,6 +172,21 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
   const set = (key: string, value: string) => setValues((prev) => ({ ...prev, [key]: value }))
   const openContract = contracts.some((c) => c.status !== "COMPLETED")
   const current = STEPS[step]
+
+  // The strip can't be scrolled by hand, so it follows the current step. Comparing
+  // positions on screen works in both reading directions.
+  useEffect(() => {
+    const list = stepsRef.current
+    const item = list?.querySelector('[aria-current="step"]')
+    if (!list || !item) return
+    const listBox = list.getBoundingClientRect()
+    const itemBox = item.getBoundingClientRect()
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    list.scrollBy({
+      left: itemBox.left + itemBox.width / 2 - (listBox.left + listBox.width / 2),
+      behavior: reduced ? "auto" : "smooth",
+    })
+  }, [step])
 
   function validate(index: number) {
     const found: Record<string, string> = {}
@@ -197,6 +215,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
 
   function next() {
     if (!validate(step)) return
+    setMovedBack(false)
     setStep(step + 1)
     setReached(Math.max(reached, step + 1))
     window.scrollTo({ top: 0 })
@@ -205,6 +224,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
   function goTo(index: number) {
     if (index > reached) return
     setErrors({})
+    setMovedBack(index < step)
     setStep(index)
   }
 
@@ -297,7 +317,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
         </p>
       ) : !sent && !openContract && (
         <div className="overflow-hidden rounded-xl border bg-card">
-          <ol className="flex gap-1 overflow-x-auto border-b p-2 [scrollbar-width:none]">
+          <ol ref={stepsRef} className="flex gap-1 overflow-hidden border-b p-2">
             {STEPS.map((item, i) => {
               const done = i < reached && i !== step
               return (
@@ -329,7 +349,13 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
             })}
           </ol>
 
-          <div className="space-y-4 p-4 sm:p-6">
+          <div
+            key={step}
+            className={cn(
+              "space-y-4 p-4 duration-200 animate-in fade-in-0 motion-reduce:animate-none sm:p-6",
+              movedBack ? "slide-in-from-start-6" : "slide-in-from-end-6"
+            )}
+          >
             <div>
               <h2 className="text-lg font-semibold">{t(current.title)}</h2>
               <p className="text-sm text-muted-foreground">{t(current.lead)}</p>

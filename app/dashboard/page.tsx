@@ -13,8 +13,9 @@ export default async function DashboardPage() {
   const session = await auth()
   if (!session?.user) redirect("/login")
 
+  // Tenants have no dashboard, so signing in takes them to the listings.
   if (session.user.role === "BUYER") {
-    redirect("/dashboard/saved")
+    redirect("/")
   }
 
   // Agent dashboard

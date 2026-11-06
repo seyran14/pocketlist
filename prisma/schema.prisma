@@ -19,7 +19,6 @@ model User {
   contactPref   String?
   whatsapp      String?
   telegram      String?
-  reraNumber    String?
 
   listings      Listing[]
   savedListings SavedListing[]
@@ -99,9 +98,7 @@ model Listing {
 model ListingReview {
   listingId      String    @id
   propertyNumber String
-  isExclusive    Boolean
   amountPaid     Float?
-  poaAvailable   Boolean
   checks         String?
   note           String?
   reviewedAt     DateTime?

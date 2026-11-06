@@ -14,7 +14,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
 
   const owner = await prisma.user.findUnique({
     where: { id, role: "AGENT" },
-    select: { id: true, name: true, reraNumber: true, createdAt: true },
+    select: { id: true, name: true, createdAt: true },
   })
 
   if (!owner) notFound()
@@ -76,7 +76,6 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
           <h1 className="text-2xl font-bold">{owner.name ?? "Owner"}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {t("Owner")} · {t("Active: {n}", { n: listings.length })}
-            {owner.reraNumber && ` · RERA ${owner.reraNumber}`}
           </p>
         </div>
 

@@ -16,7 +16,6 @@ export default async function OwnersPage() {
     select: {
       id: true,
       name: true,
-      reraNumber: true,
       _count: { select: { listings: { where: { status: { in: ["ACTIVE", "RESERVED"] } } } } },
     },
     orderBy: { listings: { _count: "desc" } },
@@ -42,9 +41,6 @@ export default async function OwnersPage() {
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold truncate">{a.name ?? "Owner"}</p>
-                  {a.reraNumber && (
-                    <p className="text-xs text-muted-foreground mt-0.5">RERA: {a.reraNumber}</p>
-                  )}
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground bg-muted rounded-full px-2 py-0.5">
                   {t("Listings: {n}", { n: a._count.listings })}

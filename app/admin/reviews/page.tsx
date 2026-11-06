@@ -30,8 +30,6 @@ function Fact({ label, value }: { label: string; value: string | number | null |
   )
 }
 
-const yesNo = (value: boolean) => (value ? "Yes" : "No")
-
 export default async function ReviewsPage() {
   if (!(await isAdminSession())) redirect("/admin")
 
@@ -129,8 +127,6 @@ export default async function ReviewsPage() {
                 <Fact label="Available from" value={listing.availableFrom?.toISOString().slice(0, 10)} />
                 <Fact label="Number of cheques" value={listing.chequeCount} />
                 <Fact label="Paid to developer" value={listing.review?.amountPaid} />
-                <Fact label="Exclusive" value={listing.review && yesNo(listing.review.isExclusive)} />
-                <Fact label="POA available" value={listing.review && yesNo(listing.review.poaAvailable)} />
               </div>
 
               <form action={reviewListing} className="space-y-2">

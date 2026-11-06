@@ -22,7 +22,6 @@ export default async function ProfilePage() {
       whatsapp: true,
       telegram: true,
       contactPref: true,
-      reraNumber: true,
     },
   })
 

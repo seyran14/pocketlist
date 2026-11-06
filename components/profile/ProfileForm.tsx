@@ -18,7 +18,6 @@ type ProfileData = {
   whatsapp: string | null
   telegram: string | null
   contactPref: string | null
-  reraNumber: string | null
 }
 
 type FormValues = {
@@ -26,7 +25,6 @@ type FormValues = {
   phone: string
   whatsapp: string
   telegram: string
-  reraNumber: string
 }
 
 const CONTACT_METHODS = [
@@ -53,7 +51,6 @@ export function ProfileForm({ user }: { user: ProfileData }) {
       phone: user.phone ?? "",
       whatsapp: user.whatsapp ?? "",
       telegram: user.telegram ?? "",
-      reraNumber: user.reraNumber ?? "",
     },
   })
 
@@ -192,16 +189,6 @@ export function ProfileForm({ user }: { user: ProfileData }) {
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="reraNumber">{t("RERA number (optional)")}</Label>
-            <Input
-              id="reraNumber"
-              {...register("reraNumber")}
-              placeholder="e.g. 12345"
-              className="w-48"
-            />
           </div>
         </div>
       )}

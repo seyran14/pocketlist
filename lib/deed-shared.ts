@@ -27,7 +27,6 @@ export type DeedClaim = {
   areaSqm?: number | null
   parkingSpots?: number | null
   ownerName?: string | null
-  poaAvailable?: boolean | null
 }
 
 export type DeedCheck = {
@@ -224,8 +223,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     const matched = fields.ownerNames.some((n) => namesMatch(name, n))
     checks.push({
       key: "owner", label: "Owner name", claimed: name || "—", found: fields.ownerNames.join(", ") || "—",
-      // Someone holding a power of attorney legitimately isn't the name on the deed.
-      result: matched ? "match" : fields.ownerNames.length === 0 || claim.poaAvailable ? "check" : "mismatch",
+      result: matched ? "match" : fields.ownerNames.length === 0 ? "check" : "mismatch",
     })
   }
 

@@ -66,7 +66,7 @@ export default async function ListingPage({
     prisma.listing.findUnique({
       where: { id },
       include: {
-        agent: { select: { id: true, name: true, reraNumber: true } },
+        agent: { select: { id: true, name: true } },
         photos: { select: { id: true }, orderBy: { position: "asc" } },
       },
     }),
@@ -178,11 +178,6 @@ export default async function ListingPage({
                   {listing.agent.name ?? t("Owner")}
                 </Link>
                 <p className="text-xs text-muted-foreground">{t("Owner")}</p>
-                {listing.agent.reraNumber && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    RERA: {listing.agent.reraNumber}
-                  </p>
-                )}
               </div>
 
               <Separator />

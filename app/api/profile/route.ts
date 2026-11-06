@@ -10,7 +10,6 @@ const MAX_LENGTHS: Record<string, number> = {
   whatsapp: 30,
   telegram: 50,
   contactPref: 100,
-  reraNumber: 50,
 }
 
 export async function GET() {
@@ -29,7 +28,6 @@ export async function GET() {
         whatsapp: true,
         telegram: true,
         contactPref: true,
-        reraNumber: true,
       },
     })
     return NextResponse.json(user)
@@ -77,7 +75,6 @@ export async function PATCH(req: NextRequest) {
         whatsapp: true,
         telegram: true,
         contactPref: true,
-        reraNumber: true,
       },
     })
     logger.info("profile.updated", { userId: session.user.id, fields: Object.keys(body).filter((k) => body[k] !== undefined) })

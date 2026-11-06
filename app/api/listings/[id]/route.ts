@@ -26,7 +26,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
       where: { id },
       include: {
         agent: {
-          select: { id: true, name: true, reraNumber: true },
+          select: { id: true, name: true },
         },
         photos: { select: { id: true }, orderBy: { position: "asc" } },
       },
@@ -51,9 +51,7 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     return NextResponse.json({
       ...listing,
       propertyNumber: review?.propertyNumber ?? null,
-      isExclusive: review?.isExclusive ?? null,
       amountPaid: review?.amountPaid ?? null,
-      poaAvailable: review?.poaAvailable ?? null,
       reviewNote: review?.note ?? null,
       deed,
     })

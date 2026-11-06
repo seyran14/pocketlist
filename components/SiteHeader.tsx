@@ -73,7 +73,7 @@ export function SiteHeader({ initialPinned, action, children }: { initialPinned:
           ref={menuRef}
           id="site-menu"
           hidden={!open}
-          onClick={(e) => { if ((e.target as Element).closest("a")) setOpen(false) }}
+          onClick={(e) => { if ((e.target as Element).closest('a, [role="option"]')) setOpen(false) }}
           className="absolute end-4 top-full mt-2 max-h-[calc(100dvh-5rem)] w-72 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border bg-card p-2 shadow-lg"
         >
           {children}

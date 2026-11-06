@@ -6,7 +6,35 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
-const Select = SelectPrimitive.Root
+// A choice always closes the list at once, without waiting for the popup's animation to report back.
+function Select<Value, Multiple extends boolean | undefined = false>({
+  onOpenChange,
+  onValueChange,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  const [open, setOpen] = React.useState(false)
+  const actionsRef = React.useRef<SelectPrimitive.Root.Actions>(null)
+
+  React.useEffect(() => {
+    if (!open) actionsRef.current?.unmount()
+  }, [open])
+
+  return (
+    <SelectPrimitive.Root
+      {...props}
+      open={open}
+      actionsRef={actionsRef}
+      onOpenChange={(next, details) => {
+        setOpen(next)
+        onOpenChange?.(next, details)
+      }}
+      onValueChange={(value, details) => {
+        if (!props.multiple) setOpen(false)
+        onValueChange?.(value, details)
+      }}
+    />
+  )
+}
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (

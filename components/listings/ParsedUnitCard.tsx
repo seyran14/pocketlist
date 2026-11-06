@@ -60,15 +60,13 @@ export type UnitFormValues = {
   occupancy: "VACANT" | "RENTED" | "OFFPLAN" | null
   availableFrom: string | null
   chequeCount: number | null
-  isExclusive: boolean | null
   amountPaid: number | null
-  poaAvailable: boolean | null
   deedId: string | null
 }
 
 export type UnitData = ParsedListing & Partial<Pick<
   UnitFormValues,
-  "propertyNumber" | "parkingSpots" | "occupancy" | "availableFrom" | "chequeCount" | "isExclusive" | "amountPaid" | "poaAvailable"
+  "propertyNumber" | "parkingSpots" | "occupancy" | "availableFrom" | "chequeCount" | "amountPaid"
 >> & {
   photos?: { id: string }[]
   deed?: { id: string; fileName: string } | null
@@ -87,31 +85,6 @@ type Props = {
   onChange: (index: number, values: UnitFormValues) => void
   onRemove: (index: number) => void
   onUploadingChange?: (uploading: boolean) => void
-}
-
-function YesNo({ label, value, onChange }: { label: string; value: boolean | null; onChange: (value: boolean) => void }) {
-  const t = useT()
-  return (
-    <div>
-      <Label className="text-xs text-muted-foreground">{t(label)}</Label>
-      <div className="mt-1 flex gap-1">
-        {[true, false].map((option) => (
-          <button
-            key={String(option)}
-            type="button"
-            aria-pressed={value === option}
-            onClick={() => onChange(option)}
-            className={cn(
-              "h-8 flex-1 rounded-md text-sm transition-colors",
-              value === option ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {option ? t("Yes") : t("No")}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
 }
 
 function Hint({ children, level = "warn" }: { children: string; level?: "warn" | "info" }) {
@@ -152,9 +125,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
       occupancy: defaultOccupancy(data),
       availableFrom: data.availableFrom?.slice(0, 10) ?? null,
       chequeCount: data.chequeCount ?? null,
-      isExclusive: data.isExclusive ?? null,
       amountPaid: data.amountPaid ?? null,
-      poaAvailable: data.poaAvailable ?? null,
       deedId: data.deed?.id ?? null,
     },
   })
@@ -384,9 +355,6 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             />
           </div>
         )}
-
-        <YesNo label="Exclusive" value={watch("isExclusive")} onChange={(v) => setValue("isExclusive", v)} />
-        <YesNo label="POA available" value={watch("poaAvailable")} onChange={(v) => setValue("poaAvailable", v)} />
 
         {/* Price */}
         <div className="col-span-2 sm:col-span-1">
