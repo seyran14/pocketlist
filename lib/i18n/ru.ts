@@ -486,4 +486,5 @@ export const ru: Record<string, string> = {
   "New here?": "Впервые здесь?",
   "I agree to the": "Я принимаю",
   "Already have an account?": "Уже есть аккаунт?",
+  "Terms of Service and Privacy Policy": "Условия и политику конфиденциальности",
 }

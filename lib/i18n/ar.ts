@@ -486,4 +486,5 @@ export const ar: Record<string, string> = {
   "New here?": "جديد هنا؟",
   "I agree to the": "أوافق على",
   "Already have an account?": "لديك حساب بالفعل؟",
+  "Terms of Service and Privacy Policy": "الشروط وسياسة الخصوصية",
 }

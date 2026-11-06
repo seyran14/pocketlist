@@ -82,7 +82,7 @@ export function RegisterForm() {
               onClick={() => setShowTerms(true)}
               className="text-foreground underline underline-offset-4 hover:opacity-70 transition-opacity"
             >
-              {t("Terms of Service & Privacy Policy")}
+              {t("Terms of Service and Privacy Policy")}
             </button>
           </label>
         </div>
