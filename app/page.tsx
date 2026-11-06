@@ -1,11 +1,11 @@
 import { getT } from "@/lib/i18n/server"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
+import { getSavedIds } from "@/lib/saved"
 import { Navbar } from "@/components/Navbar"
 import { ListingGrid, ListingGridSkeleton } from "@/components/listings/ListingGrid"
 import { ListingFilters } from "@/components/listings/ListingFilters"
 import { PaginationBar } from "@/components/listings/PaginationBar"
-import { Separator } from "@/components/ui/separator"
 import { headers } from "next/headers"
 import type { Prisma } from "@/lib/generated/prisma/client"
 
@@ -130,6 +130,7 @@ async function getLocations() {
 async function ListingsSection({ searchParams }: { searchParams: SearchParams }) {
   const t = await getT()
   const data = await getListings(searchParams)
+  const savedIds = await getSavedIds(data.listings.map((l) => l.id))
   const serialized = data.listings.map((l) => ({
     ...l,
     createdAt: l.createdAt.toISOString(),
@@ -138,10 +139,10 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
 
   return (
     <>
-      <p className="text-sm text-muted-foreground mb-4">
+      <p className="mt-8 mb-5 text-[22px] leading-tight font-medium tracking-[-0.02em]">
         {t("Listings: {n}", { n: data.total })}
       </p>
-      <ListingGrid listings={serialized} />
+      <ListingGrid listings={serialized} savedIds={savedIds} />
       {data.pages > 1 && (
         <PaginationBar
           page={data.page}
@@ -177,7 +178,7 @@ export default async function HomePage({
       <main className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
           <>
-            <h1 className="text-2xl font-bold mb-1 text-center">{t("Dubai Properties")}</h1>
+            <h1 className="text-[28px] leading-tight font-bold tracking-tight mb-1 text-center">{t("Dubai Properties")}</h1>
             <p className="text-muted-foreground text-sm mb-5 text-center">
               {t("Homes listed directly by their owners.")}
             </p>
@@ -185,7 +186,6 @@ export default async function HomePage({
         )}
 
         <ListingFilters locations={locations} />
-        <Separator className="mt-4 mb-5" />
 
         <Suspense fallback={<ListingGridSkeleton />}>
           <ListingsSection searchParams={sp} />

@@ -66,6 +66,7 @@ export const ru: Record<string, string> = {
   "Check your email": "Проверьте почту",
   "Cheques": "Чеки",
   "Clear": "Очистить",
+  "Filters": "Фильтры",
   "Clear search": "Очистить поиск",
   "Close": "Закрыть",
   "Code sent to": "Код отправлен на",

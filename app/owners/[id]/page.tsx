@@ -1,8 +1,9 @@
 import { getT } from "@/lib/i18n/server"
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { getSavedIds } from "@/lib/saved"
 import { Navbar } from "@/components/Navbar"
-import { ListingCard } from "@/components/listings/ListingCard"
+import { ListingGrid } from "@/components/listings/ListingGrid"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -54,6 +55,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
     createdAt: l.createdAt.toISOString(),
     expiresAt: l.expiresAt ? l.expiresAt.toISOString() : null,
   }))
+  const savedIds = await getSavedIds(listings.map((l) => l.id))
 
 
   return (
@@ -83,11 +85,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
             {t("No active listings at the moment.")}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {listings.map((listing, i) => (
-              <ListingCard key={listing.id} index={i} listing={listing} />
-            ))}
-          </div>
+          <ListingGrid listings={listings} savedIds={savedIds} />
         )}
       </main>
     </>

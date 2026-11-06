@@ -66,6 +66,7 @@ export const ar: Record<string, string> = {
   "Check your email": "تحقق من بريدك",
   "Cheques": "الشيكات",
   "Clear": "مسح",
+  "Filters": "الفلاتر",
   "Clear search": "مسح البحث",
   "Close": "إغلاق",
   "Code sent to": "تم إرسال الرمز إلى",

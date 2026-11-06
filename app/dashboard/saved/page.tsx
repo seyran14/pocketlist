@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
 import { ListingCard } from "@/components/listings/ListingCard"
+import { LISTING_GRID } from "@/components/listings/ListingGrid"
 import { unsaveListingAction } from "@/lib/actions/saved"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -64,7 +65,7 @@ export default async function SavedPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className={LISTING_GRID}>
             {active.map((s) => (
               <div key={s.id} className="relative group/saved">
                 <ListingCard
