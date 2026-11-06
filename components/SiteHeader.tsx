@@ -26,7 +26,9 @@ export function SiteHeader({ initialPinned, children }: { initialPinned: boolean
   const label = pinned ? t("Unpin header") : t("Pin header")
 
   return (
-    <header className={cn("z-50 border-b bg-card", pinned ? "sticky top-0" : "relative")}>
+    <header className={cn("z-50 border-b pt-[max(env(safe-area-inset-top),0.75rem)]", pinned ? "sticky top-0" : "relative")}>
+      {/* Its own layer: backdrop-filter on the header would trap the menus inside it. */}
+      <div aria-hidden="true" className="header-haze absolute inset-0 -z-10" />
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <BrandLogo />
         <nav className="flex items-center gap-1">
