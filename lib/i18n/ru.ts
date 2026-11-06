@@ -483,4 +483,7 @@ export const ru: Record<string, string> = {
   "Clear date": "Сбросить дату",
   "Previous month": "Предыдущий месяц",
   "Next month": "Следующий месяц",
+  "New here?": "Впервые здесь?",
+  "I agree to the": "Я принимаю",
+  "Already have an account?": "Уже есть аккаунт?",
 }

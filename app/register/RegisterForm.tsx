@@ -76,7 +76,7 @@ export function RegisterForm() {
             className="mt-0.5"
           />
           <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer select-none">
-            I agree to the{" "}
+            {t("I agree to the")}{" "}
             <button
               type="button"
               onClick={() => setShowTerms(true)}
@@ -93,7 +93,7 @@ export function RegisterForm() {
       </form>
 
       <p className="text-center text-sm text-muted-foreground mt-5">
-        Already have an account?{" "}
+        {t("Already have an account?")}{" "}
         <Link href="/login" className="text-foreground underline underline-offset-4">
           {t("Sign in")}
         </Link>

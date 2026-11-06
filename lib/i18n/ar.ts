@@ -483,4 +483,7 @@ export const ar: Record<string, string> = {
   "Clear date": "مسح التاريخ",
   "Previous month": "الشهر السابق",
   "Next month": "الشهر التالي",
+  "New here?": "جديد هنا؟",
+  "I agree to the": "أوافق على",
+  "Already have an account?": "لديك حساب بالفعل؟",
 }

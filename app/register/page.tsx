@@ -1,13 +1,13 @@
 import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
 import { RegisterForm } from "./RegisterForm"
-import { HousePattern } from "@/components/HousePattern"
+import { DotMatrix } from "@/components/DotMatrix"
 
 export default async function RegisterPage() {
   const t = await getT()
   return (
     <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
-      <HousePattern />
+      <DotMatrix />
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">

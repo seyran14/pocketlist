@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginAction } from "@/lib/actions/auth"
-import { HousePattern } from "@/components/HousePattern"
+import { DotMatrix } from "@/components/DotMatrix"
 import Link from "next/link"
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -24,7 +24,7 @@ export default async function LoginPage({
   const t = await getT()
   return (
     <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
-      <HousePattern />
+      <DotMatrix />
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="text-2xl font-bold">PocketList</Link>
@@ -54,7 +54,7 @@ export default async function LoginPage({
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          New here?{" "}
+          {t("New here?")}{" "}
           <Link href="/register" className="text-foreground underline underline-offset-4">
             {t("Create an account")}
           </Link>
