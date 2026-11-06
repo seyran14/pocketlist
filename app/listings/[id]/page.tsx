@@ -1,4 +1,4 @@
-import { getT } from "@/lib/i18n/server"
+import { getLocale, getT } from "@/lib/i18n/server"
 import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { prisma } from "@/lib/prisma"
@@ -11,12 +11,11 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { enumLabel, formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel } from "@/lib/utils"
+import { enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel } from "@/lib/utils"
 import Link from "next/link"
 
 const BASE_URL = "https://pocketlist.ae"
 
-const OCCUPANCY_LABELS: Record<string, string> = { VACANT: "Vacant", RENTED: "Rented", OFFPLAN: "Off-plan" }
 
 export async function generateMetadata({
   params,
@@ -60,6 +59,7 @@ export default async function ListingPage({
   params: Promise<{ id: string }>
 }) {
   const t = await getT()
+  const locale = await getLocale()
   const { id } = await params
   const [session, listing] = await Promise.all([
     auth(),
@@ -155,11 +155,11 @@ export default async function ListingPage({
               {fieldRow("Floor", listing.floor ? t(`${enumLabel(listing.floor)} floor`) : null)}
               {fieldRow("View", listing.view)}
               {fieldRow("Furnished", listing.furnished ? t(enumLabel(listing.furnished)) : null)}
-              {fieldRow("Status", listing.occupancy ? t(OCCUPANCY_LABELS[listing.occupancy]) : null)}
-              {fieldRow("Handover", listing.handover && t(listing.handover))}
+              {fieldRow("Status", isAvailableLater(listing.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(listing.availableFrom!, locale) }) : t("Available now"))}
+              {listing.listingType !== "RENT" && fieldRow("Handover", listing.handover && t(listing.handover))}
               {fieldRow("Cheques", listing.chequeCount)}
               {fieldRow("Parking", listing.parkingSpots ? t("Spots: {n}", { n: listing.parkingSpots }) : null)}
-              {listing.isRented && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
+              {listing.isRented && listing.listingType !== "RENT" && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
             </div>
 
             {listing.description && (

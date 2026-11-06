@@ -126,7 +126,7 @@ export default async function ReviewsPage() {
                 <Fact label="Furnished" value={listing.furnished} />
                 <Fact label="Unit view" value={listing.view} />
                 <Fact label="Status" value={listing.occupancy} />
-                <Fact label="Handover" value={listing.handover} />
+                <Fact label="Available from" value={listing.availableFrom?.toISOString().slice(0, 10)} />
                 <Fact label="Number of cheques" value={listing.chequeCount} />
                 <Fact label="Paid to developer" value={listing.review?.amountPaid} />
                 <Fact label="Exclusive" value={listing.review && yesNo(listing.review.isExclusive)} />

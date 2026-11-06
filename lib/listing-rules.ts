@@ -4,7 +4,7 @@ export const PUBLIC_FIELDS = [
   "listingType", "projectName", "location", "subLocation", "propertyType", "bedrooms", "bathrooms",
   "areaSqft", "areaSqm", "plotSqft", "plotSqm", "price", "floor", "view", "furnished", "handover",
   "isDistress", "originalPrice", "parkingSpots", "isRented", "rentAmount", "rentedUntil",
-  "occupancy", "chequeCount",
+  "occupancy", "chequeCount", "availableFrom",
 ] as const
 
 export const PRIVATE_FIELDS = ["propertyNumber", "isExclusive", "amountPaid", "poaAvailable"] as const
@@ -52,14 +52,33 @@ export function missingFields(values: Values) {
     require(filled(values.handover), "handover date")
     require(isNumber(values.amountPaid), "amount paid to the developer")
   }
+  if (values.occupancy === "RENTED") require(isValidDate(values.availableFrom), "available from date")
   require(isNumber(values.chequeCount), "number of cheques")
 
   return missing
 }
 
-export function occupancyFields(occupancy: unknown) {
-  if (occupancy === "VACANT") return { isRented: false, handover: "Ready" }
-  if (occupancy === "RENTED") return { isRented: true, handover: "Ready" }
-  if (occupancy === "OFFPLAN") return { isRented: false }
-  return {}
+export function isValidDate(value: unknown) {
+  if (value instanceof Date) return true
+  return typeof value === "string" && !Number.isNaN(Date.parse(value))
+}
+
+// availableFrom is always set here, so the date string from the form never reaches the database.
+export function occupancyFields(occupancy: unknown, availableFrom?: unknown) {
+  if (occupancy === "VACANT") return { isRented: false, handover: "Ready", availableFrom: null }
+  if (occupancy === "RENTED") {
+    const date = isValidDate(availableFrom) ? new Date(availableFrom as string | Date) : undefined
+    return { isRented: true, handover: "Ready", availableFrom: date }
+  }
+  if (occupancy === "OFFPLAN") return { isRented: false, availableFrom: null }
+  return { availableFrom: undefined }
+}
+
+// Null or a past date means free now, so a home turns "available" without anyone editing it.
+export function availabilityWhere(status: string | null | undefined, availableBy: string | null | undefined) {
+  const now = new Date()
+  if (status === "now") return { OR: [{ availableFrom: null }, { availableFrom: { lte: now } }] }
+  if (status !== "soon") return {}
+  const by = availableBy && isValidDate(availableBy) ? new Date(`${availableBy}T23:59:59.999Z`) : undefined
+  return { availableFrom: { gt: now, ...(by && !Number.isNaN(by.getTime()) ? { lte: by } : {}) } }
 }

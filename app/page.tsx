@@ -2,6 +2,7 @@ import { getT } from "@/lib/i18n/server"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { getSavedIds } from "@/lib/saved"
+import { availabilityWhere } from "@/lib/listing-rules"
 import { Navbar } from "@/components/Navbar"
 import { ListingGrid, ListingGridSkeleton } from "@/components/listings/ListingGrid"
 import { ListingFilters } from "@/components/listings/ListingFilters"
@@ -17,6 +18,7 @@ type SearchParams = {
   priceMin?: string
   priceMax?: string
   status?: string
+  availableBy?: string
   listingType?: string
   sort?: string
   page?: string
@@ -60,9 +62,7 @@ async function getListings(sp: SearchParams) {
       ...(sp.priceMax ? { lte: parseFloat(sp.priceMax) } : {}),
     }
   }
-  if (sp.status === "ready") where.handover = "Ready"
-  if (sp.status === "offplan") where.handover = { not: "Ready" }
-  if (sp.status === "distress") where.isDistress = true
+  where.AND = [availabilityWhere(sp.status, sp.availableBy)]
   if (sp.listingType === "SALE" || sp.listingType === "RENT") {
     where.listingType = sp.listingType as "SALE" | "RENT"
   }
@@ -102,6 +102,7 @@ async function getListings(sp: SearchParams) {
         view: true,
         furnished: true,
         handover: true,
+        availableFrom: true,
         isDistress: true,
         originalPrice: true,
         status: true,
@@ -135,6 +136,7 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
     ...l,
     createdAt: l.createdAt.toISOString(),
     expiresAt: l.expiresAt.toISOString(),
+    availableFrom: l.availableFrom?.toISOString() ?? null,
   }))
 
   return (

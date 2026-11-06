@@ -55,6 +55,7 @@ export default async function MobileFeedPage({
     updatedAt: l.updatedAt.toISOString(),
     expiresAt: l.expiresAt.toISOString(),
     handoverDate: l.handoverDate?.toISOString() ?? null,
+    availableFrom: l.availableFrom?.toISOString() ?? null,
   }))
 
   return (

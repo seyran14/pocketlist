@@ -30,7 +30,7 @@ const FURNISHED_LABELS: Record<string, string> = {
   FURNISHED: "Furnished", UNFURNISHED: "Unfurnished", PARTIAL: "Partial",
 }
 
-const OCCUPANCY_LABELS: Record<string, string> = { VACANT: "Vacant", RENTED: "Rented", OFFPLAN: "Off-plan" }
+const OCCUPANCY_LABELS: Record<string, string> = { VACANT: "Available now", RENTED: "Available soon", OFFPLAN: "Off-plan" }
 
 export type UnitFormValues = {
   listingType: "SALE" | "RENT"
@@ -57,6 +57,7 @@ export type UnitFormValues = {
   propertyNumber: string
   parkingSpots: number | null
   occupancy: "VACANT" | "RENTED" | "OFFPLAN" | null
+  availableFrom: string | null
   chequeCount: number | null
   isExclusive: boolean | null
   amountPaid: number | null
@@ -66,17 +67,16 @@ export type UnitFormValues = {
 
 export type UnitData = ParsedListing & Partial<Pick<
   UnitFormValues,
-  "propertyNumber" | "parkingSpots" | "occupancy" | "chequeCount" | "isExclusive" | "amountPaid" | "poaAvailable"
+  "propertyNumber" | "parkingSpots" | "occupancy" | "availableFrom" | "chequeCount" | "isExclusive" | "amountPaid" | "poaAvailable"
 >> & {
   photos?: { id: string }[]
   deed?: { id: string; fileName: string } | null
 }
 
 function defaultOccupancy(data: UnitData): UnitFormValues["occupancy"] {
-  if (data.occupancy) return data.occupancy
+  if (data.occupancy === "VACANT" || data.occupancy === "RENTED") return data.occupancy
   if (data.isRented) return "RENTED"
-  if (!data.handover) return null
-  return /ready/i.test(data.handover) ? "VACANT" : "OFFPLAN"
+  return data.handover && /ready/i.test(data.handover) ? "VACANT" : null
 }
 
 type Props = {
@@ -149,6 +149,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
       propertyNumber: data.propertyNumber ?? "",
       parkingSpots: data.parkingSpots ?? null,
       occupancy: defaultOccupancy(data),
+      availableFrom: data.availableFrom?.slice(0, 10) ?? null,
       chequeCount: data.chequeCount ?? null,
       isExclusive: data.isExclusive ?? null,
       amountPaid: data.amountPaid ?? null,
@@ -352,17 +353,22 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
               <span>{occupancy ? t(OCCUPANCY_LABELS[occupancy]) : "—"}</span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="VACANT">{t("Vacant")}</SelectItem>
-              <SelectItem value="RENTED">{t("Rented")}</SelectItem>
-              <SelectItem value="OFFPLAN">{t("Off-plan")}</SelectItem>
+              <SelectItem value="VACANT">{t("Available now")}</SelectItem>
+              <SelectItem value="RENTED">{t("Available soon")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {occupancy === "OFFPLAN" && (
+        {occupancy === "RENTED" && (
           <div>
-            <Label className="text-xs text-muted-foreground">{t("Handover date")}</Label>
-            <Input {...register("handover")} className="h-8 text-sm mt-1" placeholder={t("e.g. Q1 2027")} />
+            <Label htmlFor={`available-from-${index}`} className="text-xs text-muted-foreground">{t("Available from")}</Label>
+            <Input
+              {...register("availableFrom")}
+              id={`available-from-${index}`}
+              type="date"
+              min={new Date().toISOString().slice(0, 10)}
+              className="h-8 text-sm mt-1"
+            />
           </div>
         )}
 
@@ -393,18 +399,6 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             placeholder={t("e.g. 1500000")}
           />
         </div>
-
-        {occupancy === "OFFPLAN" && (
-          <div className="col-span-2 sm:col-span-1">
-            <Label className="text-xs text-muted-foreground">{t("Amount paid to the developer (AED)")}</Label>
-            <Input
-              {...register("amountPaid", { valueAsNumber: true })}
-              type="number"
-              className="h-8 text-sm mt-1"
-              placeholder={t("Not shown to buyers")}
-            />
-          </div>
-        )}
 
         {showsCheques(watched) && (
           <div className="col-span-2 sm:col-span-1">

@@ -79,6 +79,7 @@ model Listing {
   rentedUntil   String?
   occupancy     Occupancy?
   chequeCount   Int?
+  availableFrom DateTime?
 
   description   String?
   viewCount     Int             @default(0)

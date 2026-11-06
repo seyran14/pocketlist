@@ -5,7 +5,7 @@ import { Prisma } from "@/lib/generated/prisma/client"
 import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import { attachDeed } from "@/lib/documents"
 import { refreshChecks } from "@/lib/listing-review"
-import { missingFields, occupancyFields, pickPrivateFields, pickPublicFields } from "@/lib/listing-rules"
+import { availabilityWhere, missingFields, occupancyFields, pickPrivateFields, pickPublicFields } from "@/lib/listing-rules"
 import { logger } from "@/lib/logger"
 import { setListingPhotos } from "@/lib/photos"
 
@@ -43,9 +43,7 @@ export async function GET(req: NextRequest) {
   if (priceMin) where.price = { ...((where.price as object) ?? {}), gte: parseFloat(priceMin) }
   if (priceMax) where.price = { ...((where.price as object) ?? {}), lte: parseFloat(priceMax) }
 
-  if (statusFilter === "ready") where.handover = "Ready"
-  if (statusFilter === "offplan") where.handover = { not: "Ready" }
-  if (statusFilter === "distress") where.isDistress = true
+  where.AND = [availabilityWhere(statusFilter, req.nextUrl.searchParams.get("availableBy"))]
   if (listingType === "SALE" || listingType === "RENT") {
     where.listingType = listingType
   }
@@ -86,6 +84,7 @@ export async function GET(req: NextRequest) {
           view: true,
           furnished: true,
           handover: true,
+          availableFrom: true,
           isDistress: true,
           originalPrice: true,
           status: true,
@@ -176,7 +175,7 @@ export async function POST(req: NextRequest) {
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
   const { notes, photoIds, deedId } = body
-  const rest = { ...pickPublicFields(body), ...occupancyFields(body.occupancy) } as Prisma.ListingUncheckedCreateInput
+  const rest = { ...pickPublicFields(body), ...occupancyFields(body.occupancy, body.availableFrom) } as Prisma.ListingUncheckedCreateInput
   const privateFields = pickPrivateFields(body) as Prisma.ListingReviewUncheckedCreateWithoutListingInput
   const beds = rest.bedrooms ?? "Studio"
   const price = rest.price ?? 0

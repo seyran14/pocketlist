@@ -8,6 +8,7 @@ import { refreshChecks } from "@/lib/listing-review"
 import {
   VERIFIED_FIELDS,
   missingFields,
+  isValidDate,
   occupancyFields,
   pickPrivateFields,
   pickPublicFields,
@@ -81,7 +82,11 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { notes, action, photoIds, deedId } = body
   const rest = pickPublicFields(body)
   const privateFields = pickPrivateFields(body)
-  const data: Record<string, unknown> = { ...rest, ...occupancyFields(rest.occupancy) }
+  const data: Record<string, unknown> = { ...rest, ...occupancyFields(rest.occupancy, rest.availableFrom) }
+
+  if (rest.occupancy === "RENTED" && !isValidDate(rest.availableFrom ?? listing.availableFrom)) {
+    return NextResponse.json({ error: "missing_fields", fields: ["available from date"] }, { status: 422 })
+  }
 
   // Owners can only set these statuses, and only once a listing has been approved:
   // EXPIRED is for the cron job, the review statuses for the reviewer.

@@ -48,6 +48,14 @@ export const MAX_LISTINGS_PER_USER = 10
 
 const HIDDEN_STATUSES = ["EXPIRED", "PENDING_REVIEW", "REJECTED"]
 
+export function isAvailableLater(availableFrom: string | Date | null | undefined) {
+  return !!availableFrom && new Date(availableFrom).getTime() > Date.now()
+}
+
+export function formatAvailableDate(availableFrom: string | Date, locale: string) {
+  return new Date(availableFrom).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+}
+
 export function isPublicStatus(status: string) {
   return !HIDDEN_STATUSES.includes(status)
 }

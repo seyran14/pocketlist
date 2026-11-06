@@ -472,4 +472,11 @@ export const ar: Record<string, string> = {
   "The owner prepares the contract and we email you a link. Read it, add your details and your Emirates ID or passport number, and sign on screen.": "يجهّز المالك العقد ونرسل إليك رابطًا بالبريد الإلكتروني. اقرأه، وأضف بياناتك ورقم الهوية الإماراتية أو جواز السفر، ثم وقّع على الشاشة.",
   "Get the finished contract": "استلم العقد النهائي",
   "The owner signs after you, and we email you the finished contract. It takes effect once it's registered on Ejari.": "يوقّع المالك بعدك ونرسل إليك العقد النهائي بالبريد الإلكتروني. ويسري بعد تسجيله في إيجاري.",
+  "Available now": "متاح الآن",
+  "Available soon": "يتوفر قريبًا",
+  "Available from {date}": "متاح من {date}",
+  "From {date}": "من {date}",
+  "Free by": "متاح بحلول",
+  "Available from": "متاح من",
+  "available from date": "تاريخ التوفر",
 }

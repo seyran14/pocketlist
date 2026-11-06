@@ -1,10 +1,10 @@
 "use client"
 
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import Link from "next/link"
 import Image from "next/image"
 import { Building2 } from "lucide-react"
-import { cn, enumLabel, formatPrice, formatRentPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
+import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatRentPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
 import { photoUrl } from "@/lib/photos-shared"
 import { CardSaveButton } from "./CardSaveButton"
 
@@ -25,6 +25,7 @@ type ListingCardData = {
   isDistress: boolean
   createdAt: string
   handover: string | null
+  availableFrom?: string | null
   propertyType: string
   photos?: { id: string }[]
 }
@@ -34,8 +35,10 @@ const BADGE = "rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2222
 // Leave `saved` undefined to show the card without a heart.
 export function ListingCard({ listing, index = 0, saved }: { listing: ListingCardData; index?: number; saved?: boolean }) {
   const t = useT()
+  const locale = useLocale()
   const isReserved = listing.status === "RESERVED"
   const isDistress = listing.isDistress
+  const availableLater = isAvailableLater(listing.availableFrom)
   const isRent = listing.listingType === "RENT"
   const cover = listing.photos?.[0]
 
@@ -64,10 +67,15 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
           ) : (
             <Building2 size={32} className="text-muted-foreground/40" aria-hidden="true" />
           )}
-          {(isDistress || isReserved) && (
+          {(isDistress || isReserved || availableLater) && (
             <div className="absolute start-3 top-3 flex flex-col items-start gap-1">
               {isReserved && <span className={BADGE}>{t("Under Offer")}</span>}
               {isDistress && <span className={BADGE}>{t("Distress Deal")}</span>}
+              {availableLater && (
+                <span className={BADGE} suppressHydrationWarning>
+                  {t("From {date}", { date: formatAvailableDate(listing.availableFrom!, locale) })}
+                </span>
+              )}
             </div>
           )}
         </div>

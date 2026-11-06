@@ -37,6 +37,7 @@ export default async function SavedPage() {
           isDistress: true,
           createdAt: true,
           handover: true,
+          availableFrom: true,
           propertyType: true,
           photos: { select: { id: true }, orderBy: { position: "asc" }, take: 1 },
         },
@@ -72,6 +73,7 @@ export default async function SavedPage() {
                   listing={{
                     ...s.listing,
                     createdAt: s.listing.createdAt.toISOString(),
+                    availableFrom: s.listing.availableFrom?.toISOString() ?? null,
                   }}
                 />
                 <form

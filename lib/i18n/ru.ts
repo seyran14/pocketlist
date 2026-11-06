@@ -472,4 +472,11 @@ export const ru: Record<string, string> = {
   "The owner prepares the contract and we email you a link. Read it, add your details and your Emirates ID or passport number, and sign on screen.": "Владелец готовит договор, а мы присылаем вам ссылку на почту. Прочитайте его, добавьте свои данные и номер Emirates ID или паспорта и подпишите на экране.",
   "Get the finished contract": "Получите готовый договор",
   "The owner signs after you, and we email you the finished contract. It takes effect once it's registered on Ejari.": "Владелец подписывает после вас, и мы присылаем готовый договор на почту. Он вступает в силу после регистрации в Ejari.",
+  "Available now": "Свободно",
+  "Available soon": "Скоро освободится",
+  "Available from {date}": "Свободно с {date}",
+  "From {date}": "С {date}",
+  "Free by": "Свободно к дате",
+  "Available from": "Свободно с",
+  "available from date": "дату, когда жильё освободится",
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SupportButton } from "@/components/SupportButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
-import { cn, enumLabel, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
+import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
 
 type Owner = { id: string; name: string | null }
 
@@ -37,6 +37,7 @@ type FeedListing = {
   view: string | null
   furnished: string | null
   handover: string | null
+  availableFrom: string | null
   isDistress: boolean
   originalPrice: number | null
   isRented: boolean
@@ -106,6 +107,7 @@ function SideBtn({
 }
 
 export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
+  const locale = useLocale()
   const t = useT()
   const router = useRouter()
   const [savedSet, setSavedSet] = useState<Set<string>>(new Set(savedIds))
@@ -265,9 +267,10 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     <FieldRow label="Floor" value={l.floor ? t(`${enumLabel(l.floor)} floor`) : null} />
                     <FieldRow label="View" value={l.view} />
                     <FieldRow label="Furnished" value={l.furnished ? t(enumLabel(l.furnished)) : null} />
-                    <FieldRow label="Handover" value={l.handover && t(l.handover)} />
+                    <FieldRow label="Status" value={isAvailableLater(l.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(l.availableFrom!, locale) }) : t("Available now")} />
+                    {l.listingType !== "RENT" && <FieldRow label="Handover" value={l.handover && t(l.handover)} />}
                     <FieldRow label="Parking" value={l.parkingSpots ? t("Spots: {n}", { n: l.parkingSpots }) : null} />
-                    {l.isRented && <FieldRow label="Rental income" value={l.rentAmount ? `${formatPrice(l.rentAmount)} ${t("/ yr")}` : t("Rented")} />}
+                    {l.isRented && l.listingType !== "RENT" && <FieldRow label="Rental income" value={l.rentAmount ? `${formatPrice(l.rentAmount)} ${t("/ yr")}` : t("Rented")} />}
                   </div>
 
                   {/* Description */}

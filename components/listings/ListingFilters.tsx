@@ -19,9 +19,8 @@ import {
 const PROPERTY_TYPES = ["APARTMENT", "TOWNHOUSE", "VILLA", "PENTHOUSE", "DUPLEX"]
 const BEDROOM_OPTIONS = ["Studio", "1", "2", "3", "4", "5+"]
 const STATUS_OPTIONS = [
-  { value: "ready", label: "Ready" },
-  { value: "offplan", label: "Off-plan" },
-  { value: "distress", label: "Distress" },
+  { value: "now", label: "Available now" },
+  { value: "soon", label: "Available soon" },
 ]
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest" },
@@ -78,8 +77,17 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
-  const listingType = current("listingType")
-  const isRent = listingType === "RENT"
+  const status = current("status")
+  const today = new Date().toISOString().slice(0, 10)
+
+  const changeStatus = (next: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (next) params.set("status", next)
+    else params.delete("status")
+    params.delete("availableBy")
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`)
+  }
 
   const hasFilters = ["q", "propertyType", "bedrooms", "priceMin", "priceMax", "status", "listingType"].some(
     (k) => searchParams.get(k)
@@ -166,7 +174,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             </div>
 
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{isRent ? t("Rent (AED)") : t("Price (AED)")}</Label>
+              <Label className="text-xs text-muted-foreground">{t("Rent (AED)")}</Label>
               <div className="flex items-center gap-1">
                 <Input type="number" placeholder={t("Min")} className="h-8 w-24 bg-card text-xs"
                   value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
@@ -214,13 +222,24 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             </ToggleGroup>
           </div>
 
-          {!isRent && (
-            <div className="flex flex-col gap-1 sm:items-end">
-              <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
+          <div className="flex flex-col gap-1 sm:items-end">
+            <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
+            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+              {status === "soon" && (
+                <Input
+                  type="date"
+                  aria-label={t("Free by")}
+                  title={t("Free by")}
+                  min={today}
+                  className="h-8 w-36 bg-card text-xs"
+                  value={current("availableBy")}
+                  onChange={(e) => update("availableBy", e.target.value || null)}
+                />
+              )}
               <ToggleGroup
                 className="justify-start sm:justify-end gap-1"
-                value={current("status") ? [current("status")] : []}
-                onValueChange={(v) => update("status", v[v.length - 1] ?? null)}
+                value={status ? [status] : []}
+                onValueChange={(v) => changeStatus(v[v.length - 1] ?? null)}
               >
                 {STATUS_OPTIONS.map(({ value, label }) => (
                   <ToggleGroupItem key={value} value={value} className={PILL}>
@@ -229,7 +248,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
                 ))}
               </ToggleGroup>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

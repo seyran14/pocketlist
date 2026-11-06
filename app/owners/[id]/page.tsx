@@ -40,6 +40,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
       view: true,
       furnished: true,
       handover: true,
+      availableFrom: true,
       isDistress: true,
       originalPrice: true,
       status: true,
@@ -54,6 +55,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
     ...l,
     createdAt: l.createdAt.toISOString(),
     expiresAt: l.expiresAt ? l.expiresAt.toISOString() : null,
+    availableFrom: l.availableFrom?.toISOString() ?? null,
   }))
   const savedIds = await getSavedIds(listings.map((l) => l.id))
 
