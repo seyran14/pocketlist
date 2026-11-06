@@ -9,11 +9,14 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TermsModal } from "@/components/TermsModal"
 import { registerAction } from "@/lib/actions/auth"
+import { GUIDE } from "@/lib/guide"
 
 export function RegisterForm() {
   const t = useT()
   const [agreed, setAgreed] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
+  const [role, setRole] = useState<"BUYER" | "AGENT">("BUYER")
+  const guideRole = role === "AGENT" ? "owner" : "tenant"
 
   return (
     <>
@@ -38,17 +41,30 @@ export function RegisterForm() {
             <RoleCard
               id="role-buyer"
               value="BUYER"
-              title={t("Looking to buy")}
-              description="Browse listings and contact owners"
-              defaultChecked
+              title={t("Looking to rent")}
+              description={t("Browse listings and contact owners")}
+              checked={role === "BUYER"}
+              onSelect={setRole}
             />
             <RoleCard
               id="role-owner"
               value="AGENT"
               title={t("Property owner")}
-              description="List your property and get contacted by buyers"
+              description={t("List your property and get contacted by tenants")}
+              checked={role === "AGENT"}
+              onSelect={setRole}
             />
           </div>
+        </div>
+
+        <div className="rounded-xl border bg-card p-4">
+          <p className="text-sm font-semibold">{t("What happens next")}</p>
+          <ol className="mt-2 list-inside list-decimal space-y-1 text-xs text-muted-foreground">
+            {GUIDE[guideRole].map((step) => <li key={step.title}>{t(step.title)}</li>)}
+          </ol>
+          <Link href={`/guide?role=${guideRole}`} target="_blank" className="mt-3 inline-block text-sm underline underline-offset-4">
+            {t("Read the guide")}
+          </Link>
         </div>
 
         {/* Terms checkbox */}
@@ -87,10 +103,11 @@ export function RegisterForm() {
 }
 
 function RoleCard({
-  id, value, title, description, defaultChecked,
+  id, value, title, description, checked, onSelect,
 }: {
   id: string; value: "BUYER" | "AGENT"
-  title: string; description: string; defaultChecked?: boolean
+  title: string; description: string; checked: boolean
+  onSelect: (value: "BUYER" | "AGENT") => void
 }) {
   return (
     <label
@@ -102,7 +119,8 @@ function RoleCard({
         id={id}
         name="role"
         value={value}
-        defaultChecked={defaultChecked}
+        checked={checked}
+        onChange={() => onSelect(value)}
         className="sr-only"
       />
       <span className="font-semibold text-sm mb-1">{title}</span>

@@ -15,7 +15,7 @@ import {
 import { LifeBuoy, Mail } from "lucide-react"
 import { SUPPORT_EMAIL } from "@/lib/utils"
 
-export function SupportButton() {
+export function SupportButton({ row = false }: { row?: boolean }) {
   const t = useT()
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
@@ -71,11 +71,11 @@ export function SupportButton() {
       <Button
         variant="ghost"
         size="sm"
-        className="text-sm text-muted-foreground gap-1.5"
+        className={row ? "w-full justify-start gap-2" : "text-sm text-muted-foreground gap-1.5"}
         onClick={() => setOpen(true)}
       >
-        <LifeBuoy size={15} />
-        <span className="hidden sm:inline">{t("Support")}</span>
+        <LifeBuoy size={row ? 16 : 15} />
+        <span className={row ? undefined : "hidden sm:inline"}>{t("Support")}</span>
       </Button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>

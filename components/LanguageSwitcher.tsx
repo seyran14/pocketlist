@@ -4,10 +4,11 @@ import { Globe } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { LOCALES, LOCALE_COOKIE, LOCALE_NAMES, type Locale } from "@/lib/i18n"
 import { useLocale, useT } from "@/components/I18nProvider"
+import { cn } from "@/lib/utils"
 
 const YEAR_SECONDS = 60 * 60 * 24 * 365
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ row = false }: { row?: boolean }) {
   const locale = useLocale()
   const t = useT()
 
@@ -19,9 +20,9 @@ export function LanguageSwitcher() {
 
   return (
     <Select value={locale} onValueChange={(v) => v && v !== locale && change(v as Locale)}>
-      <SelectTrigger aria-label={t("Language")} className="h-8 gap-1.5 border-0 bg-transparent px-2 text-sm text-muted-foreground shadow-none">
-        <Globe size={15} />
-        <span className="uppercase">{locale}</span>
+      <SelectTrigger aria-label={t("Language")} className={cn("h-8 gap-1.5 border-0 bg-transparent px-2 text-sm text-muted-foreground shadow-none", row && "w-full gap-2 px-2.5 text-foreground hover:bg-muted")}>
+        <Globe size={row ? 16 : 15} />
+        <span className={cn(row ? "me-auto" : "uppercase")}>{row ? LOCALE_NAMES[locale] : locale}</span>
       </SelectTrigger>
       <SelectContent>
         {LOCALES.map((code) => (

@@ -1,10 +1,9 @@
 "use client"
 
 import { useT } from "@/components/I18nProvider"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Bell } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 
 type Notif = {
   id: string
@@ -17,8 +16,8 @@ type Notif = {
 export function NotificationBell() {
   const t = useT()
   const [notifs, setNotifs] = useState<Notif[]>([])
+  const [seen, setSeen] = useState<Notif[]>([])
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch("/api/notifications")
@@ -27,17 +26,10 @@ export function NotificationBell() {
       .catch(() => {})
   }, [])
 
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
-
   async function handleOpen() {
     setOpen((v) => !v)
     if (!open && notifs.length > 0) {
+      setSeen(notifs)
       const ids = notifs.map((n) => n.id)
       await fetch("/api/notifications", {
         method: "PATCH",
@@ -49,17 +41,19 @@ export function NotificationBell() {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div>
       <button
         onClick={handleOpen}
-        className="relative flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent transition-colors"
-        aria-label={t("Notifications")}
+        aria-expanded={open}
+        className="flex h-8 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-medium transition-colors hover:bg-muted"
       >
-        <Bell className="w-4 h-4" />
+        <Bell size={16} />
+        {t("Notifications")}
         {notifs.length > 0 && (
           <span
             key={notifs.length}
-            className="badge-animate absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none"
+            data-unread
+            className="badge-animate ms-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white leading-none"
           >
             {notifs.length > 9 ? "9+" : notifs.length}
           </span>
@@ -67,34 +61,24 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className={cn(
-          "absolute end-0 top-10 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-xl border bg-card shadow-lg",
-          "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-150"
-        )}>
-          <div className="px-4 py-3 border-b">
-            <p className="text-sm font-semibold">{t("Notifications")}</p>
+        seen.length === 0 ? (
+          <p className="px-3 py-3 text-center text-sm text-muted-foreground">{t("All caught up")}</p>
+        ) : (
+          <div className="max-h-60 divide-y overflow-y-auto">
+            {seen.map((n) => (
+              <div key={n.id} className="px-3 py-2">
+                {n.listing ? (
+                  <Link href={`/listings/${n.listing.id}`}>
+                    <p className="text-xs font-medium">{n.listing.projectName}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{n.message}</p>
+                  </Link>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{n.message}</p>
+                )}
+              </div>
+            ))}
           </div>
-          {notifs.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t("All caught up")}</p>
-          ) : (
-            <div className="max-h-80 overflow-y-auto divide-y">
-              {notifs.map((n) => (
-                <div key={n.id} className="px-4 py-3 hover:bg-muted/40 transition-colors">
-                  {n.listing ? (
-                    <Link href={`/listings/${n.listing.id}`} onClick={() => setOpen(false)}>
-                      <p className="text-xs font-medium">{n.listing.projectName}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{n.message}</p>
-                    </Link>
-                  ) : (
-                    <>
-                      <p className="text-xs text-muted-foreground">{n.message}</p>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )
       )}
     </div>
   )
