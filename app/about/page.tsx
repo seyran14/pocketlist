@@ -21,7 +21,7 @@ export default async function AboutPage() {
         <p>{t("Owners and tenants agree the terms between themselves. The owner then prepares the tenancy contract here, both sides sign it on screen, and the contract takes effect once it is registered on Ejari.")}</p>
       </TextSection>
       <TextSection title={t("What we are not")}>
-        <p>{t("PocketList is not a licensed real estate broker and takes no part in the deals made through it.")}</p>
+        <p>{t("PocketList is not a licensed real estate broker and is not a party to the tenancies agreed here. We provide the contract template and on-screen signing; the contract becomes valid only once it is registered on Ejari.")}</p>
       </TextSection>
       <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
         <Link href="/guide" className="underline underline-offset-4">{t("How it works")}</Link>
