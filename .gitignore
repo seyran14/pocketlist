@@ -48,8 +48,9 @@ dev.db-shm
 dev.db-wal
 .notes
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings; shared agents stay in git
+.claude/*
+!.claude/agents/
 
 # Runtime data
 data/ratelimit.json
@@ -65,3 +66,6 @@ pocketlist-server-backup-*.zip
 /backups
 
 /private-docs
+
+# Playwright MCP output
+/.playwright-mcp

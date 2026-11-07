@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start -p 3567",
     "lint": "eslint",
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts",
+    "fixtures": "tsx scripts/fixtures.ts",
+    "fixtures:remove": "tsx scripts/fixtures.ts --remove"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
