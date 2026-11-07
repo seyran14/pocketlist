@@ -238,7 +238,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   {/* Title */}
                   <div>
                     <h1 className="text-xl font-bold leading-snug">
-                      {t("{beds} in {location}", { beds: formatBeds(l.bedrooms, t), location: l.location })}
+                      {t("{beds} in {location}", { beds: formatBeds(l.bedrooms, t, locale), location: l.location })}
                     </h1>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {l.projectName}
@@ -268,7 +268,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     <FieldRow label="Bathrooms" value={l.bathrooms} />
                     <FieldRow label="Area" value={formatArea(l.areaSqft, l.areaSqm, t)} />
                     <FieldRow label="Floor" value={l.floor ? floorValue(l.floor, t) : null} />
-                    <FieldRow label="View" value={l.view ? viewValue(l.view) : null} />
+                    <FieldRow label="View" value={l.view ? viewValue(l.view, t) : null} />
                     <FieldRow label="Furnished" value={l.furnished ? furnishedValue(l.furnished, t) : null} />
                     <FieldRow label="Status" value={isAvailableLater(l.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(l.availableFrom!, locale) }) : t("Available now")} />
                     {l.listingType !== "RENT" && <FieldRow label="Handover" value={l.handover && t(l.handover)} />}

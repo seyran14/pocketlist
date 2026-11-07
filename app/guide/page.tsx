@@ -28,7 +28,7 @@ export default async function GuidePage({ searchParams }: { searchParams: Promis
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-8">
+      <main id="main" className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">{t("How PocketList works")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("What owners and tenants do on PocketList, from the first visit to a contract registered on Ejari.")}</p>
 

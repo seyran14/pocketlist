@@ -21,7 +21,8 @@ export default async function VerifyPage() {
   if (!email) redirect("/login")
 
   return (
-    <div className="flex-1 bg-background flex items-center justify-center p-4">
+    <main id="main" className="flex-1 bg-background flex items-center justify-center p-4">
+      <h1 className="sr-only">{t("Check your email")}</h1>
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-semibold tracking-[-0.025em]">
@@ -49,6 +50,6 @@ export default async function VerifyPage() {
           </form>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

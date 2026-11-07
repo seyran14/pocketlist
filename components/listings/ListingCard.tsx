@@ -50,7 +50,7 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
   const isRent = listing.listingType === "RENT"
   const cover = listing.photos?.[0]
 
-  const details = [formatBeds(listing.bedrooms, t), t(enumLabel(listing.propertyType)), formatArea(listing.areaSqft, listing.areaSqm, t)]
+  const details = [formatBeds(listing.bedrooms, t, locale), t(enumLabel(listing.propertyType)), formatArea(listing.areaSqft, listing.areaSqm, t)]
   if (listing.plotSqft || listing.plotSqm) details.push(t("Plot {area}", { area: formatArea(listing.plotSqft, listing.plotSqm, t) }))
 
   return (
@@ -91,14 +91,13 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
           )}
         </div>
 
-        {/* Price leads: it is what a tenant filters on first. Monthly sits beside the yearly rent. */}
+        {/* Price leads: it is what a tenant filters on first. The monthly figure gets its own
+            line so the yearly rent is never cut off, even in longer languages. */}
         <div className="mt-3 min-w-0 text-sm leading-5">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="truncate text-base font-semibold tracking-[-0.01em] tabular-nums">
-              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t, true) : formatPrice(listing.price)}
-            </p>
-            {isRent && <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatMonthlyRent(listing.price, t)}</span>}
-          </div>
+          <p className="whitespace-nowrap text-base font-semibold tracking-[-0.01em] tabular-nums">
+            {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t, true) : formatPrice(listing.price)}
+          </p>
+          {isRent && <p className="text-xs text-muted-foreground tabular-nums">{formatMonthlyRent(listing.price, t)}</p>}
           <p className="mt-1 truncate font-medium">{listing.projectName}</p>
           <div className="flex items-baseline justify-between gap-2 text-muted-foreground">
             <p className="truncate">{listing.location}</p>

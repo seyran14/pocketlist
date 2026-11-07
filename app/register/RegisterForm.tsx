@@ -9,7 +9,20 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TermsModal } from "@/components/TermsModal"
 import { registerAction } from "@/lib/actions/auth"
-import { GUIDE } from "@/lib/guide"
+
+// What happens after this form, not the whole guide: the account itself is being created here.
+const NEXT_STEPS = {
+  owner: [
+    "We email you a 6-digit code to sign in.",
+    "Add your home with its title deed, rent and photos.",
+    "Our team checks the title deed, then your listing goes live.",
+  ],
+  tenant: [
+    "We email you a 6-digit code to sign in.",
+    "Save the homes you like and ask owners for their contact details.",
+    "Agree the terms with the owner and sign the contract on screen.",
+  ],
+} as const
 
 export function RegisterForm({ initialRole = "BUYER" }: { initialRole?: "BUYER" | "AGENT" }) {
   const t = useT()
@@ -58,8 +71,8 @@ export function RegisterForm({ initialRole = "BUYER" }: { initialRole?: "BUYER" 
 
         <div className="rounded-xl border bg-card p-4">
           <p className="text-sm font-semibold">{t("What happens next")}</p>
-          <ol className="mt-2 list-inside list-decimal space-y-1 text-xs text-muted-foreground">
-            {GUIDE[guideRole].map((step) => <li key={step.title}>{t(step.title)}</li>)}
+          <ol className="mt-2 list-inside list-decimal space-y-1 text-sm text-muted-foreground">
+            {NEXT_STEPS[guideRole].map((step) => <li key={step}>{t(step)}</li>)}
           </ol>
           <Link href={`/guide?role=${guideRole}`} target="_blank" className="mt-3 inline-block text-sm underline underline-offset-4">
             {t("Read the guide")}
@@ -67,14 +80,15 @@ export function RegisterForm({ initialRole = "BUYER" }: { initialRole?: "BUYER" 
         </div>
 
         {/* Terms checkbox */}
-        <div className="flex items-start gap-3 pt-1">
+        {/* The row is at least 44px tall and the checkbox's hit area reaches past its 16px box. */}
+        <div className="flex min-h-11 items-start gap-3 py-2">
           <Checkbox
             id="terms"
             checked={agreed}
             onCheckedChange={(v) => setAgreed(!!v)}
-            className="mt-0.5"
+            className="relative mt-0.5 after:absolute after:-inset-3 after:content-['']"
           />
-          <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer select-none">
+          <label htmlFor="terms" className="flex-1 text-sm text-muted-foreground leading-snug cursor-pointer select-none">
             {t("I agree to the")}{" "}
             <button
               type="button"

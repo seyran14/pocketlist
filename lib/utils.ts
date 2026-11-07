@@ -1,4 +1,5 @@
-import type { Translate } from "@/lib/i18n"
+import type { Locale, Translate } from "@/lib/i18n"
+import { countOf } from "@/lib/i18n/plural"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -46,12 +47,20 @@ export function floorValue(value: string, t: Translate): string {
 }
 
 // Owners type views as "Burj Khalifa view"; under a "View" label the last word is noise.
-export function viewValue(value: string): string {
-  return value.replace(/\s+views?$/i, "").trim() || value
+// Common views ("Sea", "Canal") have translations under "view:" keys; anything else the owner
+// wrote is shown as typed.
+export function viewValue(value: string, t?: Translate): string {
+  const view = value.replace(/\s+views?$/i, "").trim() || value
+  if (!t) return view
+  const key = `view:${view.charAt(0).toUpperCase()}${view.slice(1).toLowerCase()}`
+  const translated = t(key)
+  return translated === key ? view : translated
 }
 
-export function formatBeds(beds: string, t: Translate): string {
+// "1BR" reads naturally in English only; other languages spell the bedrooms out with the right plural.
+export function formatBeds(beds: string, t: Translate, locale: Locale = "en"): string {
   if (beds === "Studio") return t("Studio")
+  if (locale !== "en" && /^\d+$/.test(beds)) return countOf("bedroom", Number(beds), locale)
   return t("{n}BR", { n: beds })
 }
 

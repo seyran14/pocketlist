@@ -86,7 +86,7 @@ export function EditListingClient({ admin = false }: { admin?: boolean }) {
   }
 
   return (
-    <main className="card-animate mx-auto max-w-3xl px-4 py-6">
+    <main id="main" className="card-animate mx-auto max-w-3xl px-4 py-6">
       <div className="mb-6">
         <button
           onClick={() => router.push(homePath)}

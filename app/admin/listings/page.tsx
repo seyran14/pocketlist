@@ -39,7 +39,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-4xl space-y-4 px-4 py-6">
+      <main id="main" className="mx-auto max-w-4xl space-y-4 px-4 py-6">
         <div>
           <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">Back to admin</Link>
           <h1 className="mt-2 text-2xl font-bold">All listings ({total})</h1>

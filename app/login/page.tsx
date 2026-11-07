@@ -30,7 +30,8 @@ export default async function LoginPage({
   const t = await getT()
   const { next } = await searchParams
   return (
-    <div className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
+    <main id="main" className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
+      <h1 className="sr-only">{t("Sign in")}</h1>
       <ArchBackdrop />
       <div className="card-animate relative w-full max-w-sm">
         <div className="mb-8 text-center">
@@ -62,9 +63,10 @@ export default async function LoginPage({
           </form>
           <p className="text-center text-xs text-muted-foreground">
             {t("By continuing you agree to")}{" "}
-            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">{t("the Terms of Service")}</Link>
-            {" "}{t("and")}{" "}
-            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("the Privacy Policy")}</Link>.
+            {/* Each link and the "and" before it stay on one line, so no word is left hanging. */}
+            <Link href="/terms" className="whitespace-nowrap underline underline-offset-4 hover:text-foreground">{t("the Terms of Service")}</Link>
+            {" "}<span className="whitespace-nowrap">{t("and")}{"\u00a0"}
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("the Privacy Policy")}</Link>.</span>
           </p>
 
         </div>
@@ -76,7 +78,7 @@ export default async function LoginPage({
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   )
 }
 

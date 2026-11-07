@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import { enumLabel, formatAvailableShort, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
 import { countOf } from "@/lib/i18n/plural"
 import Link from "next/link"
+import { BadgeCheck } from "lucide-react"
 
 const BASE_URL = "https://pocketlist.ae"
 
@@ -26,12 +27,17 @@ export async function generateMetadata({
   const { id } = await params
   const listing = await prisma.listing.findUnique({
     where: { id },
-    select: { title: true, projectName: true, location: true, priceLabel: true, price: true, description: true, status: true },
+    select: { projectName: true, location: true, priceLabel: true, price: true, description: true, status: true, bedrooms: true, listingType: true },
   })
   if (!listing || !isPublicStatus(listing.status)) return {}
-  const title = listing.title || listing.projectName
-  const price = listing.priceLabel ?? `AED ${listing.price.toLocaleString("en-AE")}`
-  const description = `${price} · ${listing.location}${listing.description ? ` · ${listing.description.slice(0, 120)}` : ""}`
+  // Built in the visitor's language, like the page heading, rather than from the stored English title.
+  const [t, locale] = await Promise.all([getT(), getLocale()])
+  const heading = t("{beds} in {location}", { beds: formatBeds(listing.bedrooms, t, locale), location: listing.location })
+  const price = listing.priceLabel
+    ? localizePriceLabel(listing.priceLabel, t)
+    : listing.listingType === "RENT" ? formatRentPrice(listing.price, t) : formatPrice(listing.price)
+  const title = `${heading} · ${price}`
+  const description = `${price} · ${listing.projectName}, ${listing.location}${listing.description ? ` · ${listing.description.slice(0, 120)}` : ""}`
   const pageUrl = `${BASE_URL}/listings/${id}`
   const ogImage = `${BASE_URL}/listings/${id}/opengraph-image`
   return {
@@ -69,6 +75,7 @@ export default async function ListingPage({
       include: {
         agent: { select: { id: true, name: true } },
         photos: { select: { id: true }, orderBy: { position: "asc" } },
+        review: { select: { reviewedAt: true } },
       },
     }),
   ])
@@ -93,10 +100,7 @@ export default async function ListingPage({
       })
     : null
 
-  // "1BR" reads naturally in English only; other languages spell the bedrooms out.
-  const bedsTitle = listing.bedrooms === "Studio" ? t("Studio")
-    : locale === "en" ? formatBeds(listing.bedrooms, t)
-    : countOf("bedroom", Number(listing.bedrooms) || 0, locale)
+  const bedsTitle = formatBeds(listing.bedrooms, t, locale)
 
   const isRent = listing.listingType === "RENT"
   const priceText = listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t) : formatPrice(listing.price)
@@ -111,6 +115,13 @@ export default async function ListingPage({
         {listing.agent.name ?? t("Owner")}
       </Link>
       <p className="text-xs text-muted-foreground">{t("Owner")}</p>
+      {/* Only listings a reviewer approved against the title deed carry this line. */}
+      {listing.review?.reviewedAt && isPublicStatus(listing.status) && (
+        <Link href="/about" className="mt-2 flex items-center gap-1.5 text-xs text-primary hover:underline underline-offset-4">
+          <BadgeCheck size={14} aria-hidden="true" className="shrink-0" />
+          {t("Title deed checked by PocketList")}
+        </Link>
+      )}
     </div>
   )
   const editLink = (
@@ -166,7 +177,7 @@ export default async function ListingPage({
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-4 pt-6 pb-12">
+      <main id="main" className="mx-auto max-w-5xl px-4 pt-6 pb-12">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           <div className="card-animate min-w-0 flex-1">
             {listing.photos.length > 0 && (
@@ -220,7 +231,7 @@ export default async function ListingPage({
                 <h2 className="text-base font-semibold">{t("The home")}</h2>
                 <dl className="mt-1 divide-y">
                   {fieldRow("Floor", listing.floor ? floorValue(listing.floor, t) : null)}
-                  {fieldRow("View", listing.view ? viewValue(listing.view) : null)}
+                  {fieldRow("View", listing.view ? viewValue(listing.view, t) : null)}
                   {fieldRow("Furnished", listing.furnished ? furnishedValue(listing.furnished, t) : null)}
                   {fieldRow("Parking", listing.parkingSpots ? countOf("space", listing.parkingSpots, locale) : null)}
                   {fieldRow("Plot", listing.plotSqft || listing.plotSqm ? formatArea(listing.plotSqft, listing.plotSqm, t) : null)}
@@ -250,7 +261,7 @@ export default async function ListingPage({
           </div>
 
           {/* Side panel: one primary action, everything else quieter. */}
-          <aside className="card-animate hidden w-80 shrink-0 lg:sticky lg:top-20 lg:block">
+          <aside className="hidden w-80 shrink-0 lg:sticky lg:top-20 lg:block">
             <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-card">
               {price}
               {contact}

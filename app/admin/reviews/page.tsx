@@ -55,7 +55,7 @@ export default async function ReviewsPage() {
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
+      <main id="main" className="mx-auto max-w-4xl space-y-6 px-4 py-8">
         <div>
           <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">Back to admin</Link>
           <h1 className="mt-2 text-2xl font-bold">Listings to review</h1>

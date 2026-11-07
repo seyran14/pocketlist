@@ -180,11 +180,11 @@ export function ListingFilters() {
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">{t("Rent (AED / yr)")}</Label>
               <div className="flex items-center gap-1">
-                <Input type="number" placeholder={t("Min")} className="h-8 w-24 bg-card text-xs"
+                <Input type="number" placeholder={t("Min")} aria-label={t("Minimum rent, AED a year")} className="h-8 w-24 bg-card text-xs"
                   value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
                   onBlur={(e) => update("priceMin", e.target.value || null)} />
                 <span className="text-muted-foreground text-xs">–</span>
-                <Input type="number" placeholder={t("Max")} className="h-8 w-24 bg-card text-xs"
+                <Input type="number" placeholder={t("Max")} aria-label={t("Maximum rent, AED a year")} className="h-8 w-24 bg-card text-xs"
                   value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                   onBlur={(e) => update("priceMax", e.target.value || null)} />
               </div>

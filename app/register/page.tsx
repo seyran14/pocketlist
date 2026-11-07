@@ -1,7 +1,6 @@
 import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
 import { RegisterForm } from "./RegisterForm"
-import { ArchBackdrop } from "@/components/ArchBackdrop"
 import { BrandMark } from "@/components/BrandLogo"
 import { pageMetadata } from "@/lib/i18n/meta"
 
@@ -14,8 +13,9 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   const t = await getT()
   const { as } = await searchParams
   return (
-    <div className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
-      <ArchBackdrop />
+    <main id="main" className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
+      <h1 className="sr-only">{t("Create an account")}</h1>
+      {/* No arch here: the longer form runs into its curve. The short sign-in page keeps it. */}
       <div className="card-animate relative w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-semibold tracking-[-0.025em]">
@@ -27,6 +27,6 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
 
         <RegisterForm initialRole={as === "owner" ? "AGENT" : "BUYER"} />
       </div>
-    </div>
+    </main>
   )
 }

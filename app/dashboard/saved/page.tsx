@@ -57,7 +57,7 @@ export default async function SavedPage() {
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main id="main" className="mx-auto max-w-6xl px-4 py-6">
         <div className="card-animate flex items-center justify-between mb-1">
           <h1 className="text-2xl font-bold">{t("Saved Listings")}</h1>
           <span className="text-sm text-muted-foreground">{active.length} saved</span>

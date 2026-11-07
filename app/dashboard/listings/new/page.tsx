@@ -23,7 +23,7 @@ export default async function NewListingPage() {
     <div className="flex-1 bg-background">
       <Navbar />
       {owned >= MAX_LISTINGS_PER_USER ? (
-        <main className="mx-auto max-w-md px-4 py-16 text-center">
+        <main id="main" className="mx-auto max-w-md px-4 py-16 text-center">
           <h1 className="text-xl font-bold">{t("You've reached the limit of {n} listings", { n: MAX_LISTINGS_PER_USER })}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {t("Sold and expired listings count too. Delete one to add another.")}

@@ -6,7 +6,7 @@ export function TextPage({ title, intro, children }: { title: string; intro?: Re
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-10">
+      <main id="main" className="mx-auto max-w-2xl px-4 py-10">
         <h1 className="text-[28px] font-semibold sm:text-[34px]">{title}</h1>
         {intro && <div className="mt-3 text-muted-foreground">{intro}</div>}
         <div className="mt-8 space-y-8">{children}</div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import { useCallback, useRef, useState } from "react"
 import Image from "next/image"
 import { Dialog } from "@base-ui/react/dialog"
@@ -10,10 +10,15 @@ import { cn } from "@/lib/utils"
 import { spring } from "@/lib/motion"
 import { photoUrl } from "@/lib/photos-shared"
 
+// In a right-to-left page the track scrolls toward negative scrollLeft, so photo n sits at
+// -n * width. Every position goes through this sign so Arabic gets a mirrored gallery.
+const scrollSign = (track: HTMLElement) => (getComputedStyle(track).direction === "rtl" ? -1 : 1)
+const indexOf = (track: HTMLElement) => Math.round(Math.abs(track.scrollLeft) / track.clientWidth)
+
 // Swipes stay native (scroll-snap keeps the platform's momentum). Buttons and thumbnails
 // move the track on a spring instead of the browser's fixed smooth-scroll curve.
 function springScroll(track: HTMLElement, index: number, reduced: boolean) {
-  const target = index * track.clientWidth
+  const target = scrollSign(track) * index * track.clientWidth
   if (reduced) {
     track.scrollLeft = target
     return
@@ -34,6 +39,7 @@ function PhotoViewer({ photos, alt, start, onClose }: {
   onClose: (index: number) => void
 }) {
   const t = useT()
+  const rtl = useLocale() === "ar"
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(start)
   const reduced = useReducedMotion()
@@ -41,7 +47,7 @@ function PhotoViewer({ photos, alt, start, onClose }: {
   // The dialog mounts its content later than this component, so an effect here finds no track.
   const placeTrack = useCallback((track: HTMLDivElement | null) => {
     trackRef.current = track
-    if (track) track.scrollLeft = start * track.clientWidth
+    if (track) track.scrollLeft = scrollSign(track) * start * track.clientWidth
   }, [start])
 
   function goTo(index: number) {
@@ -55,11 +61,11 @@ function PhotoViewer({ photos, alt, start, onClose }: {
     <Dialog.Root open onOpenChange={(open) => { if (!open) onClose(active) }}>
       <Dialog.Portal>
         <Dialog.Popup
-          dir="ltr"
           aria-label={alt}
           onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") goTo(active - 1)
-            if (e.key === "ArrowRight") goTo(active + 1)
+            // The arrow that points toward the next photo depends on the reading direction.
+            if (e.key === "ArrowLeft") goTo(active + (rtl ? 1 : -1))
+            if (e.key === "ArrowRight") goTo(active + (rtl ? -1 : 1))
           }}
           className="fixed inset-0 z-[60] outline-none"
         >
@@ -71,17 +77,14 @@ function PhotoViewer({ photos, alt, start, onClose }: {
           >
           <div
             ref={placeTrack}
-            onScroll={(e) => {
-              const { scrollLeft, clientWidth } = e.currentTarget
-              setActive(Math.round(scrollLeft / clientWidth))
-            }}
+            onScroll={(e) => setActive(indexOf(e.currentTarget))}
             className="flex h-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {photos.map((p, i) => (
               <div key={p.id} className="relative h-full w-full shrink-0 snap-center">
                 <Image
                   src={photoUrl(p.id)}
-                  alt={`${alt}, photo ${i + 1} of ${photos.length}`}
+                  alt={t("{alt}, photo {n} of {total}", { alt, n: i + 1, total: photos.length })}
                   fill
                   unoptimized
                   loading={Math.abs(i - start) <= 1 ? "eager" : "lazy"}
@@ -104,7 +107,7 @@ function PhotoViewer({ photos, alt, start, onClose }: {
                 aria-label={t("Previous photo")}
                 className={cn(control, "start-3 top-1/2 hidden -translate-y-1/2 sm:flex")}
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={20} className="rtl:-scale-x-100" />
               </button>
               <button
                 type="button"
@@ -113,9 +116,9 @@ function PhotoViewer({ photos, alt, start, onClose }: {
                 aria-label={t("Next photo")}
                 className={cn(control, "end-3 top-1/2 hidden -translate-y-1/2 sm:flex")}
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={20} className="rtl:-scale-x-100" />
               </button>
-              <span className="scrim absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 rounded px-2 py-0.5 text-sm font-medium text-white tabular-nums">
+              <span dir="ltr" className="scrim absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 rounded px-2 py-0.5 text-sm font-medium text-white tabular-nums">
                 {active + 1} / {photos.length}
               </span>
             </>
@@ -144,14 +147,11 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
   const multiple = photos.length > 1
 
   return (
-    <div dir="ltr" className="space-y-2">
+    <div className="space-y-2">
       <div className="relative overflow-hidden rounded-2xl bg-muted">
         <div
           ref={trackRef}
-          onScroll={(e) => {
-            const { scrollLeft, clientWidth } = e.currentTarget
-            setActive(Math.round(scrollLeft / clientWidth))
-          }}
+          onScroll={(e) => setActive(indexOf(e.currentTarget))}
           className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {photos.map((p, i) => (
@@ -164,7 +164,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
             >
               <Image
                 src={photoUrl(p.id)}
-                alt={`${alt}, photo ${i + 1} of ${photos.length}`}
+                alt={t("{alt}, photo {n} of {total}", { alt, n: i + 1, total: photos.length })}
                 fill
                 unoptimized
                 loading={i === 0 ? "eager" : "lazy"}
@@ -183,7 +183,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               aria-label={t("Previous photo")}
               className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white ring-1 ring-white/50 transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={18} className="rtl:-scale-x-100" />
             </button>
             <button
               type="button"
@@ -192,9 +192,9 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               aria-label={t("Next photo")}
               className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white ring-1 ring-white/50 transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={18} className="rtl:-scale-x-100" />
             </button>
-            <span className="scrim absolute bottom-2 end-2 rounded px-2 sm:hidden py-0.5 text-xs font-medium text-white tabular-nums">
+            <span dir="ltr" className="scrim absolute bottom-2 end-2 rounded px-2 py-0.5 text-xs font-medium text-white tabular-nums">
               {active + 1} / {photos.length}
             </span>
           </>
@@ -208,7 +208,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               key={p.id}
               type="button"
               onClick={() => goTo(i)}
-              aria-label={`Show photo ${i + 1}`}
+              aria-label={t("Show photo {n}", { n: i + 1 })}
               aria-current={i === active}
               className={cn(
                 "relative my-1 ms-1 h-14 w-20 shrink-0 overflow-hidden rounded-lg transition-opacity",
@@ -229,7 +229,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
           onClose={(index) => {
             setViewing(false)
             const track = trackRef.current
-            if (track) track.scrollLeft = index * track.clientWidth
+            if (track) track.scrollLeft = scrollSign(track) * index * track.clientWidth
           }}
         />
       )}

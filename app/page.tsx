@@ -175,19 +175,19 @@ export default async function HomePage({
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main id="main" className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
           <section className="mb-6 flex flex-col items-start gap-4">
             <div className="max-w-2xl">
               <h1 className="text-[28px] font-semibold sm:text-[34px]">{t("Rent a home in Dubai from its owner")}</h1>
-              <p className="mt-2 max-w-xl text-muted-foreground [text-wrap:balance]">
+              <p className="mt-2 max-w-2xl text-muted-foreground [text-wrap:pretty]">
                 {t("Owners post their own homes here, and we check each title deed before a listing goes live.")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm text-muted-foreground">{t("Own a home in Dubai?")}</span>
               <Link href={postHomeHref}>
-                <Button variant="outline">
+                <Button>
                   <Plus aria-hidden="true" />
                   {t("Post your home")}
                 </Button>

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { I18nProvider } from "@/components/I18nProvider"
 import Script from "next/script"
 import { MotionProvider } from "@/components/MotionProvider"
+import { SkipLink } from "@/components/SkipLink"
 import { getLocale, getT } from "@/lib/i18n/server"
 import "./globals.css"
 
@@ -52,6 +53,7 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <I18nProvider locale={locale}>
             <MotionProvider>
+              <SkipLink />
               {children}
               <SiteFooter />
               <Toaster />
