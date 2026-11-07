@@ -179,11 +179,11 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
 
   return (
     <div className="rounded-xl border bg-card p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">
-          {t("Unit {n} of {total}", { n: index + 1, total })}
-        </span>
-        {total > 1 && (
+      {total > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-medium text-muted-foreground">
+            {t("Unit {n} of {total}", { n: index + 1, total })}
+          </span>
           <Button
             variant="ghost"
             size="sm"
@@ -192,15 +192,8 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
           >
             {t("Remove")}
           </Button>
-        )}
-      </div>
-
-      <PhotoUploader
-        initialIds={data.photos?.map((p) => p.id) ?? []}
-        onChange={(ids) => setValue("photoIds", ids)}
-        onUploadingChange={onUploadingChange}
-        canUpload={ownerTools}
-      />
+        </div>
+      )}
 
       {ownerTools && <div className="ph-no-capture space-y-2">
         <DocumentUploader
@@ -219,6 +212,13 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
           <Hint key={check.key}>{t("{label} doesn't match the deed: {found}", { label: t(check.label), found: check.found })}</Hint>
         ))}
       </div>}
+
+      <PhotoUploader
+        initialIds={data.photos?.map((p) => p.id) ?? []}
+        onChange={(ids) => setValue("photoIds", ids)}
+        onUploadingChange={onUploadingChange}
+        canUpload={ownerTools}
+      />
 
       <div className="grid grid-cols-2 gap-3">
         {/* Location */}

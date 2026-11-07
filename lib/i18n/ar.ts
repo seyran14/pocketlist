@@ -300,6 +300,7 @@ export const ar: Record<string, string> = {
   "Status": "الحالة",
   "Studio": "استوديو",
   "Submit for review ({n})": "إرسال للمراجعة ({n})",
+  "Start with your title deed and we'll fill in what we can read from it. Then add the rent, photos and your passport.": "ابدأ بسند الملكية وسنملأ ما نستطيع قراءته منه. ثم أضف الإيجار والصور وجواز سفرك.",
   "Submitting…": "جارٍ الإرسال…",
   "Support": "الدعم",
   "Taken from your listing and title deed. Check that it's right.": "مأخوذ من إعلانك وtitle deed. تأكد من صحته.",

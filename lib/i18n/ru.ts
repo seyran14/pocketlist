@@ -300,6 +300,7 @@ export const ru: Record<string, string> = {
   "Status": "Статус",
   "Studio": "Студия",
   "Submit for review ({n})": "Отправить на проверку ({n})",
+  "Start with your title deed and we'll fill in what we can read from it. Then add the rent, photos and your passport.": "Начните с title deed: мы заполним то, что сможем из него прочитать. Затем добавьте аренду, фото и паспорт.",
   "Submitting…": "Отправляем…",
   "Support": "Поддержка",
   "Taken from your listing and title deed. Check that it's right.": "Взято из объявления и title deed. Проверьте, что всё верно.",

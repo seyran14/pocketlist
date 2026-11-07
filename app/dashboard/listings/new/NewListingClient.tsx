@@ -19,6 +19,10 @@ import type { ParsedListing } from "@/lib/ai"
 type Step = "paste" | "review"
 type Unit = ParsedListing & { uid: string }
 
+// The AI step that turns a pasted ad into units is hidden for now: owners start from the
+// form and the title deed fills it in. Set to true to bring the paste step back.
+const AI_PARSE_ENABLED = false
+
 const CONTACT_PREFS = { phone: "PHONE", whatsapp: "WHATSAPP", telegram: "TELEGRAM" } as const
 
 // Filled channels become visible to buyers and cleared ones stop being shown;
@@ -35,10 +39,10 @@ function mergeContactPref(existing: string | null, contact: OwnerContact) {
 export function NewListingClient() {
   const t = useT()
   const router = useRouter()
-  const [step, setStep] = useState<Step>("paste")
+  const [step, setStep] = useState<Step>(AI_PARSE_ENABLED ? "paste" : "review")
   const [rawText, setRawText] = useState("")
-  const [units, setUnits] = useState<Unit[]>([])
-  const [formValues, setFormValues] = useState<UnitFormValues[]>([])
+  const [units, setUnits] = useState<Unit[]>(() => (AI_PARSE_ENABLED ? [] : [withUid(blankUnit())]))
+  const [formValues, setFormValues] = useState<UnitFormValues[]>(() => (AI_PARSE_ENABLED ? [] : [blankFormValues()]))
   const [parsing, setParsing] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [uploadingCount, setUploadingCount] = useState(0)
@@ -214,7 +218,9 @@ export function NewListingClient() {
         </button>
         <h1 className="text-2xl font-bold">{t("Add New Listing")}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {t("Describe your property or paste an existing ad, and AI fills in the details. You'll add photos, your title deed and your passport on the next step.")}
+          {AI_PARSE_ENABLED
+            ? t("Describe your property or paste an existing ad, and AI fills in the details. You'll add photos, your title deed and your passport on the next step.")
+            : t("Start with your title deed and we'll fill in what we can read from it. Then add the rent, photos and your passport.")}
         </p>
       </div>
 
@@ -261,7 +267,7 @@ export function NewListingClient() {
 
       {step === "review" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          {AI_PARSE_ENABLED && <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {t("Units detected: {n}. Review and edit before publishing.", { n: units.length })}
             </p>
@@ -277,7 +283,7 @@ export function NewListingClient() {
             >
               {t("Start over")}
             </Button>
-          </div>
+          </div>}
 
           {units.map((unit, i) => (
             <ParsedUnitCard
@@ -325,7 +331,7 @@ export function NewListingClient() {
           <Separator />
 
           <div className="flex gap-3 justify-end">
-            <Button
+            {AI_PARSE_ENABLED && <Button
               variant="outline"
               onClick={() => {
                 setStep("paste")
@@ -335,7 +341,7 @@ export function NewListingClient() {
               disabled={publishing}
             >
               {t("Start over")}
-            </Button>
+            </Button>}
             <Button
               onClick={() => handlePublish()}
               disabled={publishing || uploadingCount > 0 || units.length === 0}
