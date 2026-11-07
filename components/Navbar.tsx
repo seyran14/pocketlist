@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator"
 import { signOutAction } from "@/lib/actions/auth"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { NotificationBell } from "@/components/NotificationBell"
-import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { SupportButton } from "@/components/SupportButton"
 import { SiteHeader } from "@/components/SiteHeader"
 
@@ -25,7 +24,7 @@ export async function Navbar() {
     <SiteHeader
       action={!user && (
         <Link href="/login">
-          <Button size="lg" className="px-4">{t("Sign in")}</Button>
+          <Button variant="outline">{t("Sign in")}</Button>
         </Link>
       )}
     >
@@ -82,7 +81,6 @@ export async function Navbar() {
       )}
 
       <Separator className="my-2" />
-      <LanguageSwitcher row />
       <ThemeToggle row />
       <SupportButton row />
 

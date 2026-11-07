@@ -482,4 +482,5 @@ export const ru: Record<string, string> = {
   "Terms of Service and Privacy Policy": "Условия и политику конфиденциальности",
   "Open photo {n} full size": "Открыть фото {n} в полном размере",
   "Hold a photo and drag it to change the order.": "Зажмите фото и перетащите, чтобы изменить порядок.",
+  "Search": "Найти",
 }

@@ -111,6 +111,9 @@
   h1, h2, h3 {
     text-wrap: balance;
   }
+  p, li {
+    text-wrap: pretty;
+  }
   h1 {
     letter-spacing: -0.025em;
     line-height: 1.12;
@@ -235,10 +238,14 @@ body::before {
 .scrim-light {
   background-color: rgb(255 255 255 / 0.15);
 }
+.scrim-soft {
+  background-color: rgb(0 0 0 / 0.22);
+}
 
 /* Readers who ask for less transparency get solid surfaces instead of see-through ones. */
 @media (prefers-reduced-transparency: reduce) {
   .scrim { background-color: #1b1815; }
   .scrim-light { background-color: #3a332c; }
+  .scrim-soft { background-color: #3a332c; }
   body::before { display: none; }
 }

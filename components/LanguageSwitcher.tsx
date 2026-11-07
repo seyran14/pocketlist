@@ -22,7 +22,7 @@ export function LanguageSwitcher({ row = false }: { row?: boolean }) {
     <Select value={locale} onValueChange={(v) => v && v !== locale && change(v as Locale)}>
       <SelectTrigger aria-label={t("Language")} className={cn("h-8 gap-1.5 border-0 bg-transparent px-2 text-sm text-muted-foreground shadow-none", row && "w-full gap-2 px-2.5 text-foreground hover:bg-muted")}>
         <Globe size={row ? 16 : 15} />
-        <span className={cn(row ? "me-auto" : "uppercase")}>{row ? LOCALE_NAMES[locale] : locale}</span>
+        <span className={cn(row && "me-auto")}>{LOCALE_NAMES[locale]}</span>
       </SelectTrigger>
       <SelectContent>
         {LOCALES.map((code) => (

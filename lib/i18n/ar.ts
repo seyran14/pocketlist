@@ -482,4 +482,5 @@ export const ar: Record<string, string> = {
   "Terms of Service and Privacy Policy": "الشروط وسياسة الخصوصية",
   "Open photo {n} full size": "فتح الصورة {n} بالحجم الكامل",
   "Hold a photo and drag it to change the order.": "اضغط مطولًا على الصورة واسحبها لتغيير الترتيب.",
+  "Search": "بحث",
 }

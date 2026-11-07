@@ -46,9 +46,9 @@ export function SiteHeader({ action, children }: { action?: ReactNode; children:
           {action}
           <Button
             ref={buttonRef}
-            variant="ghost"
-            size="sm"
-            className="relative size-9 px-0 max-sm:size-11"
+            variant="outline"
+            size="icon"
+            className="relative max-sm:size-11"
             onClick={() => setOpen((v) => !v)}
             aria-label={t("Menu")}
             aria-expanded={open}

@@ -102,7 +102,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
       <form
         role="search"
         onSubmit={(e) => { e.preventDefault(); clearTimeout(searchTimer.current); update("q", query.trim() || null) }}
-        className="relative mx-auto w-full max-w-2xl rounded-full border bg-card shadow-card"
+        className="relative mx-auto w-full max-w-2xl rounded-2xl border border-input bg-card"
       >
         <input
           type="search"
@@ -110,12 +110,12 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("Search projects, locations…")}
           aria-label={t("Search projects, locations…")}
-          className="h-14 w-full rounded-full bg-transparent ps-6 pe-24 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-search-cancel-button]:hidden"
+          className="h-14 w-full rounded-2xl bg-transparent ps-5 pe-32 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-search-cancel-button]:hidden"
         />
         {query && (
           <button
             type="button"
-            className="absolute end-14 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+            className="absolute end-[6.5rem] top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
             onClick={() => { setQuery(""); update("q", null) }}
             aria-label={t("Clear search")}
           >
@@ -125,9 +125,10 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         <button
           type="submit"
           aria-label={t("Search projects, locations…")}
-          className="absolute end-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity hover:opacity-85"
+          className="absolute end-2 top-1/2 flex h-10 -translate-y-1/2 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.97]"
         >
           <Search className="size-4" />
+          {t("Search")}
         </button>
       </form>
 
