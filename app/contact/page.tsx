@@ -20,7 +20,8 @@ export default async function ContactPage() {
           <a href={`mailto:${SUPPORT_EMAIL}`} className="text-lg font-medium text-foreground underline underline-offset-4">{SUPPORT_EMAIL}</a>
         </p>
       </TextSection>
-      <TextSection title={t("Send a message from the site")}>
+      <TextSection title={t("Or write here")}>
+        <p>{t("The form sends your message to the same inbox, and we reply to the email you leave.")}</p>
         <SupportButton page />
       </TextSection>
     </TextPage>

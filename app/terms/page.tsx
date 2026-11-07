@@ -13,7 +13,7 @@ export default async function TermsPage() {
   return (
     <TextPage
       title={t("Terms of Service")}
-      intro={<p>{t(LEGAL_UPDATED)} · <Link href="/privacy" className="underline underline-offset-4">{t("Privacy Policy")}</Link></p>}
+      intro={<p>{t(LEGAL_UPDATED)} · <Link href="/privacy" className="whitespace-nowrap underline underline-offset-4">{t("Privacy Policy")}</Link></p>}
     >
       {TERMS.map((section) => (
         <TextSection key={section.title} title={t(section.title)}>

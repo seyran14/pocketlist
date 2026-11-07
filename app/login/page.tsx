@@ -59,10 +59,10 @@ export default async function LoginPage({
             </Button>
           </form>
           <p className="text-center text-xs text-muted-foreground">
-            {t("By continuing you agree to the")}{" "}
-            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">{t("Terms")}</Link>
-            {" · "}
-            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("Privacy")}</Link>
+            {t("By continuing you agree to")}{" "}
+            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">{t("the Terms of Service")}</Link>
+            {" "}{t("and")}{" "}
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("the Privacy Policy")}</Link>.
           </p>
 
         </div>

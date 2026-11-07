@@ -25,7 +25,7 @@ export function SiteFooter() {
   return (
     <footer className="relative border-t py-5 text-sm text-muted-foreground">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 sm:flex-row sm:justify-between">
-        <nav aria-label={t("Site")} className="flex flex-wrap justify-center gap-x-4 gap-y-1 sm:gap-x-5">
+        <nav aria-label={t("Site")} className="grid grid-cols-2 justify-items-center gap-x-8 gap-y-1 sm:flex sm:gap-x-5">
           {LINKS.map((link) => (
             <Link key={link.href} href={link.href} className="underline-offset-4 hover:text-foreground hover:underline">
               {t(link.label)}

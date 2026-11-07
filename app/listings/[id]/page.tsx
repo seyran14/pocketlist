@@ -188,8 +188,11 @@ export default async function ListingPage({
             </header>
 
             {/* On phones the price follows the title; on desktop it sits in the side panel. */}
-            <div className="mt-5 space-y-3 lg:hidden">
+            <div className="mt-5 space-y-4 lg:hidden">
               {price}
+              <div id="listing-contact">
+                <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
+              </div>
               {owner}
               {isOwner && editLink}
             </div>
@@ -256,7 +259,7 @@ export default async function ListingPage({
       </main>
 
       {/* Phones: price and the main action stay in reach at the bottom of the screen. */}
-      <ContactBar watchId="listing-price">
+      <ContactBar watchId="listing-contact">
         <div className="min-w-0 flex-1">
           <p className="whitespace-nowrap font-semibold tabular-nums">{priceText}</p>
           {priceNote && <p className="truncate text-xs text-muted-foreground tabular-nums">{priceNote}</p>}

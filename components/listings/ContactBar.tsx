@@ -4,8 +4,8 @@ import { useEffect, useState, type ReactNode } from "react"
 import { motion } from "motion/react"
 import { spring } from "@/lib/motion"
 
-// Phones only. The bar slides up once the price under the title has scrolled off the top,
-// so the price is never on screen twice.
+// Phones only. The bar slides up once the contact button under the price has scrolled off
+// the top, so the price and the main action are never on screen twice.
 export function ContactBar({ watchId, children }: { watchId: string; children: ReactNode }) {
   const [shown, setShown] = useState(false)
 
