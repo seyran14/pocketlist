@@ -303,8 +303,6 @@ export const ar: Record<string, string> = {
   "Submit for review ({n})": "إرسال للمراجعة ({n})",
   "Submitting…": "جارٍ الإرسال…",
   "Support": "الدعم",
-  "Pin header": "تثبيت الشريط العلوي",
-  "Unpin header": "إلغاء تثبيت الشريط العلوي",
   "Taken from your listing and title deed. Check that it's right.": "مأخوذ من إعلانك وtitle deed. تأكد من صحته.",
   "Tenancy contract": "عقد الإيجار",
   "Tenant": "المستأجر",

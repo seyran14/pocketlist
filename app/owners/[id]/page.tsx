@@ -66,7 +66,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Link
           href="/"
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("Browse listings")}

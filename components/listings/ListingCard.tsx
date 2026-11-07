@@ -7,6 +7,8 @@ import { Building2 } from "lucide-react"
 import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatRentPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
 import { photoUrl } from "@/lib/photos-shared"
 import { CardSaveButton } from "./CardSaveButton"
+import { motion, type Variants } from "motion/react"
+import { spring } from "@/lib/motion"
 
 type ListingCardData = {
   id: string
@@ -30,6 +32,10 @@ type ListingCardData = {
   photos?: { id: string }[]
 }
 
+// Hover lifts the photo inside its frame; a press settles the whole card on pointer-down.
+const CARD: Variants = { rest: { scale: 1 }, hover: { scale: 1 }, press: { scale: 0.98 } }
+const PHOTO: Variants = { rest: { scale: 1 }, hover: { scale: 1.03 }, press: { scale: 1.03 } }
+
 const BADGE = "rounded-full bg-card px-3 py-1 text-xs font-semibold text-card-foreground shadow-badge"
 
 // Leave `saved` undefined to show the card without a heart.
@@ -52,18 +58,21 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
     >
       <Link
         href={`/listings/${listing.id}`}
-        className="flex flex-col rounded-xl outline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
+        className="block rounded-xl outline-offset-4 focus-visible:outline-2 focus-visible:outline-ring"
       >
+        <motion.div initial="rest" animate="rest" whileHover="hover" whileTap="press" variants={CARD} transition={spring} className="flex flex-col">
         <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-muted">
           {cover ? (
+            <motion.div variants={PHOTO} transition={spring} className="absolute inset-0">
             <Image
               src={photoUrl(cover.id, "thumb")}
               alt={`${listing.projectName}, ${listing.location}`}
               fill
               unoptimized
-              loading="lazy"
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              loading={index < 4 ? "eager" : "lazy"}
+              className="object-cover"
             />
+            </motion.div>
           ) : (
             <Building2 size={32} className="text-muted-foreground/40" aria-hidden="true" />
           )}
@@ -91,6 +100,7 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
             <span className="shrink-0 text-xs text-muted-foreground">{daysAgo(new Date(listing.createdAt), t)}</span>
           </div>
         </div>
+        </motion.div>
       </Link>
       {saved !== undefined && <CardSaveButton listingId={listing.id} initialSaved={saved} />}
     </div>

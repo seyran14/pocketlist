@@ -3,6 +3,8 @@
 import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { Heart } from "lucide-react"
+import { motion } from "motion/react"
+import { springAfterGesture } from "@/lib/motion"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -15,19 +17,13 @@ export function SaveButton({
 }) {
   const t = useT()
   const [saved, setSaved] = useState(initialSaved)
-  const [popping, setPopping] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function toggle() {
     if (loading) return
     setLoading(true)
     await fetch(`/api/listings/${listingId}/save`, { method: "POST" })
-    const next = !saved
-    setSaved(next)
-    if (next) {
-      setPopping(true)
-      setTimeout(() => setPopping(false), 400)
-    }
+    setSaved(!saved)
     setLoading(false)
   }
 
@@ -39,27 +35,17 @@ export function SaveButton({
       onClick={toggle}
       disabled={loading}
     >
-      {/* Icon swap: two overlapping hearts, one fades out while other fades in */}
-      <span className="relative w-4 h-4 shrink-0">
-        {/* Outline heart — shown when NOT saved */}
-        <Heart
-          className={cn(
-            "absolute inset-0 w-4 h-4 transition-all duration-[180ms]",
-            saved
-              ? "opacity-0 scale-50 blur-[2px]"
-              : "opacity-100 scale-100 blur-0 text-muted-foreground"
-          )}
-        />
-        {/* Filled heart — shown when saved */}
-        <Heart
-          className={cn(
-            "absolute inset-0 w-4 h-4 fill-current transition-all duration-[200ms]",
-            popping && "heart-pop",
-            saved
-              ? "opacity-100 scale-100 blur-0 text-red-500"
-              : "opacity-0 scale-50 blur-[2px] text-red-500"
-          )}
-        />
+      {/* The filled heart fades over the outline one and lands with a small spring. */}
+      <span className="relative size-4 shrink-0">
+        <Heart className={cn("absolute inset-0 size-4 text-muted-foreground transition-opacity duration-150", saved && "opacity-0")} />
+        <motion.span
+          className="absolute inset-0"
+          initial={false}
+          animate={saved ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.6 }}
+          transition={springAfterGesture}
+        >
+          <Heart className="size-4 fill-primary text-primary" />
+        </motion.span>
       </span>
       <span>{saved ? t("Saved") : t("Save listing")}</span>
     </Button>

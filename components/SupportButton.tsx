@@ -86,15 +86,14 @@ export function SupportButton({ row = false }: { row?: boolean }) {
 
           {sent ? (
             <div className="py-6 flex flex-col items-center gap-3">
-              <div className="check-circle-animate w-14 h-14 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
-                <svg viewBox="0 0 24 24" className="w-7 h-7 text-white" fill="none" aria-hidden="true">
+              <div className="check-circle-animate w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
+                <svg viewBox="0 0 24 24" className="w-7 h-7 text-primary-foreground" fill="none" aria-hidden="true">
                   <path
                     d="M5 13l4 4L19 7"
                     stroke="currentColor"
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    className="check-path-animate"
                   />
                 </svg>
               </div>

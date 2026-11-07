@@ -19,7 +19,7 @@ function monthDays(year: number, month: number) {
   return { offset, days: Array.from({ length: count }, (_, i) => iso(year, month, i + 1)) }
 }
 
-const NAV = "flex size-8 max-sm:size-10 items-center justify-center rounded-full transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-30"
+const NAV = "flex size-8 max-sm:size-10 items-center justify-center rounded-full hover:bg-muted disabled:pointer-events-none disabled:opacity-30"
 
 export function DatePicker({
   id, value, onChange, min, label, clearable = false, className,
@@ -61,7 +61,7 @@ export function DatePicker({
         aria-label={label}
         data-touch-target
         className={cn(
-          "flex h-8 items-center gap-2 rounded-lg border border-input bg-card px-2.5 text-start text-sm outline-none transition-colors hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
+          "flex h-8 items-center gap-2 rounded-lg border border-input bg-card px-2.5 text-start text-sm outline-none hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
           className
         )}
       >
@@ -73,7 +73,7 @@ export function DatePicker({
 
       <Popover.Portal>
         <Popover.Positioner sideOffset={6} align="start" className="z-50">
-          <Popover.Popup className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl border bg-card p-3 text-card-foreground shadow-pop outline-none transition-[opacity,transform] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 motion-reduce:transition-none">
+          <Popover.Popup className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl border bg-card p-3 text-card-foreground shadow-pop outline-none transition-[opacity,transform] duration-150 ease-out-soft data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 motion-reduce:transition-none">
             <div className="flex items-center justify-between">
               <button type="button" className={NAV} aria-label={t("Previous month")} disabled={!!min && first <= min} onClick={() => move(-1)}>
                 <ChevronLeft size={16} className="rtl:rotate-180" />
@@ -101,7 +101,7 @@ export function DatePicker({
                     style={i === 0 ? { gridColumnStart: offset + 1 } : undefined}
                     onClick={() => pick(day)}
                     className={cn(
-                      "mx-auto flex size-9 items-center justify-center rounded-full text-sm transition-colors disabled:pointer-events-none disabled:text-muted-foreground/40",
+                      "mx-auto flex size-9 items-center justify-center rounded-full text-sm disabled:pointer-events-none disabled:text-muted-foreground/40",
                       selected ? "bg-primary font-semibold text-primary-foreground" : "hover:bg-muted",
                       !selected && day === today && "font-semibold underline underline-offset-4"
                     )}
@@ -113,7 +113,7 @@ export function DatePicker({
             </div>
 
             {clearable && value && (
-              <button type="button" className="mt-2 w-full rounded-lg py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => pick("")}>
+              <button type="button" className="mt-2 w-full rounded-lg py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground" onClick={() => pick("")}>
                 {t("Clear date")}
               </button>
             )}

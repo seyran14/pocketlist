@@ -112,7 +112,7 @@ function RoleCard({
   return (
     <label
       htmlFor={id}
-      className="relative flex cursor-pointer flex-col rounded-xl border bg-card p-4 transition-colors has-[:checked]:border-foreground has-[:checked]:bg-muted/30"
+      className="relative flex cursor-pointer flex-col rounded-xl border bg-card p-4 has-[:checked]:border-foreground has-[:checked]:bg-muted/30"
     >
       <input
         type="radio"

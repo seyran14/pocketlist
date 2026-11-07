@@ -210,11 +210,11 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
               <div className="flex-1 overflow-y-auto min-w-0">
                 {/* Top bar */}
                 <div
-                  className="flex items-center gap-2 px-4 py-3 sticky top-0 bg-background/95 backdrop-blur-sm z-10 border-b border-border"
+                  className="flex items-center gap-2 px-4 py-3 sticky top-0 bg-background z-10 border-b border-border"
                 >
                   <Link
                     href={`/listings/${l.id}`}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     <ChevronLeft size={20} />
                   </Link>
@@ -303,7 +303,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   icon={
                     <Heart
                       size={20}
-                      className={cn("transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")}
+                      className={cn(isSaved ? "fill-primary text-primary" : "text-muted-foreground")}
                     />
                   }
                   label={t("Save")}
@@ -319,7 +319,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   icon={
                     <Link2
                       size={20}
-                      className={cn("transition-colors", isCopied ? "text-green-500" : "text-muted-foreground")}
+                      className={cn(isCopied ? "text-green-500" : "text-muted-foreground")}
                     />
                   }
                   label={isCopied ? t("Copied!") : t("Share")}
@@ -347,7 +347,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
               <div className="flex flex-col gap-2">
                 {contactInfo!.phone && (
                   <a href={`tel:${contactInfo!.phone}`}
-                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
+                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent">
                     <Phone size={16} className="shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Phone</p>
@@ -358,7 +358,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 {contactInfo!.whatsapp && (
                   <a href={`https://wa.me/${contactInfo!.whatsapp.replace(/\D/g, "")}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
+                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent">
                     <MessageCircle size={16} className="shrink-0 text-green-600" />
                     <div>
                       <p className="text-xs text-muted-foreground">WhatsApp</p>
@@ -369,7 +369,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 {contactInfo!.telegram && (
                   <a href={telegramHref(contactInfo!.telegram)}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
+                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent">
                     <TelegramIcon size={16} className="shrink-0 text-blue-500" />
                     <div>
                       <p className="text-xs text-muted-foreground">Telegram</p>
@@ -379,7 +379,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 )}
                 {contactInfo!.email && (
                   <a href={`mailto:${contactInfo!.email}`}
-                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
+                    className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent">
                     <Mail size={16} className="shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Email</p>

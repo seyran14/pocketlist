@@ -37,7 +37,7 @@ export default async function GuidePage({ searchParams }: { searchParams: Promis
               href={`/guide?role=${tab.role}`}
               aria-current={tab.role === role ? "page" : undefined}
               className={cn(
-                "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                "rounded-full border px-4 py-2 text-sm font-medium",
                 tab.role === role ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card hover:bg-accent"
               )}
             >

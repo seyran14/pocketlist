@@ -22,7 +22,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="scrim absolute inset-0" />
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl border bg-card shadow-modal">
@@ -31,7 +31,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
           <h2 className="font-semibold text-base">{t("Terms & Privacy Policy")}</h2>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+            className="flex h-7 w-7 items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
             aria-label={t("Close")}
           >
             <X size={16} />

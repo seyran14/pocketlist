@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { I18nProvider } from "@/components/I18nProvider"
 import { PostHogProvider } from "@/components/PostHogProvider"
+import { MotionProvider } from "@/components/MotionProvider"
 import { getLocale } from "@/lib/i18n/server"
 import "./globals.css"
 
@@ -32,9 +33,11 @@ export default async function RootLayout({
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <I18nProvider locale={locale}>
-              {children}
-              <SiteFooter />
-              <Toaster />
+              <MotionProvider>
+                {children}
+                <SiteFooter />
+                <Toaster />
+              </MotionProvider>
             </I18nProvider>
           </ThemeProvider>
         </PostHogProvider>

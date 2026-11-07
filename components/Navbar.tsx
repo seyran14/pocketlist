@@ -1,6 +1,5 @@
 import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
-import { cookies } from "next/headers"
 import { auth } from "@/lib/auth"
 import { BookOpen, Heart, LayoutDashboard, LogOut, Plus, Shield, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,7 +10,6 @@ import { NotificationBell } from "@/components/NotificationBell"
 import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { SupportButton } from "@/components/SupportButton"
 import { SiteHeader } from "@/components/SiteHeader"
-import { HEADER_PIN_COOKIE } from "@/lib/utils"
 
 export async function Navbar() {
   const t = await getT()
@@ -19,15 +17,12 @@ export async function Navbar() {
   const user = session?.user
   const isAgent = user?.role === "AGENT"
 
-  const pinned = (await cookies()).get(HEADER_PIN_COOKIE)?.value !== "0"
-
   const displayName = user?.name ?? user?.email?.split("@")[0] ?? "Account"
 
   const row = "w-full justify-start gap-2"
 
   return (
     <SiteHeader
-      initialPinned={pinned}
       action={!user && (
         <Link href="/login">
           <Button size="lg" className="px-4">{t("Sign in")}</Button>

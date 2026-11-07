@@ -4,6 +4,8 @@ import { useT } from "@/components/I18nProvider"
 import { useState, useEffect } from "react"
 import { Bell } from "lucide-react"
 import Link from "next/link"
+import { motion } from "motion/react"
+import { spring } from "@/lib/motion"
 
 type Notif = {
   id: string
@@ -45,18 +47,21 @@ export function NotificationBell() {
       <button
         onClick={handleOpen}
         aria-expanded={open}
-        className="flex h-8 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-medium transition-colors hover:bg-muted"
+        className="flex h-8 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-medium hover:bg-muted"
       >
         <Bell size={16} />
         {t("Notifications")}
         {notifs.length > 0 && (
-          <span
+          <motion.span
             key={notifs.length}
             data-unread
-            className="badge-animate ms-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white leading-none"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={spring}
+            className="ms-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-background leading-none"
           >
             {notifs.length > 9 ? "9+" : notifs.length}
-          </span>
+          </motion.span>
         )}
       </button>
 

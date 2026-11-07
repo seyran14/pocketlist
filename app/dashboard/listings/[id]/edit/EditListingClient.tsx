@@ -90,7 +90,7 @@ export function EditListingClient({ admin = false }: { admin?: boolean }) {
       <div className="mb-6">
         <button
           onClick={() => router.push(homePath)}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-3"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           {t("Back")}

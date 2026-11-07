@@ -67,7 +67,7 @@ export function OTPForm({ email }: { email: string }) {
         onChange={handleChange}
         autoFocus
         placeholder="000000"
-        className="w-full text-center text-3xl font-mono tracking-[0.4em] h-16 rounded-xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring transition-shadow placeholder:text-muted-foreground/30"
+        className="w-full text-center text-3xl font-mono tracking-[0.4em] h-16 rounded-xl border bg-background px-4 outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground/30"
       />
 
       {error && (

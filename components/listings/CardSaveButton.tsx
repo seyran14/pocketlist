@@ -4,13 +4,14 @@ import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
+import { motion } from "motion/react"
+import { spring, springAfterGesture } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 
 export function CardSaveButton({ listingId, initialSaved }: { listingId: string; initialSaved: boolean }) {
   const t = useT()
   const router = useRouter()
   const [saved, setSaved] = useState(initialSaved)
-  const [popping, setPopping] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function toggle() {
@@ -18,7 +19,6 @@ export function CardSaveButton({ listingId, initialSaved }: { listingId: string;
     const previous = saved
     setLoading(true)
     setSaved(!previous)
-    setPopping(!previous)
     try {
       const res = await fetch(`/api/listings/${listingId}/save`, { method: "POST" })
       if (res.status === 401) {
@@ -35,22 +35,23 @@ export function CardSaveButton({ listingId, initialSaved }: { listingId: string;
     setLoading(false)
   }
 
+  // The press lands on pointer-down; the release springs back with a little bounce.
   return (
-    <button
+    <motion.button
       type="button"
       onClick={toggle}
       aria-pressed={saved}
       aria-label={t("Save listing")}
-      className="absolute end-1 top-1 flex size-10 items-center justify-center rounded-full outline-offset-[-4px] transition-transform focus-visible:outline-2 focus-visible:outline-white active:scale-90 motion-reduce:transition-none"
+      whileTap={{ scale: 0.82, transition: spring }}
+      animate={{ scale: 1, transition: springAfterGesture }}
+      className="absolute end-1 top-1 flex size-10 items-center justify-center rounded-full outline-offset-[-4px] focus-visible:outline-2 focus-visible:outline-white"
     >
       <Heart
-        onAnimationEnd={() => setPopping(false)}
         className={cn(
-          "size-6 stroke-2 text-white drop-shadow-sm transition-colors",
-          saved ? "fill-red-500 stroke-white" : "fill-black/40",
-          popping && "heart-pop"
+          "size-6 stroke-2 text-white drop-shadow-[0_1px_3px_rgb(0_0_0/0.55)]",
+          saved ? "fill-primary stroke-white" : "fill-black/45"
         )}
       />
-    </button>
+    </motion.button>
   )
 }

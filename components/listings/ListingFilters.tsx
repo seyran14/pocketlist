@@ -115,7 +115,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         {query && (
           <button
             type="button"
-            className="absolute end-14 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+            className="absolute end-14 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
             onClick={() => { setQuery(""); update("q", null) }}
             aria-label={t("Clear search")}
           >

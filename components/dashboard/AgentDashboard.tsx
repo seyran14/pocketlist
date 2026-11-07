@@ -60,7 +60,7 @@ function SortTh({
   return (
     <th className={cn("px-2.5 py-2.5 font-medium", className)}>
       <button
-        className={cn("flex items-center gap-1 hover:text-foreground transition-colors", entry && "text-foreground")}
+        className={cn("flex items-center gap-1 hover:text-foreground", entry && "text-foreground")}
         onClick={() => onSort(col)}
       >
         {label}
@@ -308,7 +308,7 @@ export function AgentDashboard({ listings }: Props) {
                 <tr
                   key={l.id}
                   className={cn(
-                    "card-animate hover:bg-muted/30 transition-colors",
+                    "card-animate hover:bg-muted/30",
                     selectedIds.has(l.id) && "bg-muted/20"
                   )}
                   style={{ animationDelay: `${i * 30}ms` }}
@@ -335,7 +335,7 @@ export function AgentDashboard({ listings }: Props) {
                     )}
                     <div className="relative mt-2 min-h-7 sm:-ms-2 sm:mt-1.5">
                       <div className={cn(
-                        "flex flex-wrap items-center gap-1.5 transition-all sm:gap-x-0.5 sm:gap-y-0 duration-150",
+                        "flex flex-wrap items-center gap-1.5 transition-opacity sm:gap-x-0.5 sm:gap-y-0 duration-150",
                         confirmDeleteId === l.id ? "opacity-0 pointer-events-none" : "opacity-100"
                       )}>
                         <Link href={`/dashboard/listings/${l.id}/edit`}>
@@ -383,7 +383,7 @@ export function AgentDashboard({ listings }: Props) {
                       </div>
 
                       <div className={cn(
-                        "absolute inset-0 flex items-start gap-1.5 transition-all sm:ps-2 duration-150",
+                        "absolute inset-0 flex items-start gap-1.5 transition-opacity sm:ps-2 duration-150",
                         confirmDeleteId === l.id
                           ? "opacity-100"
                           : "opacity-0 pointer-events-none"

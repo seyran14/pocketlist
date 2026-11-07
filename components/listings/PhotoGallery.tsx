@@ -5,8 +5,27 @@ import { useCallback, useRef, useState } from "react"
 import Image from "next/image"
 import { Dialog } from "@base-ui/react/dialog"
 import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { animate, motion, useReducedMotion } from "motion/react"
 import { cn } from "@/lib/utils"
+import { spring } from "@/lib/motion"
 import { photoUrl } from "@/lib/photos-shared"
+
+// Swipes stay native (scroll-snap keeps the platform's momentum). Buttons and thumbnails
+// move the track on a spring instead of the browser's fixed smooth-scroll curve.
+function springScroll(track: HTMLElement, index: number, reduced: boolean) {
+  const target = index * track.clientWidth
+  if (reduced) {
+    track.scrollLeft = target
+    return
+  }
+  // Snapping would fight each frame of the spring, so it pauses until the track lands.
+  track.style.scrollSnapType = "none"
+  animate(track.scrollLeft, target, {
+    ...spring,
+    onUpdate: (left) => { track.scrollLeft = left },
+    onComplete: () => { track.style.scrollSnapType = "" },
+  })
+}
 
 function PhotoViewer({ photos, alt, start, onClose }: {
   photos: { id: string }[]
@@ -17,6 +36,7 @@ function PhotoViewer({ photos, alt, start, onClose }: {
   const t = useT()
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(start)
+  const reduced = useReducedMotion()
 
   // The dialog mounts its content later than this component, so an effect here finds no track.
   const placeTrack = useCallback((track: HTMLDivElement | null) => {
@@ -26,12 +46,10 @@ function PhotoViewer({ photos, alt, start, onClose }: {
 
   function goTo(index: number) {
     const track = trackRef.current
-    if (track && index >= 0 && index < photos.length) {
-      track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" })
-    }
+    if (track && index >= 0 && index < photos.length) springScroll(track, index, !!reduced)
   }
 
-  const control = "absolute z-10 flex size-10 items-center justify-center rounded-full bg-white/15 text-white transition-[background-color,opacity] hover:bg-white/30 disabled:opacity-0"
+  const control = "scrim-light absolute z-10 flex size-10 items-center justify-center rounded-full text-white transition-opacity hover:opacity-80 disabled:opacity-0"
 
   return (
     <Dialog.Root open onOpenChange={(open) => { if (!open) onClose(active) }}>
@@ -43,8 +61,14 @@ function PhotoViewer({ photos, alt, start, onClose }: {
             if (e.key === "ArrowLeft") goTo(active - 1)
             if (e.key === "ArrowRight") goTo(active + 1)
           }}
-          className="fixed inset-0 z-[60] bg-black outline-none"
+          className="fixed inset-0 z-[60] outline-none"
         >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={spring}
+            className="absolute inset-0 bg-black"
+          >
           <div
             ref={placeTrack}
             onScroll={(e) => {
@@ -91,11 +115,12 @@ function PhotoViewer({ photos, alt, start, onClose }: {
               >
                 <ChevronRight size={20} />
               </button>
-              <span className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 rounded bg-black/70 px-2 py-0.5 text-sm font-medium text-white tabular-nums">
+              <span className="scrim absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-10 -translate-x-1/2 rounded px-2 py-0.5 text-sm font-medium text-white tabular-nums">
                 {active + 1} / {photos.length}
               </span>
             </>
           )}
+          </motion.div>
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
@@ -107,12 +132,13 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
   const trackRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [viewing, setViewing] = useState(false)
+  const reduced = useReducedMotion()
 
   if (photos.length === 0) return null
 
   function goTo(index: number) {
     const track = trackRef.current
-    if (track) track.scrollTo({ left: index * track.clientWidth, behavior: "smooth" })
+    if (track) springScroll(track, index, !!reduced)
   }
 
   const multiple = photos.length > 1
@@ -155,7 +181,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               onClick={() => goTo(active - 1)}
               disabled={active === 0}
               aria-label={t("Previous photo")}
-              className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
+              className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
               <ChevronLeft size={18} />
             </button>
@@ -164,11 +190,11 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               onClick={() => goTo(active + 1)}
               disabled={active === photos.length - 1}
               aria-label={t("Next photo")}
-              className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-black/80 disabled:opacity-0 sm:flex"
+              className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
               <ChevronRight size={18} />
             </button>
-            <span className="absolute bottom-2 end-2 rounded bg-black/70 px-2 py-0.5 text-xs font-medium text-white tabular-nums">
+            <span className="scrim absolute bottom-2 end-2 rounded px-2 py-0.5 text-xs font-medium text-white tabular-nums">
               {active + 1} / {photos.length}
             </span>
           </>

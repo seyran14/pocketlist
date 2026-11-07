@@ -42,7 +42,7 @@ function PhotoTile({ id, index, onCover, onRemove }: {
     >
       <Image src={photoUrl(id, "thumb")} alt={`Photo ${index + 1}`} fill unoptimized draggable={false} className="pointer-events-none object-cover" />
       {index === 0 ? (
-        <span className="absolute start-1 bottom-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white max-sm:text-xs">
+        <span className="absolute start-1 bottom-1 rounded scrim px-1.5 py-0.5 text-[10px] font-medium text-white max-sm:text-xs">
           {t("Cover")}
         </span>
       ) : (
@@ -51,7 +51,7 @@ function PhotoTile({ id, index, onCover, onRemove }: {
           onClick={onCover}
           aria-label={`Make photo ${index + 1} the cover`}
           title={t("Make cover")}
-          className="absolute start-1 bottom-1 flex size-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 max-sm:size-9"
+          className="absolute start-1 bottom-1 flex size-7 items-center justify-center rounded-full scrim text-white hover:opacity-80 max-sm:size-9"
         >
           <Star size={14} />
         </button>
@@ -61,7 +61,7 @@ function PhotoTile({ id, index, onCover, onRemove }: {
         onClick={onRemove}
         aria-label={`Remove photo ${index + 1}`}
         title={t("Remove")}
-        className="absolute end-1 top-1 flex size-7 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 max-sm:size-9"
+        className="absolute end-1 top-1 flex size-7 items-center justify-center rounded-full scrim text-white hover:opacity-80 max-sm:size-9"
       >
         <X size={14} />
       </button>
@@ -162,7 +162,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange, canUplo
             disabled={uploading}
             onClick={() => inputRef.current?.click()}
             className={cn(
-              "flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-muted-foreground transition-colors",
+              "flex aspect-square flex-col items-center justify-center gap-1 rounded-lg border border-dashed text-muted-foreground",
               uploading ? "cursor-wait" : "hover:border-foreground/40 hover:text-foreground"
             )}
           >

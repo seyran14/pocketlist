@@ -85,7 +85,7 @@ export default async function SavedPage() {
                 >
                   <button
                     type="submit"
-                    className="rounded-lg bg-background/90 border px-2 py-1 text-xs text-muted-foreground hover:text-destructive hover:border-destructive transition-colors backdrop-blur"
+                    className="rounded-lg bg-background border px-2 py-1 text-xs text-muted-foreground hover:text-destructive hover:border-destructive"
                   >
                     {t("Remove")}
                   </button>

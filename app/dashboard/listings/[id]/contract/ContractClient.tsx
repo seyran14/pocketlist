@@ -328,7 +328,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
                     aria-current={i === step ? "step" : undefined}
                     onClick={() => goTo(i)}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm transition-colors max-sm:min-h-11 max-sm:text-[0.9375rem]",
+                      "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm max-sm:min-h-11 max-sm:text-[0.9375rem]",
                       i === step ? "bg-muted font-medium" : "text-muted-foreground",
                       i <= reached && i !== step && "hover:text-foreground"
                     )}
