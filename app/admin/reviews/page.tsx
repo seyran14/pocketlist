@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils"
 import type { DeedCheck } from "@/lib/deed-shared"
 import { reviewListing } from "./_actions"
 
+export const metadata = { title: "Admin" }
+
 const RESULT_STYLES: Record<DeedCheck["result"], { label: string; className: string }> = {
   match: { label: "Match", className: "text-green-600" },
   mismatch: { label: "Mismatch", className: "text-destructive font-medium" },

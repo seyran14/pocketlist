@@ -6,6 +6,11 @@ import { extractText, readDocument } from "@/lib/documents"
 import { prisma } from "@/lib/prisma"
 import { isPublicStatus } from "@/lib/utils"
 import { ContractClient } from "./ContractClient"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Tenancy contract")
+}
 
 async function readDeed(listingId: string) {
   const deed = await prisma.ownerDocument.findFirst({ where: { listingId, kind: "TITLE_DEED" } })

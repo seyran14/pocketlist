@@ -6,6 +6,11 @@ import { loginAction } from "@/lib/actions/auth"
 import { ArchBackdrop } from "@/components/ArchBackdrop"
 import Link from "next/link"
 import { BrandMark } from "@/components/BrandLogo"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Sign in", "Sign in to PocketList with a 6-digit code sent to your email.")
+}
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration: "Server configuration error. Please try again later.",
@@ -53,6 +58,12 @@ export default async function LoginPage({
               {t("Send code")}
             </Button>
           </form>
+          <p className="text-center text-xs text-muted-foreground">
+            {t("By continuing you agree to the")}{" "}
+            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">{t("Terms")}</Link>
+            {" · "}
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("Privacy")}</Link>
+          </p>
 
         </div>
 

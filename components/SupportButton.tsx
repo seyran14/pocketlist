@@ -15,7 +15,8 @@ import {
 import { LifeBuoy, Mail } from "lucide-react"
 import { SUPPORT_EMAIL } from "@/lib/utils"
 
-export function SupportButton({ row = false }: { row?: boolean }) {
+// `page` is the full-size button on /contact; `row` is the menu item.
+export function SupportButton({ row = false, page = false }: { row?: boolean; page?: boolean }) {
   const t = useT()
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
@@ -68,15 +69,19 @@ export function SupportButton({ row = false }: { row?: boolean }) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="sm"
-        className={row ? "w-full justify-start gap-2" : "text-sm text-muted-foreground gap-1.5"}
-        onClick={() => setOpen(true)}
-      >
-        {!row && <LifeBuoy size={15} />}
-        <span className={row ? undefined : "hidden sm:inline"}>{t("Support")}</span>
-      </Button>
+      {page ? (
+        <Button size="lg" onClick={() => setOpen(true)}>{t("Send a message")}</Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={row ? "w-full justify-start gap-2" : "text-sm text-muted-foreground gap-1.5"}
+          onClick={() => setOpen(true)}
+        >
+          {!row && <LifeBuoy size={15} />}
+          <span className={row ? undefined : "hidden sm:inline"}>{t("Support")}</span>
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="sm:max-w-sm">

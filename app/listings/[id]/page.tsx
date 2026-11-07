@@ -35,7 +35,7 @@ export async function generateMetadata({
   const pageUrl = `${BASE_URL}/listings/${id}`
   const ogImage = `${BASE_URL}/listings/${id}/opengraph-image`
   return {
-    title: `${title} | PocketList`,
+    title,
     description,
     openGraph: {
       title,

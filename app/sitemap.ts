@@ -17,6 +17,11 @@ export default async function sitemap() {
   return [
     { url: BASE, lastModified: new Date(), changeFrequency: "hourly" as const, priority: 1 },
     { url: `${BASE}/owners`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.7 },
+    ...["/guide", "/about", "/contact", "/terms", "/privacy"].map((path) => ({
+      url: `${BASE}${path}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.4,
+    })),
     ...listings.map((l) => ({
       url: `${BASE}/listings/${l.id}`,
       lastModified: l.updatedAt,

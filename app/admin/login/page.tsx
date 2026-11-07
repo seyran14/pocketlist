@@ -8,6 +8,8 @@ import Link from "next/link"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { BrandMark } from "@/components/BrandLogo"
 
+export const metadata = { title: "Admin" }
+
 export default async function AdminLoginPage({
   searchParams,
 }: {

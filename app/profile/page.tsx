@@ -5,6 +5,11 @@ import { prisma } from "@/lib/prisma"
 import { Navbar } from "@/components/Navbar"
 import { ProfileForm } from "@/components/profile/ProfileForm"
 import { Separator } from "@/components/ui/separator"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Profile")
+}
 
 export default async function ProfilePage() {
   const t = await getT()

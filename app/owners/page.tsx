@@ -4,7 +4,11 @@ import { Navbar } from "@/components/Navbar"
 import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 
-export const metadata = { title: "Owners | PocketList" }
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Owners")
+}
 
 export default async function OwnersPage() {
   const t = await getT()

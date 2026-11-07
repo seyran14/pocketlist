@@ -9,6 +9,8 @@ import { AdminGate } from "./_components/AdminGate"
 import { AdminUsersTable } from "./_components/AdminUsersTable"
 import { AnalyticsPanel } from "./_components/AnalyticsPanel"
 
+export const metadata = { title: "Admin" }
+
 export default async function AdminPage({
   searchParams,
 }: {

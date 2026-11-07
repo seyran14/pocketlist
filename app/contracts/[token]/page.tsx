@@ -5,7 +5,7 @@ import { getT } from "@/lib/i18n/server"
 import { TenantSignClient } from "./TenantSignClient"
 
 export const metadata: Metadata = {
-  title: "Tenancy contract | PocketList",
+  title: "Tenancy contract",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 }

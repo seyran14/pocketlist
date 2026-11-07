@@ -7,6 +7,11 @@ import { AgentDashboard } from "@/components/dashboard/AgentDashboard"
 import { NotificationBanner } from "@/components/dashboard/NotificationBanner"
 import { ProfileBanner } from "@/components/dashboard/ProfileBanner"
 import { Separator } from "@/components/ui/separator"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Dashboard")
+}
 
 export default async function DashboardPage() {
   const t = await getT()

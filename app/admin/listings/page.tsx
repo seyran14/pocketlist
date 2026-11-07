@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { AdminListingRow } from "./AdminListingRow"
 
+export const metadata = { title: "Admin" }
+
 const PAGE_SIZE = 200
 
 export default async function AdminListingsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {

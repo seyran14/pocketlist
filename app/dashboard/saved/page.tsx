@@ -9,6 +9,11 @@ import { LISTING_GRID } from "@/components/listings/ListingGrid"
 import { unsaveListingAction } from "@/lib/actions/saved"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Saved homes")
+}
 
 export default async function SavedPage() {
   const t = await getT()

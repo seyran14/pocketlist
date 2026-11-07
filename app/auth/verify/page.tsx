@@ -6,6 +6,11 @@ import { OTPForm } from "@/components/auth/OTPForm"
 import { Button } from "@/components/ui/button"
 import { signIn } from "@/lib/auth"
 import { BrandMark } from "@/components/BrandLogo"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Check your email")
+}
 
 export default async function VerifyPage() {
   const t = await getT()

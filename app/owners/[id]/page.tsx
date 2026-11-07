@@ -8,6 +8,13 @@ import { Separator } from "@/components/ui/separator"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const owner = await prisma.user.findUnique({ where: { id, role: "AGENT" }, select: { name: true } })
+  const t = await getT()
+  return { title: t("Homes from {name}", { name: owner?.name ?? t("Owner") }) }
+}
+
 export default async function OwnerPage({ params }: { params: Promise<{ id: string }> }) {
   const t = await getT()
   const { id } = await params

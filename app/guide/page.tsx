@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import { pageMetadata } from "@/lib/i18n/meta"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
 import { getT } from "@/lib/i18n/server"
@@ -7,7 +7,9 @@ import { Navbar } from "@/components/Navbar"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-export const metadata: Metadata = { title: "Guide — PocketList" }
+export function generateMetadata() {
+  return pageMetadata("How it works", "How owners list a home and tenants rent one on PocketList, from the first visit to a contract registered on Ejari.")
+}
 
 const TABS: { role: GuideRole; label: string }[] = [
   { role: "owner", label: "For owners" },

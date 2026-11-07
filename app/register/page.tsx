@@ -3,6 +3,11 @@ import Link from "next/link"
 import { RegisterForm } from "./RegisterForm"
 import { ArchBackdrop } from "@/components/ArchBackdrop"
 import { BrandMark } from "@/components/BrandLogo"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Create an account", "Create a tenant or owner account on PocketList.")
+}
 
 // "?as=owner" comes from "Post your home" and preselects the owner account.
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {

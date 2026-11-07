@@ -6,6 +6,11 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import { NewListingClient } from "./NewListingClient"
+import { pageMetadata } from "@/lib/i18n/meta"
+
+export function generateMetadata() {
+  return pageMetadata("Add listing")
+}
 
 export default async function NewListingPage() {
   const t = await getT()
