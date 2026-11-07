@@ -28,7 +28,7 @@ export function ProfileBanner({ hasName }: { hasName: boolean }) {
   return (
     <div className="card-animate mb-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-sm" style={{ animationDelay: "60ms" }}>
       <span className="text-amber-800 dark:text-amber-300">
-        {t("Complete your profile so buyers can contact you.")}
+        {t("Complete your profile so tenants can contact you.")}
       </span>
       <div className="flex items-center gap-2 shrink-0">
         <Link href="/profile">

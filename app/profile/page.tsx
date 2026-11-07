@@ -40,7 +40,7 @@ export default async function ProfilePage() {
           <h1 className="text-2xl font-bold">{t("Profile")}</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {user.role === "AGENT"
-              ? t("Your contact details are shown to buyers on your listings.")
+              ? t("Tenants see your contact details on your listings.")
               : t("Manage your account details.")}
           </p>
         </div>

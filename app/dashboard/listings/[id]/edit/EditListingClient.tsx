@@ -113,7 +113,7 @@ export function EditListingClient({ admin = false }: { admin?: boolean }) {
                 {listing.status === "REJECTED" ? t("This listing needs changes") : t("This listing is waiting for review")}
               </p>
               <p className="mt-1 text-muted-foreground">
-                {listing.reviewNote ?? t("It isn't visible to buyers yet.")}
+                {listing.reviewNote ?? t("It isn't visible to tenants yet.")}
                 {listing.status === "REJECTED" && t(" Save your changes to send it back for review.")}
               </p>
             </div>

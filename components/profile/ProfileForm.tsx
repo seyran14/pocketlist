@@ -2,6 +2,8 @@
 
 import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Check } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -42,7 +44,9 @@ function parsePrefs(pref: string | null): Set<string> {
 export function ProfileForm({ user }: { user: ProfileData }) {
   const t = useT()
   const [prefs, setPrefs] = useState<Set<string>>(() => parsePrefs(user.contactPref))
+  const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const isAgent = user.role === "AGENT"
 
   const { register, handleSubmit } = useForm<FormValues>({
@@ -66,7 +70,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
     })
   }
 
-  // Without this a newly typed number stays hidden from buyers until its box is ticked.
+  // Without this a newly typed number stays hidden from tenants until its box is ticked.
   function showNewChannel(key: string, saved: string | null, value: string) {
     if (!saved && value.trim()) setPrefs((prev) => new Set(prev).add(key))
   }
@@ -85,12 +89,19 @@ export function ProfileForm({ user }: { user: ProfileData }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...values, contactPref }),
     })
-    setSaving(false)
-    if (res.ok) {
-      toast.success(t("Profile saved"))
-    } else {
+    if (!res.ok) {
+      setSaving(false)
       toast.error(t("Failed to save profile"))
+      return
     }
+    // Show the result on the button itself, then go back to where the account is used.
+    setSaving(false)
+    setSaved(true)
+    toast.success(t("Profile saved"))
+    setTimeout(() => {
+      router.push(isAgent ? "/dashboard" : "/")
+      router.refresh()
+    }, 900)
   }
 
   return (
@@ -127,7 +138,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
             {t("Contact details")}
           </h2>
           <p className="text-xs text-muted-foreground -mt-2">
-            {t("Buyers see these when they click \"Show Contact\" on your listings.")}
+            {t("Tenants see these when they tap \"Show contact\" on your listings.")}
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -164,7 +175,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>{t("How buyers can reach you")}</Label>
+              <Label>{t("How tenants can reach you")}</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -194,8 +205,13 @@ export function ProfileForm({ user }: { user: ProfileData }) {
       )}
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={saving} className="min-w-32">
-          {saving ? t("Saving…") : t("Save changes")}
+        <Button type="submit" disabled={saving || saved} className="min-w-32">
+          {saved ? (
+            <>
+              <Check aria-hidden="true" />
+              {t("Changes saved")}
+            </>
+          ) : saving ? t("Saving…") : t("Save changes")}
         </Button>
       </div>
     </form>

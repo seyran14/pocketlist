@@ -41,7 +41,7 @@ export function OwnerContactCard({
       <div>
         <h2 className="text-sm font-semibold">{t("Your contact")}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t("Your name and phone are required. Buyers reach you directly, and this is saved to your profile for all your listings.")}
+          {t("Your name and phone are required. Tenants reach you directly, and this is saved to your profile for all your listings.")}
         </p>
       </div>
 

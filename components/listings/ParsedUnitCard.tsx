@@ -236,7 +236,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {/* Property number */}
         <div className="col-span-2 sm:col-span-1">
           <Label className="text-xs text-muted-foreground">{t("Property number")}</Label>
-          <Input {...register("propertyNumber")} className="h-8 text-sm mt-1" placeholder={t("Not shown to buyers")} />
+          <Input {...register("propertyNumber")} className="h-8 text-sm mt-1" placeholder={t("Not shown to tenants")} />
         </div>
 
         {/* Property type */}
@@ -430,7 +430,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {/* Floor */}
         <div>
           <Label className="text-xs text-muted-foreground">{t("Floor")}</Label>
-          {!watch("floor") && <Hint level="info">{t("Floor level helps buyers decide quickly")}</Hint>}
+          {!watch("floor") && <Hint level="info">{t("Floor level helps tenants decide quickly")}</Hint>}
           <Select
             value={watch("floor") ?? ""}
             onValueChange={(v) => setValue("floor", (v || null) as UnitFormValues["floor"])}

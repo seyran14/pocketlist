@@ -25,7 +25,7 @@ const AI_PARSE_ENABLED = false
 
 const CONTACT_PREFS = { phone: "PHONE", whatsapp: "WHATSAPP", telegram: "TELEGRAM" } as const
 
-// Filled channels become visible to buyers and cleared ones stop being shown;
+// Filled channels become visible to tenants and cleared ones stop being shown;
 // any other choice the owner made in their profile (e.g. Email) is left alone.
 function mergeContactPref(existing: string | null, contact: OwnerContact) {
   const prefs = new Set(existing ? existing.split(",").map((s) => s.trim()).filter(Boolean) : [])

@@ -80,7 +80,7 @@ export default async function AdminPage({
     { label: "Owners", value: agents },
     { label: "Active Listings", value: activeListings },
     { label: "New This Week", value: newThisWeek },
-    { label: "Buyers", value: buyers },
+    { label: "Tenants", value: buyers },
     { label: "Total Listings", value: totalListings },
     { label: "New Users", value: newUsers },
   ]

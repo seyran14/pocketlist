@@ -22,7 +22,7 @@ export function IdentityCard({ value, onChange, showError, onUploadingChange }: 
       <div>
         <h2 className="text-sm font-semibold">{t("Verify your identity")}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t("We use these only to confirm you own the property. They're stored encrypted, buyers never see them, and you upload them once for all your listings.")}
+          {t("We use these only to confirm you own the property. They're stored encrypted, tenants never see them, and you upload them once for all your listings.")}
         </p>
       </div>
       <DocumentUploader
