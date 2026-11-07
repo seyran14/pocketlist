@@ -30,10 +30,13 @@ export function SaveButton({
   return (
     <Button
       variant="outline"
-      size="sm"
-      className="w-full gap-2"
+      size="icon"
+      className="shrink-0 max-sm:size-11"
       onClick={toggle}
       disabled={loading}
+      aria-pressed={saved}
+      aria-label={saved ? t("Saved") : t("Save listing")}
+      title={saved ? t("Saved") : t("Save listing")}
     >
       {/* The filled heart fades over the outline one and lands with a small spring. */}
       <span className="relative size-4 shrink-0">
@@ -47,7 +50,6 @@ export function SaveButton({
           <Heart className="size-4 fill-primary text-primary" />
         </motion.span>
       </span>
-      <span>{saved ? t("Saved") : t("Save listing")}</span>
     </Button>
   )
 }

@@ -5,11 +5,10 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Navbar } from "@/components/Navbar"
 import { ContactButton } from "@/components/listings/ContactButton"
-import { CopyLinkButton } from "@/components/listings/CopyLinkButton"
+import { ShareMenu } from "@/components/listings/ShareMenu"
 import { SaveButton } from "@/components/listings/SaveButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { enumLabel, formatAvailableShort, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
 import { countOf } from "@/lib/i18n/plural"
@@ -98,141 +97,165 @@ export default async function ListingPage({
     : locale === "en" ? formatBeds(listing.bedrooms, t)
     : countOf("bedroom", Number(listing.bedrooms) || 0, locale)
 
+  const isRent = listing.listingType === "RENT"
+  const priceText = listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t) : formatPrice(listing.price)
+  const priceNote = [
+    isRent ? formatMonthlyRent(listing.price, t) : null,
+    isRent && listing.chequeCount ? countOf("cheque", listing.chequeCount, locale) : null,
+  ].filter(Boolean).join(" · ")
+  const shareTitle = `${listing.title || listing.projectName} · ${listing.priceLabel ?? formatPrice(listing.price)}`
+
+  // Label and value in one row; rows without a value are left out.
   const fieldRow = (label: string, value: string | number | null | undefined) => {
     if (!value && value !== 0) return null
     return (
-      <div className="flex justify-between py-2.5 border-b border-border last:border-0">
-        <span className="text-sm text-muted-foreground">{t(label)}</span>
-        <span className="text-sm font-medium text-end">{value}</span>
+      <div className="flex justify-between gap-4 py-3">
+        <dt className="text-sm text-muted-foreground">{t(label)}</dt>
+        <dd className="text-sm font-medium text-end">{value}</dd>
       </div>
     )
   }
 
+  // The four facts people compare first, set large so they scan before the details.
+  const keyFacts = [
+    { label: "Bedrooms", value: listing.bedrooms === "Studio" ? t("Studio") : listing.bedrooms },
+    { label: "Bathrooms", value: listing.bathrooms },
+    { label: "Area", value: listing.areaSqft || listing.areaSqm ? formatArea(listing.areaSqft, listing.areaSqm, t) : null },
+    { label: "Property type", value: t(enumLabel(listing.propertyType)) },
+  ].filter((fact) => fact.value)
+
+  const price = (
+    <div>
+      <p className="text-3xl font-semibold tracking-[-0.02em] tabular-nums">
+        {priceText}
+        {listing.isDistress && listing.originalPrice && (
+          <span className="ms-3 text-base font-normal text-muted-foreground line-through">
+            {t("OP: {price}", { price: formatPrice(listing.originalPrice) })}
+          </span>
+        )}
+      </p>
+      {priceNote && <p className="mt-1 text-sm text-muted-foreground tabular-nums">{priceNote}</p>}
+    </div>
+  )
+
   return (
     <div className="flex-1 bg-background">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main content */}
-          <div className="flex-1 min-w-0 card-animate" style={{ animationDelay: "0ms" }}>
+      <main className="mx-auto max-w-5xl px-4 pt-6 pb-12">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+          <div className="card-animate min-w-0 flex-1">
             {listing.photos.length > 0 && (
-              <div className="mb-5">
-                <PhotoGallery photos={listing.photos} alt={`${listing.projectName}, ${listing.location}`} />
-              </div>
+              <PhotoGallery photos={listing.photos} alt={`${listing.projectName}, ${listing.location}`} />
             )}
 
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              {listing.status === "RESERVED" && (
-                <Badge variant="secondary">{t("Under Offer")}</Badge>
+            <header className="mt-6">
+              {(listing.status === "RESERVED" || listing.isDistress) && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                  {listing.status === "RESERVED" && <Badge variant="secondary">{t("Under Offer")}</Badge>}
+                  {listing.isDistress && <Badge variant="destructive">{t("Distress Deal")}</Badge>}
+                </div>
               )}
-              {listing.isDistress && (
-                <Badge variant="destructive">{t("Distress Deal")}</Badge>
-              )}
-              <span className="text-xs text-muted-foreground">
-                {daysAgo(listing.createdAt, locale)}
-              </span>
-            </div>
+              <h1 className="text-2xl font-semibold sm:text-[28px]">
+                {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
+              </h1>
+              <p className="mt-1 text-muted-foreground">
+                {listing.projectName}
+                {listing.subLocation && ` · ${listing.subLocation}`}
+              </p>
+            </header>
 
-            <h1 className="text-2xl font-bold mb-1">
-              {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
-            </h1>
-            <p className="text-muted-foreground mb-4">
-              {listing.projectName}
-              {listing.subLocation && ` · ${listing.subLocation}`}
-            </p>
+            {/* On phones the price follows the title; on desktop it sits in the side panel. */}
+            <div className="mt-5 lg:hidden">{price}</div>
 
-            <p className="text-3xl font-bold">
-              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : listing.listingType === "RENT" ? formatRentPrice(listing.price, t) : formatPrice(listing.price)}
-              {listing.isDistress && listing.originalPrice && (
-                <span className="ms-3 text-base font-normal text-muted-foreground line-through">
-                  {t("OP: {price}", { price: formatPrice(listing.originalPrice) })}
-                </span>
-              )}
-            </p>
-            <p className="mt-1 mb-6 text-sm text-muted-foreground">
-              {listing.listingType === "RENT" && formatMonthlyRent(listing.price, t)}
-              {listing.listingType === "RENT" && listing.chequeCount ? ` · ${countOf("cheque", listing.chequeCount, locale)}` : null}
-            </p>
+            {keyFacts.length > 0 && (
+              <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-y py-5 sm:grid-cols-4">
+                {keyFacts.map((fact) => (
+                  <div key={fact.label} className="min-w-0">
+                    <dt className="text-xs text-muted-foreground">{t(fact.label)}</dt>
+                    <dd className="mt-0.5 truncate text-lg font-semibold tracking-[-0.01em]">{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
 
-            <Separator className="mb-4" />
+            <div className="mt-8 grid gap-8 sm:grid-cols-2">
+              <section>
+                <h2 className="text-base font-semibold">{t("The home")}</h2>
+                <dl className="mt-1 divide-y">
+                  {fieldRow("Floor", listing.floor ? floorValue(listing.floor, t) : null)}
+                  {fieldRow("View", listing.view ? viewValue(listing.view) : null)}
+                  {fieldRow("Furnished", listing.furnished ? furnishedValue(listing.furnished, t) : null)}
+                  {fieldRow("Parking", listing.parkingSpots ? countOf("space", listing.parkingSpots, locale) : null)}
+                  {fieldRow("Plot", listing.plotSqft || listing.plotSqm ? formatArea(listing.plotSqft, listing.plotSqm, t) : null)}
+                  {!isRent && fieldRow("Handover", listing.handover && t(listing.handover))}
+                </dl>
+              </section>
 
-            <div className="rounded-lg border bg-card px-3">
-              {fieldRow("Location", listing.location)}
-              {fieldRow("Property type", t(enumLabel(listing.propertyType)))}
-              {fieldRow("Bedrooms", listing.bedrooms === "Studio" ? t("Studio") : listing.bedrooms)}
-              {fieldRow("Bathrooms", listing.bathrooms)}
-              {fieldRow("Area", formatArea(listing.areaSqft, listing.areaSqm, t))}
-              {fieldRow("Floor", listing.floor ? floorValue(listing.floor, t) : null)}
-              {fieldRow("View", listing.view ? viewValue(listing.view) : null)}
-              {fieldRow("Furnished", listing.furnished ? furnishedValue(listing.furnished, t) : null)}
-              {fieldRow("Available", isAvailableLater(listing.availableFrom) ? t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) }) : t("Now"))}
-              {listing.listingType !== "RENT" && fieldRow("Handover", listing.handover && t(listing.handover))}
-              {fieldRow("Parking", listing.parkingSpots ? countOf("space", listing.parkingSpots, locale) : null)}
-              {listing.listingType === "RENT" && fieldRow("Ejari", t("After the contract is signed"))}
-              {listing.isRented && listing.listingType !== "RENT" && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
+              <section>
+                <h2 className="text-base font-semibold">{t(isRent ? "Rental terms" : "Terms")}</h2>
+                <dl className="mt-1 divide-y">
+                  {isRent && fieldRow("Per year", formatPrice(listing.price))}
+                  {isRent && fieldRow("Cheques", listing.chequeCount ? countOf("cheque", listing.chequeCount, locale) : null)}
+                  {fieldRow("Available", isAvailableLater(listing.availableFrom) ? t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) }) : t("Now"))}
+                  {isRent && fieldRow("Ejari", t("After the contract is signed"))}
+                  {listing.isRented && !isRent && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
+                </dl>
+              </section>
             </div>
 
             {listing.description && (
-              <div className="mt-6">
-                <h2 className="font-semibold mb-2">{t("About this home")}</h2>
-                <p dir="auto" className="text-sm text-muted-foreground whitespace-pre-wrap">{listing.description}</p>
-              </div>
+              <section className="mt-8">
+                <h2 className="text-base font-semibold">{t("About this home")}</h2>
+                <p dir="auto" className="mt-2 max-w-prose whitespace-pre-wrap text-muted-foreground">{listing.description}</p>
+              </section>
             )}
+
+            <p className="mt-8 text-xs text-muted-foreground">{t("Listed {when}", { when: daysAgo(listing.createdAt, locale).toLocaleLowerCase(locale) })}</p>
           </div>
 
-          {/* Sidebar */}
-          <div className="card-animate w-full lg:w-72 shrink-0" style={{ animationDelay: "80ms" }}>
-            <div className="sticky top-20 rounded-xl border bg-card p-4 space-y-4">
-              <div>
-                <Link href={`/owners/${listing.agent.id}`} className="font-semibold hover:underline underline-offset-4">
+          {/* Side panel: one primary action, everything else quieter. */}
+          <aside className="card-animate w-full shrink-0 lg:sticky lg:top-20 lg:w-80">
+            <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-card">
+              <div className="hidden lg:block">{price}</div>
+
+              <div className="hidden lg:block">
+                <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
+              </div>
+
+              <div className="flex gap-2">
+                <ShareMenu title={shareTitle} url={`${BASE_URL}/listings/${listing.id}`} />
+                {session?.user?.role === "BUYER" && (
+                  <SaveButton listingId={listing.id} initialSaved={!!savedListing} />
+                )}
+              </div>
+
+              <div className="border-t pt-4">
+                <Link href={`/owners/${listing.agent.id}`} className="font-medium hover:underline underline-offset-4">
                   {listing.agent.name ?? t("Owner")}
                 </Link>
                 <p className="text-xs text-muted-foreground">{t("Owner")}</p>
               </div>
 
-              <Separator />
-
-              <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
-
-              {session?.user?.role === "BUYER" && (
-                <SaveButton listingId={listing.id} initialSaved={!!savedListing} />
-              )}
-
-              <CopyLinkButton />
-
-              <div className="flex gap-2">
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(`${listing.title || listing.projectName} – ${listing.priceLabel ?? `AED ${listing.price.toLocaleString("en-AE")}`}\nhttps://pocketlist.ae/listings/${listing.id}`)}`}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-                >
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current text-green-500" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  WhatsApp
-                </a>
-                <a
-                  href={"https://t.me/share/url?url=" + encodeURIComponent("https://pocketlist.ae/listings/" + listing.id) + "&text=" + encodeURIComponent((listing.title || listing.projectName) + " – " + (listing.priceLabel ?? "AED " + listing.price.toLocaleString("en-AE")))}
-                  target="_blank" rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium hover:bg-accent"
-                >
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current text-blue-500" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                  Telegram
-                </a>
-              </div>
-
               {isOwner && (
-                <div className="flex flex-col gap-2 pt-2">
-                  <Link href={`/dashboard/listings/${listing.id}/edit`}>
-                    <Button variant="outline" size="sm" className="w-full">
-                      {t("Edit listing")}
-                    </Button>
-                  </Link>
-                </div>
+                <Link href={`/dashboard/listings/${listing.id}/edit`} className="block">
+                  <Button variant="outline" className="w-full">{t("Edit listing")}</Button>
+                </Link>
               )}
             </div>
-          </div>
+          </aside>
         </div>
       </main>
+
+      {/* Phones: price and the main action stay in reach at the bottom of the screen. */}
+      <div data-contact-bar className="fixed inset-x-0 bottom-0 z-40 border-t bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-semibold tabular-nums">{priceText}</p>
+            {priceNote && <p className="truncate text-xs text-muted-foreground tabular-nums">{priceNote}</p>}
+          </div>
+          <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} className="shrink-0" />
+        </div>
+      </div>
     </div>
   )
 }
-

@@ -9,12 +9,15 @@ import { MotionProvider } from "@/components/MotionProvider"
 import { getLocale } from "@/lib/i18n/server"
 import "./globals.css"
 
+// Neither face brings its own fallback: Onest sets Latin and Cyrillic, and only the glyphs it
+// lacks (Arabic) fall through to Plex Arabic, then to the system font.
 const onest = Onest({
   variable: "--font-onest",
   subsets: ["latin", "cyrillic"],
+  fallback: [],
+  adjustFontFallback: false,
 })
 
-// Arabic glyphs only, with no fallback of its own, so Latin text still falls through to Onest.
 const plexArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-arabic",
   subsets: ["arabic"],

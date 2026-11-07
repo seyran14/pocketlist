@@ -145,7 +145,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
 
   return (
     <div dir="ltr" className="space-y-2">
-      <div className="relative overflow-hidden rounded-xl border bg-muted">
+      <div className="relative overflow-hidden rounded-2xl bg-muted">
         <div
           ref={trackRef}
           onScroll={(e) => {
@@ -194,7 +194,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
             >
               <ChevronRight size={18} />
             </button>
-            <span className="scrim absolute bottom-2 end-2 rounded px-2 py-0.5 text-xs font-medium text-white tabular-nums">
+            <span className="scrim absolute bottom-2 end-2 rounded px-2 sm:hidden py-0.5 text-xs font-medium text-white tabular-nums">
               {active + 1} / {photos.length}
             </span>
           </>
@@ -202,7 +202,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
       </div>
 
       {multiple && (
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="hidden gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex">
           {photos.map((p, i) => (
             <button
               key={p.id}
@@ -211,8 +211,8 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               aria-label={`Show photo ${i + 1}`}
               aria-current={i === active}
               className={cn(
-                "relative h-14 w-20 shrink-0 overflow-hidden rounded-md border-2 transition-opacity",
-                i === active ? "border-foreground" : "border-transparent opacity-70 hover:opacity-100"
+                "relative my-1 ms-1 h-14 w-20 shrink-0 overflow-hidden rounded-lg transition-opacity",
+                i === active ? "outline-2 outline-offset-2 outline-primary" : "opacity-70 hover:opacity-100"
               )}
             >
               <Image src={photoUrl(p.id, "thumb")} alt="" fill unoptimized loading="lazy" className="object-cover" />
