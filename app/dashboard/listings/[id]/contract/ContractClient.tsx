@@ -255,7 +255,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
       setSent({ url: data.url, emailed: data.emailed })
       router.refresh()
     } else {
-      toast.error(data.error ?? t("Failed to create the contract"))
+      toast.error(data.error ? t(data.error) : t("Failed to create the contract"))
     }
   }
 

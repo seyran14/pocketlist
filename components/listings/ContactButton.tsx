@@ -163,11 +163,10 @@ export function ContactButton({ listingId, isLoggedIn, className, short = false 
           ) : (
             <form onSubmit={handleInquiry} className="space-y-3 pt-1">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                The owner will contact you via email.{" "}
+                {t("The owner will contact you via email.")}{" "}
                 <a href="/login" className="underline underline-offset-4 text-foreground hover:opacity-70">
-                  {t("Sign in")}
-                </a>{" "}
-                to see their contact details directly.
+                  {t("Sign in to see the owner's contact details.")}
+                </a>
               </p>
 
               {/* Email — required */}

@@ -401,8 +401,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
             <form onSubmit={sendInquiry} className="space-y-3 pt-1">
               <p className="text-sm text-muted-foreground">{t("The owner will contact you via email.")}</p>
               <p className="text-sm text-muted-foreground -mt-1">
-                To view contact details directly,{" "}
-                <a href="/login" className="underline underline-offset-4 text-foreground">{t("sign in")}</a>.
+                <a href="/login" className="underline underline-offset-4 text-foreground">{t("Sign in to see the owner's contact details.")}</a>
               </p>
               <Input placeholder={t("Your email")} type="email" required
                 value={inquiryEmail} onChange={(e) => setInquiryEmail(e.target.value)} />

@@ -286,7 +286,7 @@ export function AgentDashboard({ listings }: Props) {
 
       {sorted.length === 0 ? (
         <div className="rounded-xl border bg-card py-16 text-center text-muted-foreground text-sm">
-          No listings with the selected status.{" "}
+          {t("No listings with the selected status.")}{" "}
           <Link href="/dashboard/listings/new" className="underline underline-offset-4">{t("Add your first listing")}</Link>
         </div>
       ) : (

@@ -73,10 +73,10 @@ export function NotificationBell() {
                 {n.listing ? (
                   <Link href={`/listings/${n.listing.id}`}>
                     <p className="text-xs font-medium">{n.listing.projectName}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{n.message}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{notificationText(n, t)}</p>
                   </Link>
                 ) : (
-                  <p className="text-xs text-muted-foreground">{n.message}</p>
+                  <p className="text-xs text-muted-foreground">{notificationText(n, t)}</p>
                 )}
               </div>
             ))}
@@ -85,4 +85,26 @@ export function NotificationBell() {
       )}
     </div>
   )
+}
+
+// Messages are stored in English; the known types are rebuilt here so they follow the site language.
+function notificationText(n: Notif, t: ReturnType<typeof useT>) {
+  const after = (marker: string) => {
+    const at = n.message.indexOf(marker)
+    return at >= 0 ? n.message.slice(at + marker.length) : ""
+  }
+  switch (n.type) {
+    case "CONTACT_REVEALED":
+      return t("Someone viewed your contact details.")
+    case "LISTING_APPROVED":
+      return t("Approved and now live.")
+    case "LISTING_REJECTED":
+      return t("Needs changes: {note}", { note: after("needs changes: ") })
+    case "CONTRACT_SIGNED": {
+      const name = n.message.split(" signed the tenancy contract")[0]
+      return t("{name} signed the tenancy contract. Check it and add your signature.", { name })
+    }
+    default:
+      return n.message
+  }
 }

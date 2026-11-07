@@ -47,7 +47,7 @@ export function DocumentUploader({ kind, label, hint, current, showError, accept
       const res = await fetch("/api/documents", { method: "POST", body })
       const data = await res.json().catch(() => ({}))
       if (res.ok) onUploaded(data)
-      else toast.error(data.error ?? t("Upload failed"))
+      else toast.error(data.error ? t(data.error) : t("Upload failed"))
     } catch {
       toast.error(t("Network error. Please try again."))
     } finally {

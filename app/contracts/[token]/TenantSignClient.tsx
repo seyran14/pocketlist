@@ -37,7 +37,7 @@ export function TenantSignClient({ token, email, initialName, status }: Props) {
       return
     }
     const data = await res.json().catch(() => ({}))
-    toast.error(data.error ?? t("Failed to sign. Please try again."))
+    toast.error(data.error ? t(data.error) : t("Failed to sign. Please try again."))
   }
 
   if (current !== "AWAITING_TENANT") {

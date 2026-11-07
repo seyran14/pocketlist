@@ -167,7 +167,7 @@ export function ProfileForm({ user }: { user: ProfileData }) {
               <Input
                 id="telegram"
                 {...register("telegram", { onBlur: (e) => showNewChannel("TELEGRAM", user.telegram, e.target.value) })}
-                placeholder="@username or +123 456 7890"
+                placeholder={t("@username or +123 456 7890")}
               />
               <p className="text-xs text-muted-foreground">{t("Username or phone number")}</p>
             </div>

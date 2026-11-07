@@ -116,7 +116,7 @@ export function PhotoUploader({ initialIds, onChange, onUploadingChange, canUplo
           const res = await fetch("/api/photos", { method: "POST", body })
           const data = await res.json().catch(() => ({}))
           if (res.ok) setIds((prev) => [...prev, data.id])
-          else toast.error(`${file.name}: ${data.error ?? "upload failed"}`)
+          else toast.error(`${file.name}: ${data.error ? t(data.error) : t("Upload failed")}`)
         } catch {
           toast.error(`${file.name}: ${t("Network error. Please try again.")}`)
         }
