@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
+import { clientIp } from "@/lib/request-ip"
 
 export async function POST(req: NextRequest) {
   const auth = req.headers.get("authorization")
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    logger.warn("cron.unauthorized", { ip: req.headers.get("x-forwarded-for") ?? "unknown" })
+    logger.warn("cron.unauthorized", { ip: clientIp(req.headers) })
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

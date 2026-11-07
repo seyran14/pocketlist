@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { BrandMark } from "@/components/BrandLogo"
+import { clientIp } from "@/lib/request-ip"
 
 export const metadata = { title: "Admin" }
 
@@ -41,7 +42,7 @@ export default async function AdminLoginPage({
             action={async (formData: FormData) => {
               "use server"
               const h = await headers()
-              const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "127.0.0.1"
+              const ip = clientIp(h)
               const { allowed } = checkRateLimit(`admin-login:${ip}`, 5, 15)
               if (!allowed) redirect("/admin/login?error=rate_limited")
               try {

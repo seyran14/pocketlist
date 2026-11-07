@@ -6,13 +6,14 @@ import { inquiryEmailHtml } from "@/lib/emails/inquiryEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
 import { recordEvent } from "@/lib/events"
+import { clientIp } from "@/lib/request-ip"
 
 type Ctx = { params: Promise<{ id: string }> }
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export async function POST(req: NextRequest, ctx: Ctx) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const ip = clientIp(req.headers)
   const { allowed } = checkRateLimit(`inquiry:${ip}`, 10, 60)
   if (!allowed) {
     logger.warn("ratelimit.inquiry", { ip })
@@ -23,9 +24,15 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: "Invalid request" }, { status: 400 })
 
-  const { email, name, phone, social, message } = body
+  // Cap every field so the email stays a reasonable size; the template escapes them.
+  const field = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : undefined)
+  const email = body.email
+  const name = field(body.name, 100)
+  const phone = field(body.phone, 40)
+  const social = field(body.social, 100)
+  const message = field(body.message, 2000)
 
-  if (!email || typeof email !== "string" || !EMAIL_REGEX.test(email)) {
+  if (!email || typeof email !== "string" || email.length > 254 || !EMAIL_REGEX.test(email)) {
     logger.warn("inquiry.invalid_email", { listingId: id, ip })
     return NextResponse.json({ error: "Valid email required" }, { status: 400 })
   }
@@ -48,7 +55,8 @@ export async function POST(req: NextRequest, ctx: Ctx) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
     const listingTitle = listing.title || listing.projectName
-    const baseUrl = req.headers.get("origin") ?? "https://pocketlist.ae"
+    // Never build the link from request headers: Origin is set by the sender.
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "https://pocketlist.ae"
 
     await resend.emails.send({
       from: EMAIL_FROM,
@@ -60,10 +68,10 @@ export async function POST(req: NextRequest, ctx: Ctx) {
         listingTitle,
         listingUrl: `${baseUrl}/listings/${id}`,
         buyerEmail: email,
-        buyerName: name || undefined,
-        buyerPhone: phone || undefined,
-        buyerSocial: social || undefined,
-        message: message || undefined,
+        buyerName: name,
+        buyerPhone: phone,
+        buyerSocial: social,
+        message,
       }),
     })
 

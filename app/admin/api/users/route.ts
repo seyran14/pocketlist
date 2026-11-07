@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { isAdminSession } from "@/lib/admin"
 import { prisma } from "@/lib/prisma"
 import { logger } from "@/lib/logger"
 import { deleteDocuments } from "@/lib/documents"
 import { deletePhotos } from "@/lib/photos"
 
-async function isAdmin() {
-  const session = await auth()
-  return session?.user?.email?.toLowerCase() === process.env.ADMIN_EMAIL?.toLowerCase()
-}
+// Lives under /admin so the admin password cookie (scoped to that path) is sent with the request.
+const isAdmin = isAdminSession
 
 export async function PATCH(req: NextRequest) {
   if (!(await isAdmin())) {
     logger.warn("admin.unauthorized_patch", { path: req.nextUrl.pathname })
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const { id, role } = await req.json()
@@ -34,7 +32,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   if (!(await isAdmin())) {
     logger.warn("admin.unauthorized_delete", { path: req.nextUrl.pathname })
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const { id } = await req.json()

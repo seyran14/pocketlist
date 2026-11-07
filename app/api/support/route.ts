@@ -5,11 +5,25 @@ import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
 import { recordEvent } from "@/lib/events"
 import { EMAIL_FROM, SUPPORT_EMAIL } from "@/lib/utils"
+import { clientIp } from "@/lib/request-ip"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://pocketlist.ae"
+
+// Only keep the page address when it points at our own site.
+function ownPageUrl(value: unknown) {
+  if (typeof value !== "string") return undefined
+  try {
+    const url = new URL(value)
+    return url.origin === new URL(BASE_URL).origin ? url.href.slice(0, 500) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const ip = clientIp(req.headers)
   const { allowed } = checkRateLimit(`support:${ip}`, 5, 60)
   if (!allowed) {
     logger.warn("ratelimit.support", { ip })
@@ -21,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   const { email, message } = body
 
-  if (!email || typeof email !== "string" || !EMAIL_REGEX.test(email)) {
+  if (!email || typeof email !== "string" || email.length > 254 || !EMAIL_REGEX.test(email)) {
     logger.warn("support.invalid_email", { ip })
     return NextResponse.json({ error: "Valid email required" }, { status: 400 })
   }
@@ -34,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)
-    const pageUrl = typeof body.pageUrl === "string" ? body.pageUrl : undefined
+    const pageUrl = ownPageUrl(body.pageUrl)
 
     // Resend reports most failures in the result rather than by throwing.
     const { error } = await resend.emails.send({

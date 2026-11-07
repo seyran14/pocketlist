@@ -20,7 +20,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
 
   async function changeRole(id: string, role: "BUYER" | "AGENT") {
     setLoading(id + role)
-    const res = await fetch("/api/admin/users", {
+    const res = await fetch("/admin/api/users", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, role }),
@@ -37,7 +37,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
   async function deleteUser(id: string, email: string) {
     if (!confirm(`Delete user ${email}?`)) return
     setLoading(id + "del")
-    const res = await fetch("/api/admin/users", {
+    const res = await fetch("/admin/api/users", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),

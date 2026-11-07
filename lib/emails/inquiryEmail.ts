@@ -1,3 +1,5 @@
+import { escapeHtml } from "./escape"
+
 export function inquiryEmailHtml({
   agentName,
   listingTitle,
@@ -17,6 +19,16 @@ export function inquiryEmailHtml({
   buyerSocial?: string
   message?: string
 }): string {
+  // Everything except the listing URL comes from a form anyone can submit, so all of it is escaped.
+  const e = (v?: string) => (v ? escapeHtml(v) : v)
+  agentName = escapeHtml(agentName)
+  listingTitle = escapeHtml(listingTitle)
+  listingUrl = escapeHtml(listingUrl)
+  buyerEmail = escapeHtml(buyerEmail)
+  buyerName = e(buyerName)
+  buyerPhone = e(buyerPhone)
+  buyerSocial = e(buyerSocial)
+  message = e(message)?.replace(/\n/g, "<br />")
   const from = buyerName ? `${buyerName} (${buyerEmail})` : buyerEmail
   return `<!DOCTYPE html>
 <html lang="en">

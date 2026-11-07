@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { Prisma } from "@/lib/generated/prisma/client"
+import { PropertyType } from "@/lib/generated/prisma/enums"
 import { MAX_LISTINGS_PER_USER } from "@/lib/utils"
 import { attachDeed } from "@/lib/documents"
 import { refreshChecks } from "@/lib/listing-review"
 import { availabilityWhere, missingFields, occupancyFields, pickPrivateFields, pickPublicFields } from "@/lib/listing-rules"
 import { logger } from "@/lib/logger"
 import { setListingPhotos } from "@/lib/photos"
+
+const PROPERTY_TYPES: string[] = Object.values(PropertyType)
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
@@ -34,14 +37,22 @@ export async function GET(req: NextRequest) {
   }
   if (propertyType) {
     const types = propertyType.split(",")
+    if (!types.every((type) => PROPERTY_TYPES.includes(type))) {
+      return NextResponse.json({ error: "Unknown property type" }, { status: 400 })
+    }
     where.propertyType = { in: types as Prisma.EnumPropertyTypeFilter["in"] }
   }
   if (bedrooms) {
     const beds = bedrooms.split(",")
     where.bedrooms = { in: beds }
   }
-  if (priceMin) where.price = { ...((where.price as object) ?? {}), gte: parseFloat(priceMin) }
-  if (priceMax) where.price = { ...((where.price as object) ?? {}), lte: parseFloat(priceMax) }
+  const min = priceMin ? Number(priceMin) : undefined
+  const max = priceMax ? Number(priceMax) : undefined
+  if ((min !== undefined && !Number.isFinite(min)) || (max !== undefined && !Number.isFinite(max))) {
+    return NextResponse.json({ error: "Price must be a number" }, { status: 400 })
+  }
+  if (min !== undefined) where.price = { ...((where.price as object) ?? {}), gte: min }
+  if (max !== undefined) where.price = { ...((where.price as object) ?? {}), lte: max }
 
   where.AND = [availabilityWhere(statusFilter, req.nextUrl.searchParams.get("availableBy"))]
   if (listingType === "SALE" || listingType === "RENT") {

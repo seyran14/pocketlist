@@ -6,10 +6,10 @@ import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
+import { clientIp } from "@/lib/request-ip"
 
 async function getClientIP(): Promise<string> {
-  const h = await headers()
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "127.0.0.1"
+  return clientIp(await headers())
 }
 
 export async function signOutAction() {

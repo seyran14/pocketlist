@@ -6,9 +6,10 @@ import { findContractByToken, sendContractEmail } from "@/lib/contracts"
 import { deleteDocuments, readDocument, storeGeneratedPdf } from "@/lib/documents"
 import { addTenantToPdf } from "@/lib/tenancy-pdf"
 import { tenantContractSchema } from "@/lib/tenancy-shared"
+import { clientIp } from "@/lib/request-ip"
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ token: string }> }) {
-  const ip = req.headers.get("cf-connecting-ip") ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const ip = clientIp(req.headers)
   const { allowed } = checkRateLimit(`contract-sign:${ip}`, 10, 60)
   if (!allowed) return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 })
 

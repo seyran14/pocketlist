@@ -1,6 +1,4 @@
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
-}
+import { escapeHtml } from "./escape"
 
 export function contractEmailHtml({
   heading,
