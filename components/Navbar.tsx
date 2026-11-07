@@ -30,7 +30,7 @@ export async function Navbar() {
       initialPinned={pinned}
       action={!user && (
         <Link href="/login">
-          <Button size="sm">{t("Sign in")}</Button>
+          <Button size="lg" className="px-4">{t("Sign in")}</Button>
         </Link>
       )}
     >

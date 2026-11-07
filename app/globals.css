@@ -261,8 +261,3 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .heart-pop { animation: none; }
 }
-
-/* The dots run through the footer on these pages, so the dividing line goes. */
-body:has([data-dot-matrix]) footer {
-  border-top-color: transparent;
-}

@@ -12,7 +12,7 @@ export function SiteFooter() {
 
   return (
     <footer className="relative border-t px-4 py-4 text-center text-xs text-muted-foreground">
-      <div data-dot-clear className="mx-auto w-fit">
+      <div className="mx-auto w-fit">
         <div className="mb-1 flex justify-center"><LanguageSwitcher /></div>
         {t("Need help? Email")}{" "}
         <a href={`mailto:${SUPPORT_EMAIL}`} className="underline underline-offset-4 hover:text-foreground">
