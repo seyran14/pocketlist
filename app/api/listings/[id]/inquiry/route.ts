@@ -5,6 +5,7 @@ import { Resend } from "resend"
 import { inquiryEmailHtml } from "@/lib/emails/inquiryEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
+import { recordEvent } from "@/lib/events"
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -65,6 +66,8 @@ export async function POST(req: NextRequest, ctx: Ctx) {
         message: message || undefined,
       }),
     })
+
+    await recordEvent("inquiry_sent", id)
 
     logger.info("inquiry.sent", {
       listingId: id,

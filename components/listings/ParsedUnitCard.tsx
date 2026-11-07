@@ -195,7 +195,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         </div>
       )}
 
-      {ownerTools && <div className="ph-no-capture space-y-2">
+      {ownerTools && <div className="space-y-2">
         <DocumentUploader
           kind="TITLE_DEED"
           label="Title deed"

@@ -2,7 +2,6 @@
 
 import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
-import posthog from "posthog-js"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -46,7 +45,6 @@ export function SupportButton({ row = false, page = false }: { row?: boolean; pa
         setSending(false)
         return
       }
-      posthog.capture("support_message_sent")
       setSent(true)
     } catch {
       setError(t("Something went wrong. Please try again."))

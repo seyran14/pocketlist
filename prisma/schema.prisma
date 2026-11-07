@@ -235,6 +235,16 @@ model SavedListing {
   @@unique([userId, listingId])
 }
 
+// Counts of the few actions the admin panel reports on. No user is stored, only the listing.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  type      String
+  listingId String?
+
+  @@index([type, createdAt])
+}
+
 model Notification {
   id        String    @id @default(cuid())
   userId    String

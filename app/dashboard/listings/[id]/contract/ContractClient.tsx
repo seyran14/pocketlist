@@ -286,7 +286,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
     : t(PAYMENT_METHODS[paymentMethod])
 
   return (
-    <main className="ph-no-capture mx-auto max-w-3xl space-y-6 px-4 py-6">
+    <main className="mx-auto max-w-3xl space-y-6 px-4 py-6">
       <div>
         <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("Back to dashboard")}</Link>
         <h1 className="mt-2 text-2xl font-bold">{t("Tenancy contract")}</h1>

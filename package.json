@@ -39,7 +39,6 @@
     "openai": "^6.42.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.5.438",
-    "posthog-js": "^1.376.0",
     "prisma": "^7.8.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",

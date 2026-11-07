@@ -4,6 +4,7 @@ import { isPublicStatus } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
+import { recordEvent } from "@/lib/events"
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -62,6 +63,8 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
   } catch (err) {
     logger.error("contact.notification_failed", err, { listingId: id, agentId: listing.agentId })
   }
+
+  await recordEvent("contact_revealed", id)
 
   logger.info("contact.revealed", {
     listingId: id,

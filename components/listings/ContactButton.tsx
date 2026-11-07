@@ -2,7 +2,6 @@
 
 import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
-import posthog from "posthog-js"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -75,7 +74,6 @@ export function ContactButton({ listingId, isLoggedIn, className, short = false 
     setOpen(true)
     if (!isLoggedIn || contact) return
     setLoading(true)
-    posthog.capture("contact_revealed", { listing_id: listingId })
     const res = await fetch(`/api/listings/${listingId}/contact`)
     if (res.status === 429) {
       setContact({ name: "__limit__" })
@@ -93,12 +91,6 @@ export function ContactButton({ listingId, isLoggedIn, className, short = false 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: inquiryEmail, name: inquiryName, phone: inquiryPhone, social: inquirySocial, message: inquiryMsg }),
-    })
-    posthog.capture("inquiry_sent", {
-      listing_id: listingId,
-      has_phone: !!inquiryPhone,
-      has_social: !!inquirySocial,
-      has_message: !!inquiryMsg,
     })
     setSending(false)
     setSent(true)

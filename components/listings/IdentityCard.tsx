@@ -18,7 +18,7 @@ type Props = {
 export function IdentityCard({ value, onChange, showError, onUploadingChange }: Props) {
   const t = useT()
   return (
-    <div className="ph-no-capture rounded-xl border bg-card p-4 space-y-3">
+    <div className="rounded-xl border bg-card p-4 space-y-3">
       <div>
         <h2 className="text-sm font-semibold">{t("Verify your identity")}</h2>
         <p className="text-xs text-muted-foreground mt-0.5">

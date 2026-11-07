@@ -17,10 +17,10 @@ export const TERMS: LegalSection[] = [
 
 // {email} is filled with the support address.
 export const PRIVACY: LegalSection[] = [
-  { title: "1. Data We Collect", text: "We collect your email address and name when you register, listing information and photos you submit, your title deed, passport and, if provided, Emirates ID, and usage data (pages visited, clicks, session behaviour) to improve the platform. Identity and ownership documents are stored encrypted, used only to verify that you own the property, never shown to other users, and deleted when you delete the listing or your account." },
-  { title: "2. Analytics & Session Recording", text: "We use PostHog to collect anonymous analytics, including page views and user interactions. This may include session recordings, which replay how you move through the site. All form inputs, such as passwords and emails, are masked and never recorded. No cookies are used for tracking." },
+  { title: "1. Data We Collect", text: "We collect your email address and name when you register, listing information and photos you submit, your title deed, passport and, if provided, Emirates ID, and which pages are visited, to improve the platform. Identity and ownership documents are stored encrypted, used only to verify that you own the property, never shown to other users, and deleted when you delete the listing or your account." },
+  { title: "2. Analytics", text: "We count page visits with Umami, an open-source analytics tool that runs on our own server. It uses no cookies, does not record your screen and does not identify you. We also count when a contact is shown, an inquiry is sent or a support message is sent; these counts are linked to the listing, not to you." },
   { title: "3. How We Use Your Data", text: "Your data is used only to run and improve PocketList: to send sign-in codes, show your listings and understand how the site is used. We do not sell your data to third parties." },
-  { title: "4. Data Storage", text: "Your account data is stored on secure servers in the EU/US. Analytics data is processed by PostHog on EU-based servers." },
+  { title: "4. Data Storage", text: "Your account data and analytics are stored on our own server. Sign-in codes and notifications are sent by email through Resend." },
   { title: "5. Your Rights", text: "You may request deletion of your account and associated data at any time by contacting us at {email}." },
   { title: "6. Contact", text: "For any privacy-related questions, please email {email}." },
 ]

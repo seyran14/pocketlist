@@ -1,150 +1,98 @@
 import Link from "next/link"
+import { prisma } from "@/lib/prisma"
+import { EVENT_TYPES, type EventType } from "@/lib/events"
 
-type PHInsight = {
-  pageviews: number | null
-  visitors: number | null
-  sessions: number | null
+const DAY = 24 * 60 * 60 * 1000
+
+const EVENT_LABELS: Record<EventType, string> = {
+  contact_revealed: "Contacts shown",
+  inquiry_sent: "Inquiries sent",
+  support_message_sent: "Support messages",
 }
 
-async function fetchPostHogInsights(): Promise<PHInsight> {
-  const apiKey = process.env.POSTHOG_PERSONAL_API_KEY
-  const projectId = process.env.POSTHOG_PROJECT_ID
-  const host = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com"
+type Traffic = { pageviews: number | null; visitors: number | null }
 
-  if (!apiKey || !projectId) return { pageviews: null, visitors: null, sessions: null }
-
-  const now = new Date()
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  const dateFrom = sevenDaysAgo.toISOString().split("T")[0]
-  const dateTo = now.toISOString().split("T")[0]
+// Umami runs on this server under /stats. Its API needs a login token, so the panel signs in
+// with the admin account from the environment; without it only our own counts are shown.
+async function fetchUmamiTraffic(since: Date): Promise<Traffic> {
+  const base = process.env.UMAMI_API_URL
+  const websiteId = process.env.UMAMI_WEBSITE_ID
+  const username = process.env.UMAMI_USERNAME
+  const password = process.env.UMAMI_PASSWORD
+  const empty = { pageviews: null, visitors: null }
+  if (!base || !websiteId || !username || !password) return empty
 
   try {
-    const res = await fetch(
-      `${host}/api/projects/${projectId}/insights/trend/?` +
-        new URLSearchParams({
-          events: JSON.stringify([
-            { id: "$pageview", math: "total" },
-            { id: "$pageview", math: "dau" },
-          ]),
-          date_from: dateFrom,
-          date_to: dateTo,
-          display: "BoldNumber",
-        }),
-      {
-        headers: { Authorization: `Bearer ${apiKey}` },
-        next: { revalidate: 300 }, // cache 5 min
-      }
-    )
+    const login = await fetch(`${base}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+      cache: "no-store",
+    })
+    if (!login.ok) return empty
+    const { token } = await login.json()
 
-    if (!res.ok) return { pageviews: null, visitors: null, sessions: null }
-
+    const params = new URLSearchParams({ startAt: String(since.getTime()), endAt: String(Date.now()) })
+    const res = await fetch(`${base}/api/websites/${websiteId}/stats?${params}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      next: { revalidate: 300 },
+    })
+    if (!res.ok) return empty
     const data = await res.json()
-    const results = data.result ?? []
-
-    const pageviews = results[0]?.aggregated_value ?? null
-    const visitors = results[1]?.aggregated_value ?? null
-
-    return { pageviews, visitors, sessions: null }
+    // Older Umami returns { value, prev } per metric, newer returns plain numbers.
+    const read = (metric: unknown) =>
+      typeof metric === "number" ? metric : typeof metric === "object" && metric && "value" in metric ? Number(metric.value) : null
+    return { pageviews: read(data.pageviews), visitors: read(data.visitors) }
   } catch {
-    return { pageviews: null, visitors: null, sessions: null }
+    return empty
   }
+}
+
+async function loadLastWeek() {
+  const since = new Date(Date.now() - 7 * DAY)
+  const [traffic, grouped] = await Promise.all([
+    fetchUmamiTraffic(since),
+    prisma.analyticsEvent.groupBy({
+      by: ["type"],
+      where: { createdAt: { gte: since } },
+      _count: { _all: true },
+    }),
+  ])
+  return { traffic, counts: new Map(grouped.map((row) => [row.type, row._count._all])) }
 }
 
 export async function AnalyticsPanel() {
-  const hasKeys = !!(process.env.POSTHOG_PERSONAL_API_KEY && process.env.POSTHOG_PROJECT_ID)
-
-  if (!hasKeys) {
-    return (
-      <div className="rounded-xl border bg-card p-5 text-sm text-muted-foreground">
-        <p className="font-medium text-foreground mb-1">Analytics</p>
-        <p>
-          Add <code className="text-xs bg-muted px-1 py-0.5 rounded">POSTHOG_PERSONAL_API_KEY</code> and{" "}
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">POSTHOG_PROJECT_ID</code> to{" "}
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">.env.local</code> to see stats here.
-        </p>
-      </div>
-    )
-  }
-
-  const stats = await fetchPostHogInsights()
-  const host = (process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com").replace("i.posthog.com", "posthog.com")
-  const projectId = process.env.POSTHOG_PROJECT_ID
+  const { traffic, counts } = await loadLastWeek()
 
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <h2 className="font-semibold text-sm">Analytics · last 7 days</h2>
         <Link
-          href={`${host}/project/${projectId}/insights`}
+          href="/stats"
           target="_blank"
           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
         >
-          Open PostHog
+          Open Umami
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 divide-x">
-        <StatCell
-          label="Page Views"
-          value={stats.pageviews}
-          hint="Total pages loaded"
-        />
-        <StatCell
-          label="Unique Visitors"
-          value={stats.visitors}
-          hint="Distinct users per day (avg)"
-        />
-        <div className="px-5 py-4 hidden sm:block">
-          <p className="text-xs text-muted-foreground mb-1">Session Recordings</p>
-          <Link
-            href={`${host}/project/${projectId}/replay`}
-            target="_blank"
-            className="text-sm font-medium hover:underline underline-offset-4"
-          >
-            View replays
-          </Link>
-          <p className="text-xs text-muted-foreground mt-1">Heatmaps, clicks, scrolls</p>
-        </div>
-      </div>
-
-      <div className="px-4 py-3 border-t bg-muted/30 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-        <span>
-          <Link href={`${host}/project/${projectId}/events`} target="_blank" className="hover:text-foreground underline underline-offset-4">
-            Events
-          </Link>
-        </span>
-        <span>
-          <Link href={`${host}/project/${projectId}/persons`} target="_blank" className="hover:text-foreground underline underline-offset-4">
-            Users
-          </Link>
-        </span>
-        <span>
-          <Link href={`${host}/project/${projectId}/funnels`} target="_blank" className="hover:text-foreground underline underline-offset-4">
-            Funnels
-          </Link>
-        </span>
-        <span>
-          <Link href={`${host}/project/${projectId}/heatmaps`} target="_blank" className="hover:text-foreground underline underline-offset-4">
-            Heatmaps
-          </Link>
-        </span>
+      <div className="grid grid-cols-2 sm:grid-cols-5 divide-x">
+        <StatCell label="Page views" value={traffic.pageviews} />
+        <StatCell label="Visitors" value={traffic.visitors} />
+        {EVENT_TYPES.map((type) => (
+          <StatCell key={type} label={EVENT_LABELS[type]} value={counts.get(type) ?? 0} />
+        ))}
       </div>
     </div>
   )
 }
 
-function StatCell({ label, value, hint }: { label: string; value: number | null; hint: string }) {
+function StatCell({ label, value }: { label: string; value: number | null }) {
   return (
     <div className="px-5 py-4">
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className="text-2xl font-bold">
-        {value === null ? (
-          <span className="text-muted-foreground text-sm">–</span>
-        ) : (
-          value.toLocaleString()
-        )}
-      </p>
-      <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
+      <p className="text-2xl font-bold">{value === null ? "–" : value.toLocaleString("en-US")}</p>
     </div>
   )
 }

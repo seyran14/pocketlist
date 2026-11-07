@@ -4,7 +4,7 @@ import { IBM_Plex_Sans_Arabic, Onest } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { I18nProvider } from "@/components/I18nProvider"
-import { PostHogProvider } from "@/components/PostHogProvider"
+import Script from "next/script"
 import { MotionProvider } from "@/components/MotionProvider"
 import { getLocale, getT } from "@/lib/i18n/server"
 import "./globals.css"
@@ -49,17 +49,24 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${onest.variable} ${plexArabic.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="relative flex min-h-dvh flex-col bg-background font-sans">
-        <PostHogProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <I18nProvider locale={locale}>
-              <MotionProvider>
-                {children}
-                <SiteFooter />
-                <Toaster />
-              </MotionProvider>
-            </I18nProvider>
-          </ThemeProvider>
-        </PostHogProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <I18nProvider locale={locale}>
+            <MotionProvider>
+              {children}
+              <SiteFooter />
+              <Toaster />
+            </MotionProvider>
+          </I18nProvider>
+        </ThemeProvider>
+        {/* Page views go to our own Umami, served under /stats. It sets no cookies. */}
+        {process.env.UMAMI_WEBSITE_ID && (
+          <Script
+            src="/stats/script.js"
+            data-website-id={process.env.UMAMI_WEBSITE_ID}
+            data-domains="pocketlist.ae"
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   )

@@ -3,6 +3,7 @@ import { Resend } from "resend"
 import { supportEmailHtml } from "@/lib/emails/supportEmail"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
+import { recordEvent } from "@/lib/events"
 import { EMAIL_FROM, SUPPORT_EMAIL } from "@/lib/utils"
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -44,6 +45,8 @@ export async function POST(req: NextRequest) {
       html: supportEmailHtml({ fromEmail: email, message: trimmed, pageUrl }),
     })
     if (error) throw new Error(error.message)
+
+    await recordEvent("support_message_sent")
 
     logger.info("support.sent", {
       fromEmail: logger.maskEmail(email),
