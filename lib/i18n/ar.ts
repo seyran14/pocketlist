@@ -501,4 +501,5 @@ export const ar: Record<string, string> = {
   "Listed {when}": "نُشر {when}",
   "Terms": "الشروط",
   "Plot": "الأرض",
+  "Contact owner": "تواصل",
 }

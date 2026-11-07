@@ -2,6 +2,7 @@
 
 import { useT } from "@/components/I18nProvider"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Heart } from "lucide-react"
 import { motion } from "motion/react"
 import { springAfterGesture } from "@/lib/motion"
@@ -16,14 +17,17 @@ export function SaveButton({
   initialSaved: boolean
 }) {
   const t = useT()
+  const router = useRouter()
   const [saved, setSaved] = useState(initialSaved)
   const [loading, setLoading] = useState(false)
 
+  // Guests can tap the heart too; saving needs an account, so they go to sign in.
   async function toggle() {
     if (loading) return
     setLoading(true)
-    await fetch(`/api/listings/${listingId}/save`, { method: "POST" })
-    setSaved(!saved)
+    const res = await fetch(`/api/listings/${listingId}/save`, { method: "POST" }).catch(() => null)
+    if (res?.status === 401) router.push("/login")
+    else if (res?.ok) setSaved((await res.json()).saved)
     setLoading(false)
   }
 

@@ -181,7 +181,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               onClick={() => goTo(active - 1)}
               disabled={active === 0}
               aria-label={t("Previous photo")}
-              className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
+              className="absolute start-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white ring-1 ring-white/50 transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
               <ChevronLeft size={18} />
             </button>
@@ -190,7 +190,7 @@ export function PhotoGallery({ photos, alt }: { photos: { id: string }[]; alt: s
               onClick={() => goTo(active + 1)}
               disabled={active === photos.length - 1}
               aria-label={t("Next photo")}
-              className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
+              className="absolute end-2 top-1/2 hidden h-9 w-9 -translate-y-1/2 items-center justify-center scrim rounded-full text-white ring-1 ring-white/50 transition-opacity hover:opacity-80 disabled:opacity-0 sm:flex"
             >
               <ChevronRight size={18} />
             </button>

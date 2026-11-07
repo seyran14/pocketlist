@@ -18,6 +18,8 @@ type Props = {
   listingId: string
   isLoggedIn: boolean
   className?: string
+  /** The shorter label, for the phone's bottom bar. */
+  short?: boolean
 }
 
 type ContactInfo = {
@@ -56,7 +58,7 @@ function ContactRow({ icon, label, value, href, external, colorClass }: {
   )
 }
 
-export function ContactButton({ listingId, isLoggedIn, className }: Props) {
+export function ContactButton({ listingId, isLoggedIn, className, short = false }: Props) {
   const t = useT()
   const [open, setOpen] = useState(false)
   const [contact, setContact] = useState<ContactInfo | null>(null)
@@ -108,7 +110,7 @@ export function ContactButton({ listingId, isLoggedIn, className }: Props) {
     <>
       {/* Signed-out visitors leave their details instead, so the label says what happens. */}
       <Button size="lg" className={className ?? "w-full"} onClick={handleReveal}>
-        {isLoggedIn ? t("Show contact") : t("Contact the owner")}
+        {isLoggedIn ? t("Show contact") : short ? t("Contact owner") : t("Contact the owner")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

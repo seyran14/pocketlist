@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { Popover } from "@base-ui/react/popover"
-import { Check, Link2, Share } from "lucide-react"
+import { Share } from "lucide-react"
 import { useT } from "@/components/I18nProvider"
 import { Button } from "@/components/ui/button"
 
 // Sharing is secondary to contacting the owner, so it folds into one button. Phones get the
 // system share sheet; elsewhere a small menu offers the link and the two apps Dubai uses most.
-export function ShareMenu({ title, url }: { title: string; url: string }) {
+export function ShareMenu({ title, url, iconOnly = false }: { title: string; url: string; iconOnly?: boolean }) {
   const t = useT()
   const [copied, setCopied] = useState(false)
   const text = `${title}\n${url}`
@@ -45,15 +45,18 @@ export function ShareMenu({ title, url }: { title: string; url: string }) {
 
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button variant="outline" className="flex-1" onClick={nativeShare} />}>
+      <Popover.Trigger
+        render={iconOnly
+          ? <Button variant="outline" size="icon" className="shrink-0 max-sm:size-11" aria-label={t("Share")} onClick={nativeShare} />
+          : <Button variant="outline" className="flex-1" onClick={nativeShare} />}
+      >
         <Share aria-hidden="true" />
-        {t("Share")}
+        {!iconOnly && t("Share")}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={6} align="end" className="z-50">
           <Popover.Popup className="w-56 rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-pop outline-none transition-[opacity,transform] duration-150 ease-out-soft data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 motion-reduce:transition-none">
             <button type="button" onClick={copy} className={item}>
-              {copied ? <Check className="size-4 text-primary" aria-hidden="true" /> : <Link2 className="size-4 text-muted-foreground" aria-hidden="true" />}
               {copied ? t("Copied!") : t("Copy link")}
             </button>
             <a href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer" className={item}>

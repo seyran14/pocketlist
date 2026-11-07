@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth"
 import { Navbar } from "@/components/Navbar"
 import { ContactButton } from "@/components/listings/ContactButton"
 import { ShareMenu } from "@/components/listings/ShareMenu"
+import { ContactBar } from "@/components/listings/ContactBar"
 import { SaveButton } from "@/components/listings/SaveButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
@@ -103,6 +104,20 @@ export default async function ListingPage({
     isRent ? formatMonthlyRent(listing.price, t) : null,
     isRent && listing.chequeCount ? countOf("cheque", listing.chequeCount, locale) : null,
   ].filter(Boolean).join(" · ")
+  const canSave = !isOwner && session?.user?.role !== "AGENT"
+  const owner = (
+    <div>
+      <Link href={`/owners/${listing.agent.id}`} className="font-medium hover:underline underline-offset-4">
+        {listing.agent.name ?? t("Owner")}
+      </Link>
+      <p className="text-xs text-muted-foreground">{t("Owner")}</p>
+    </div>
+  )
+  const editLink = (
+    <Link href={`/dashboard/listings/${listing.id}/edit`} className="block">
+      <Button variant="outline" className="w-full">{t("Edit listing")}</Button>
+    </Link>
+  )
   const shareTitle = `${listing.title || listing.projectName} · ${listing.priceLabel ?? formatPrice(listing.price)}`
 
   // Label and value in one row; rows without a value are left out.
@@ -124,10 +139,12 @@ export default async function ListingPage({
     { label: "Property type", value: t(enumLabel(listing.propertyType)) },
   ].filter((fact) => fact.value)
 
+  const priceMain = listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : formatPrice(listing.price)
   const price = (
-    <div>
+    <div id="listing-price">
       <p className="text-3xl font-semibold tracking-[-0.02em] tabular-nums">
-        {priceText}
+        {priceMain}
+        {isRent && !listing.priceLabel && <span className="ms-1.5 text-base font-normal tracking-normal text-muted-foreground">{t("/ yr")}</span>}
         {listing.isDistress && listing.originalPrice && (
           <span className="ms-3 text-base font-normal text-muted-foreground line-through">
             {t("OP: {price}", { price: formatPrice(listing.originalPrice) })}
@@ -155,17 +172,27 @@ export default async function ListingPage({
                   {listing.isDistress && <Badge variant="destructive">{t("Distress Deal")}</Badge>}
                 </div>
               )}
-              <h1 className="text-2xl font-semibold sm:text-[28px]">
-                {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="text-2xl font-semibold sm:text-[28px]">
+                  {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
+                </h1>
+                <div className="flex gap-2 lg:hidden">
+                  <ShareMenu title={shareTitle} url={`${BASE_URL}/listings/${listing.id}`} iconOnly />
+                  {canSave && <SaveButton listingId={listing.id} initialSaved={!!savedListing} />}
+                </div>
+              </div>
               <p className="mt-1 text-muted-foreground">
                 {listing.projectName}
-                {listing.subLocation && ` · ${listing.subLocation}`}
+                {listing.subLocation && !listing.projectName.toLowerCase().includes(listing.subLocation.toLowerCase()) && ` · ${listing.subLocation}`}
               </p>
             </header>
 
             {/* On phones the price follows the title; on desktop it sits in the side panel. */}
-            <div className="mt-5 lg:hidden">{price}</div>
+            <div className="mt-5 space-y-3 lg:hidden">
+              {price}
+              {owner}
+              {isOwner && editLink}
+            </div>
 
             {keyFacts.length > 0 && (
               <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-y py-5 sm:grid-cols-4">
@@ -194,8 +221,7 @@ export default async function ListingPage({
               <section>
                 <h2 className="text-base font-semibold">{t(isRent ? "Rental terms" : "Terms")}</h2>
                 <dl className="mt-1 divide-y">
-                  {isRent && fieldRow("Per year", formatPrice(listing.price))}
-                  {isRent && fieldRow("Cheques", listing.chequeCount ? countOf("cheque", listing.chequeCount, locale) : null)}
+                  {isRent && fieldRow("Cheques", listing.chequeCount)}
                   {fieldRow("Available", isAvailableLater(listing.availableFrom) ? t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) }) : t("Now"))}
                   {isRent && fieldRow("Ejari", t("After the contract is signed"))}
                   {listing.isRented && !isRent && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
@@ -214,48 +240,29 @@ export default async function ListingPage({
           </div>
 
           {/* Side panel: one primary action, everything else quieter. */}
-          <aside className="card-animate w-full shrink-0 lg:sticky lg:top-20 lg:w-80">
+          <aside className="card-animate hidden w-80 shrink-0 lg:sticky lg:top-20 lg:block">
             <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-card">
-              <div className="hidden lg:block">{price}</div>
-
-              <div className="hidden lg:block">
-                <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
-              </div>
-
+              {price}
+              <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
+              <div className="border-t pt-4">{owner}</div>
               <div className="flex gap-2">
                 <ShareMenu title={shareTitle} url={`${BASE_URL}/listings/${listing.id}`} />
-                {session?.user?.role === "BUYER" && (
-                  <SaveButton listingId={listing.id} initialSaved={!!savedListing} />
-                )}
+                {canSave && <SaveButton listingId={listing.id} initialSaved={!!savedListing} />}
               </div>
-
-              <div className="border-t pt-4">
-                <Link href={`/owners/${listing.agent.id}`} className="font-medium hover:underline underline-offset-4">
-                  {listing.agent.name ?? t("Owner")}
-                </Link>
-                <p className="text-xs text-muted-foreground">{t("Owner")}</p>
-              </div>
-
-              {isOwner && (
-                <Link href={`/dashboard/listings/${listing.id}/edit`} className="block">
-                  <Button variant="outline" className="w-full">{t("Edit listing")}</Button>
-                </Link>
-              )}
+              {isOwner && editLink}
             </div>
           </aside>
         </div>
       </main>
 
       {/* Phones: price and the main action stay in reach at the bottom of the screen. */}
-      <div data-contact-bar className="fixed inset-x-0 bottom-0 z-40 border-t bg-card px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
-        <div className="mx-auto flex max-w-5xl items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold tabular-nums">{priceText}</p>
-            {priceNote && <p className="truncate text-xs text-muted-foreground tabular-nums">{priceNote}</p>}
-          </div>
-          <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} className="shrink-0" />
+      <ContactBar watchId="listing-price">
+        <div className="min-w-0 flex-1">
+          <p className="whitespace-nowrap font-semibold tabular-nums">{priceText}</p>
+          {priceNote && <p className="truncate text-xs text-muted-foreground tabular-nums">{priceNote}</p>}
         </div>
-      </div>
+        <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} short className="shrink-0" />
+      </ContactBar>
     </div>
   )
 }

@@ -501,4 +501,5 @@ export const ru: Record<string, string> = {
   "Listed {when}": "Опубликовано: {when}",
   "Terms": "Условия",
   "Plot": "Участок",
+  "Contact owner": "Связаться",
 }
