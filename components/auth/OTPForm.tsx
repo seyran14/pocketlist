@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
-export function OTPForm({ email }: { email: string }) {
+export function OTPForm({ email, next = "/dashboard" }: { email: string; next?: string }) {
   const t = useT()
   const router = useRouter()
   const [code, setCode] = useState("")
@@ -28,7 +28,7 @@ export function OTPForm({ email }: { email: string }) {
     setError("")
 
     try {
-      const params = new URLSearchParams({ token: code, email, callbackUrl: "/dashboard" })
+      const params = new URLSearchParams({ token: code, email, callbackUrl: next })
       const res = await fetch(`/api/auth/callback/resend?${params}`, {
         credentials: "include",
       })
@@ -41,8 +41,8 @@ export function OTPForm({ email }: { email: string }) {
         return
       }
 
-      // Success — session cookie is set, navigate to dashboard
-      router.push("/dashboard")
+      // Signed in: go back to the page that asked for it, or the dashboard.
+      router.push(next)
       router.refresh()
     } catch {
       setError(t("Network error. Please try again."))

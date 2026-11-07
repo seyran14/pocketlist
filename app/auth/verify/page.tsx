@@ -4,9 +4,9 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { OTPForm } from "@/components/auth/OTPForm"
 import { Button } from "@/components/ui/button"
-import { signIn } from "@/lib/auth"
 import { BrandMark } from "@/components/BrandLogo"
 import { pageMetadata } from "@/lib/i18n/meta"
+import { safeNext } from "@/lib/safe-next"
 
 export function generateMetadata() {
   return pageMetadata("Check your email")
@@ -16,6 +16,7 @@ export default async function VerifyPage() {
   const t = await getT()
   const jar = await cookies()
   const email = jar.get("pending_auth_email")?.value
+  const next = safeNext(jar.get("pending_auth_next")?.value)
 
   if (!email) redirect("/login")
 
@@ -31,7 +32,7 @@ export default async function VerifyPage() {
         </div>
 
         <div className="rounded-xl border bg-card p-6 space-y-5">
-          <OTPForm email={email} />
+          <OTPForm email={email} next={next} />
         </div>
 
         <div className="flex flex-col items-center gap-2 mt-4">

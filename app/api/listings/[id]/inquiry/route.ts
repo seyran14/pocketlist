@@ -51,6 +51,9 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     logger.warn("inquiry.listing_not_found", { listingId: id, ip })
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
+  if (listing.status === "SOLD") {
+    return NextResponse.json({ error: "This home is already rented." }, { status: 409 })
+  }
 
   try {
     const resend = new Resend(process.env.RESEND_API_KEY)

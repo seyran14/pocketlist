@@ -124,16 +124,6 @@ async function getListings(sp: SearchParams) {
   return { listings, total, page, pages: Math.ceil(total / limit) }
 }
 
-async function getLocations() {
-  const rows = await prisma.listing.findMany({
-    where: { status: { in: ["ACTIVE", "RESERVED"] } },
-    select: { location: true },
-    distinct: ["location"],
-    orderBy: { location: "asc" },
-  })
-  return rows.map((r) => r.location)
-}
-
 async function ListingsSection({ searchParams }: { searchParams: SearchParams }) {
   const locale = await getLocale()
   const data = await getListings(searchParams)
@@ -178,7 +168,7 @@ export default async function HomePage({
 }) {
   const t = await getT()
   const sp = await searchParams
-  const [locations, session] = await Promise.all([getLocations(), auth()])
+  const session = await auth()
   // Owners go straight to the form; everyone else starts an owner account.
   const postHomeHref = session?.user?.role === "AGENT" ? "/dashboard/listings/new" : "/register?as=owner"
 
@@ -206,7 +196,7 @@ export default async function HomePage({
           </section>
         )}
 
-        <ListingFilters locations={locations} />
+        <ListingFilters />
 
         <Suspense fallback={<ListingGridSkeleton />}>
           <ListingsSection searchParams={sp} />

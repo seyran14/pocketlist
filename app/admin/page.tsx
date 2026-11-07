@@ -11,6 +11,10 @@ import { AnalyticsPanel } from "./_components/AnalyticsPanel"
 
 export const metadata = { title: "Admin" }
 
+function weekAgo() {
+  return new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+}
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -28,7 +32,7 @@ export default async function AdminPage({
     return <AdminGate error={sp.error === "1"} />
   }
 
-  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const oneWeekAgo = weekAgo()
 
   const [
     totalUsers,

@@ -70,7 +70,6 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
     return new ImageResponse(
       (
         <div style={{ width: "100%", height: "100%", display: "flex", position: "relative", fontFamily: "sans-serif" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={cover} alt="" width={size.width} height={size.height} style={{ position: "absolute", top: 0, left: 0 }} />
           <div
             style={{

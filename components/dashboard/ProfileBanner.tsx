@@ -1,28 +1,36 @@
 "use client"
 
 import { useT } from "@/components/I18nProvider"
-import { useState, useEffect } from "react"
+import { useState, useSyncExternalStore } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 
 const STORAGE_KEY = "profile_banner_dismissed"
 
+const noop = () => () => {}
+
+function readDismissed() {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "1"
+  } catch {
+    return false
+  }
+}
+
 export function ProfileBanner({ hasName }: { hasName: boolean }) {
   const t = useT()
-  const [visible, setVisible] = useState(false)
+  // Read the dismissal from localStorage in the browser; the server assumes it was dismissed.
+  const dismissedBefore = useSyncExternalStore(noop, readDismissed, () => true)
+  const [dismissed, setDismissed] = useState(false)
 
-  useEffect(() => {
-    if (!hasName && !localStorage.getItem(STORAGE_KEY)) {
-      setVisible(true)
-    }
-  }, [hasName])
-
-  if (!visible) return null
+  if (hasName || dismissedBefore || dismissed) return null
 
   function dismiss() {
-    localStorage.setItem(STORAGE_KEY, "1")
-    setVisible(false)
+    try {
+      localStorage.setItem(STORAGE_KEY, "1")
+    } catch {}
+    setDismissed(true)
   }
 
   return (

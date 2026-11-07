@@ -2,16 +2,17 @@
 
 import { useTheme } from "next-themes"
 import { useT } from "@/components/I18nProvider"
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import { Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+const noop = () => () => {}
 
 export function ThemeToggle({ row = false }: { row?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme()
   const t = useT()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => setMounted(true), [])
+  // The theme is only known in the browser, so the server renders a placeholder.
+  const mounted = useSyncExternalStore(noop, () => true, () => false)
 
   if (!mounted) return <div className={row ? "h-8" : "w-8 h-8"} />
 

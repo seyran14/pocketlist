@@ -33,7 +33,7 @@ const SORT_OPTIONS = [
 
 const PILL = "h-8 rounded-full! border border-input bg-card px-3 text-xs aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground hover:aria-pressed:bg-primary hover:aria-pressed:text-primary-foreground data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
 
-export function ListingFilters({ locations: _locations }: { locations: string[] }) {
+export function ListingFilters() {
   const t = useT()
   const router = useRouter()
   const pathname = usePathname()
@@ -62,13 +62,16 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
   const isMounted = useRef(false)
   const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
-  // Sync external URL changes back into local state
-  useEffect(() => {
+  // When the URL changes from outside (back button, a link), copy it into the inputs.
+  // Done during render rather than in an effect, so there is no extra render pass.
+  const urlKey = searchParams.toString()
+  const [syncedUrl, setSyncedUrl] = useState(urlKey)
+  if (syncedUrl !== urlKey) {
+    setSyncedUrl(urlKey)
     setQuery(current("q"))
     setPriceMin(current("priceMin"))
     setPriceMax(current("priceMax"))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }
 
   // Debounce search query
   useEffect(() => {

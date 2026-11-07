@@ -25,9 +25,10 @@ const ERROR_MESSAGES: Record<string, string> = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; next?: string }>
 }) {
   const t = await getT()
+  const { next } = await searchParams
   return (
     <div className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
       <ArchBackdrop />
@@ -44,6 +45,7 @@ export default async function LoginPage({
 
         <div className="rounded-xl border bg-card p-6 space-y-4">
           <form action={loginAction} className="space-y-3">
+            {next && <input type="hidden" name="next" value={next} />}
             <div className="space-y-2">
               <Label htmlFor="email">{t("Email address")}</Label>
               <Input

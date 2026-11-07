@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useT } from "@/components/I18nProvider"
@@ -12,6 +13,8 @@ export default function Error({
   unstable_retry: () => void
 }) {
   const t = useT()
+  // Sentry reports the error itself; the digest in the console links a visitor's report to the server log.
+  useEffect(() => console.error(error.digest ?? error), [error])
   return (
     <div className="flex-1 bg-background flex items-center justify-center p-4">
       <div className="card-animate w-full max-w-sm text-center">

@@ -563,4 +563,5 @@ export const ar: Record<string, string> = {
   "Daily photo limit reached. Try again tomorrow.": "تم بلوغ حد الصور اليومي. حاول غداً.",
   "Failed to save photo": "تعذّر حفظ الصورة",
   "@username or +123 456 7890": "@username أو +123 456 7890",
+  "This home is already rented.": "تم تأجير هذا المنزل بالفعل.",
 }

@@ -38,6 +38,9 @@ export async function GET(_req: NextRequest, ctx: Ctx) {
     logger.warn("contact.listing_not_found", { listingId: id, userId: session.user.id })
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
+  if (listing.status === "SOLD") {
+    return NextResponse.json({ error: "This home is already rented." }, { status: 409 })
+  }
 
   const { agent } = listing
   const contact: Record<string, string | null> = { name: agent.name }

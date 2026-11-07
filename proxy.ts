@@ -11,7 +11,9 @@ export default auth((req) => {
     (pathname.startsWith("/dashboard/listings/") && pathname.endsWith("/edit"))
 
   if (!session) {
-    return NextResponse.redirect(new URL("/login", req.url))
+    const login = new URL("/login", req.url)
+    login.searchParams.set("next", pathname + req.nextUrl.search)
+    return NextResponse.redirect(login)
   }
 
   if (isAgentOnlyPath && role !== "AGENT") {

@@ -128,14 +128,16 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
     const wasSaved = savedSet.has(listingId)
     setSavedSet((s) => {
       const next = new Set(s)
-      wasSaved ? next.delete(listingId) : next.add(listingId)
+      if (wasSaved) next.delete(listingId)
+      else next.add(listingId)
       return next
     })
     const res = await fetch(`/api/listings/${listingId}/save`, { method: "POST" })
     if (!res.ok) {
       setSavedSet((s) => {
         const next = new Set(s)
-        wasSaved ? next.add(listingId) : next.delete(listingId)
+        if (wasSaved) next.add(listingId)
+        else next.delete(listingId)
         return next
       })
     }

@@ -563,4 +563,5 @@ export const ru: Record<string, string> = {
   "Daily photo limit reached. Try again tomorrow.": "Дневной лимит фото исчерпан. Попробуйте завтра.",
   "Failed to save photo": "Не удалось сохранить фото",
   "@username or +123 456 7890": "@username или +123 456 7890",
+  "This home is already rented.": "Это жильё уже сдано.",
 }

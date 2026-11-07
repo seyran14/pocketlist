@@ -1,5 +1,5 @@
 import NextAuth from "next-auth"
-import { timingSafeEqual } from "crypto"
+import { randomInt, timingSafeEqual } from "crypto"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import Resend from "next-auth/providers/resend"
 import Credentials from "next-auth/providers/credentials"
@@ -55,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: EMAIL_FROM,
       maxAge: 15 * 60,
       generateVerificationToken: () =>
-        String(require("crypto").randomInt(100000, 1000000)),
+        String(randomInt(100000, 1000000)),
       sendVerificationRequest: async ({ identifier: email, token }) => {
         const resend = new ResendClient(process.env.RESEND_API_KEY)
         await resend.emails.send({

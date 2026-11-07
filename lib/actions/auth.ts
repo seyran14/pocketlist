@@ -7,6 +7,7 @@ import { redirect } from "next/navigation"
 import { checkRateLimit } from "@/lib/ratelimit"
 import { logger } from "@/lib/logger"
 import { clientIp } from "@/lib/request-ip"
+import { safeNext } from "@/lib/safe-next"
 
 async function getClientIP(): Promise<string> {
   return clientIp(await headers())
@@ -37,6 +38,7 @@ export async function loginAction(formData: FormData) {
 
   const jar = await cookies()
   jar.set("pending_auth_email", email, { httpOnly: true, path: "/", maxAge: 900 })
+  jar.set("pending_auth_next", safeNext(formData.get("next")), { httpOnly: true, path: "/", maxAge: 900 })
   await signIn("resend", { email, redirectTo: "/dashboard" })
 }
 
@@ -63,5 +65,6 @@ export async function registerAction(formData: FormData) {
 
   const jar = await cookies()
   jar.set("pending_auth_email", email, { httpOnly: true, path: "/", maxAge: 900 })
+  jar.delete("pending_auth_next")
   await signIn("resend", { email, redirectTo: "/dashboard" })
 }

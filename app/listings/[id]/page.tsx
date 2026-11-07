@@ -155,6 +155,14 @@ export default async function ListingPage({
     </div>
   )
 
+  // A rented home stays visible, but its owner can no longer be contacted about it.
+  const isRented = listing.status === "SOLD"
+  const contact = isRented ? (
+    <p className="rounded-xl border bg-muted px-4 py-3 text-sm text-muted-foreground">{t("This home is already rented.")}</p>
+  ) : (
+    <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
+  )
+
   return (
     <div className="flex-1 bg-background">
       <Navbar />
@@ -166,9 +174,10 @@ export default async function ListingPage({
             )}
 
             <header className="mt-6">
-              {(listing.status === "RESERVED" || listing.isDistress) && (
+              {(listing.status === "RESERVED" || isRented || listing.isDistress) && (
                 <div className="mb-2 flex flex-wrap gap-2">
                   {listing.status === "RESERVED" && <Badge variant="secondary">{t("Under Offer")}</Badge>}
+                  {isRented && <Badge variant="secondary">{t("Rented")}</Badge>}
                   {listing.isDistress && <Badge variant="destructive">{t("Distress Deal")}</Badge>}
                 </div>
               )}
@@ -190,9 +199,7 @@ export default async function ListingPage({
             {/* On phones the price follows the title; on desktop it sits in the side panel. */}
             <div className="mt-5 space-y-4 lg:hidden">
               {price}
-              <div id="listing-contact">
-                <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
-              </div>
+              <div id="listing-contact">{contact}</div>
               {owner}
               {isOwner && editLink}
             </div>
@@ -246,7 +253,7 @@ export default async function ListingPage({
           <aside className="card-animate hidden w-80 shrink-0 lg:sticky lg:top-20 lg:block">
             <div className="space-y-5 rounded-2xl border bg-card p-5 shadow-card">
               {price}
-              <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} />
+              {contact}
               <div className="border-t pt-4">{owner}</div>
               <div className="flex gap-2">
                 <ShareMenu title={shareTitle} url={`${BASE_URL}/listings/${listing.id}`} />
@@ -259,6 +266,7 @@ export default async function ListingPage({
       </main>
 
       {/* Phones: price and the main action stay in reach at the bottom of the screen. */}
+      {!isRented && (
       <ContactBar watchId="listing-contact">
         <div className="min-w-0 flex-1">
           <p className="whitespace-nowrap font-semibold tabular-nums">{priceText}</p>
@@ -266,6 +274,7 @@ export default async function ListingPage({
         </div>
         <ContactButton listingId={listing.id} isLoggedIn={isLoggedIn} short className="shrink-0" />
       </ContactBar>
+      )}
     </div>
   )
 }
