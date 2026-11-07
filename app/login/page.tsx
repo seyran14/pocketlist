@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { loginAction } from "@/lib/actions/auth"
 import { DotMatrix } from "@/components/DotMatrix"
 import Link from "next/link"
+import { BrandMark } from "@/components/BrandLogo"
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration: "Server configuration error. Please try again later.",
@@ -27,7 +28,10 @@ export default async function LoginPage({
       <DotMatrix />
       <div data-dot-clear className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-bold">PocketList</Link>
+          <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-semibold tracking-[-0.025em]">
+            <BrandMark className="size-8" />
+            PocketList
+          </Link>
           <p className="text-muted-foreground text-sm mt-1">{t("Sign in to your account")}</p>
         </div>
 

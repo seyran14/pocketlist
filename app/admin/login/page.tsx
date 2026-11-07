@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { checkRateLimit } from "@/lib/ratelimit"
+import { BrandMark } from "@/components/BrandLogo"
 
 export default async function AdminLoginPage({
   searchParams,
@@ -18,7 +19,10 @@ export default async function AdminLoginPage({
     <div className="flex-1 bg-background flex items-center justify-center p-4">
       <div className="card-animate w-full max-w-sm">
         <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-bold">PocketList</Link>
+          <Link href="/" className="inline-flex items-center gap-2.5 text-2xl font-semibold tracking-[-0.025em]">
+            <BrandMark className="size-8" />
+            PocketList
+          </Link>
           <p className="text-muted-foreground text-sm mt-1">Admin sign in</p>
         </div>
 

@@ -7,14 +7,23 @@ import { readPhotoFile } from "@/lib/photos"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-// Site palette (oklch → hex equivalents)
-const bg       = "#fafafa"   // --background light
-const fg       = "#0f0f0f"   // --foreground light
-const muted    = "#71717a"   // --muted-foreground
-const border   = "#e5e7eb"   // --border light
-const tagBg    = "#f4f4f5"   // --muted light
-const tagFg    = "#3f3f46"   // slightly darker muted
-const dim      = "#a1a1aa"   // very muted
+// Brand palette, kept in step with the tokens in app/globals.css.
+const bg       = "#faf8f5"   // --background
+const fg       = "#221e1a"   // --foreground
+const muted    = "#6c645b"   // --muted-foreground
+const border   = "#e6dfd6"   // --border
+const tagBg    = "#efeae3"   // --muted
+const tagFg    = "#3d3730"   // between foreground and muted
+const brand    = "#2d5a46"   // --primary
+
+function Mark({ size: side, color }: { size: number; color: string }) {
+  return (
+    <svg width={side} height={side} viewBox="0 0 26 26">
+      <path d="M5 23V12a8 8 0 0 1 16 0v11z" fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M10 23v-6.5a3 3 0 0 1 6 0V23z" fill={color} />
+    </svg>
+  )
+}
 
 const CACHE_HEADERS = {
   "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=3600",
@@ -105,7 +114,8 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
       >
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
-          <span style={{ fontSize: 22, fontWeight: 700, color: fg, letterSpacing: -0.3 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 24, fontWeight: 700, color: fg, letterSpacing: -0.5 }}>
+            <Mark size={32} color={brand} />
             PocketList
           </span>
 
@@ -200,7 +210,7 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
                 {tag}
               </span>
             ))}
-            <span style={{ color: dim, fontSize: 15, marginLeft: 12, display: "flex" }}>
+            <span style={{ color: muted, fontSize: 15, marginLeft: 12, display: "flex" }}>
               pocketlist.ae
             </span>
           </div>

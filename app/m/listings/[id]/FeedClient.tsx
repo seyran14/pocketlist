@@ -96,7 +96,7 @@ function SideBtn({
       className="flex flex-col items-center gap-1 active:scale-90 transition-transform"
     >
       <div className={cn(
-        "w-11 h-11 rounded-full border bg-background flex items-center justify-center shadow-sm",
+        "w-11 h-11 rounded-full border bg-background flex items-center justify-center shadow-badge",
         active && "border-red-400",
       )}>
         {icon}
@@ -348,7 +348,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 {contactInfo!.phone && (
                   <a href={`tel:${contactInfo!.phone}`}
                     className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
-                    <Phone size={16} className="shrink-0 text-zinc-500" />
+                    <Phone size={16} className="shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Phone</p>
                       <p className="text-sm font-medium">{contactInfo!.phone}</p>
@@ -380,7 +380,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                 {contactInfo!.email && (
                   <a href={`mailto:${contactInfo!.email}`}
                     className="flex items-center gap-3 rounded-lg border p-3 hover:bg-accent transition-colors">
-                    <Mail size={16} className="shrink-0 text-zinc-500" />
+                    <Mail size={16} className="shrink-0 text-muted-foreground" />
                     <div>
                       <p className="text-xs text-muted-foreground">Email</p>
                       <p className="text-sm font-medium">{contactInfo!.email}</p>

@@ -73,7 +73,7 @@ export function DatePicker({
 
       <Popover.Portal>
         <Popover.Positioner sideOffset={6} align="start" className="z-50">
-          <Popover.Popup className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl border bg-card p-3 text-card-foreground shadow-lg outline-none transition-[opacity,transform] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 motion-reduce:transition-none">
+          <Popover.Popup className="w-72 max-w-[calc(100vw-2rem)] rounded-2xl border bg-card p-3 text-card-foreground shadow-pop outline-none transition-[opacity,transform] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 motion-reduce:transition-none">
             <div className="flex items-center justify-between">
               <button type="button" className={NAV} aria-label={t("Previous month")} disabled={!!min && first <= min} onClick={() => move(-1)}>
                 <ChevronLeft size={16} className="rtl:rotate-180" />

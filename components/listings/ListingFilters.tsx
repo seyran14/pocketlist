@@ -102,7 +102,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
       <form
         role="search"
         onSubmit={(e) => { e.preventDefault(); clearTimeout(searchTimer.current); update("q", query.trim() || null) }}
-        className="relative mx-auto w-full max-w-2xl rounded-full bg-card shadow-[0_0_0_1px_rgba(0,0,0,0.02),0_2px_6px_rgba(0,0,0,0.04),0_4px_8px_rgba(0,0,0,0.10)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+        className="relative mx-auto w-full max-w-2xl rounded-full border bg-card shadow-card"
       >
         <input
           type="search"

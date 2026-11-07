@@ -36,7 +36,7 @@ export default async function OwnersPage() {
             <Link
               key={a.id}
               href={`/owners/${a.id}`}
-              className="rounded-xl border bg-card p-4 hover:border-zinc-300 hover:shadow-sm transition-all"
+              className="rounded-xl border bg-card p-4 hover:border-input hover:shadow-card transition-[border-color,box-shadow]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

@@ -30,7 +30,7 @@ type ListingCardData = {
   photos?: { id: string }[]
 }
 
-const BADGE = "rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#222222] shadow-sm"
+const BADGE = "rounded-full bg-card px-3 py-1 text-xs font-semibold text-card-foreground shadow-badge"
 
 // Leave `saved` undefined to show the card without a heart.
 export function ListingCard({ listing, index = 0, saved }: { listing: ListingCardData; index?: number; saved?: boolean }) {

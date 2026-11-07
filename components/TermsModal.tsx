@@ -25,7 +25,7 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl border bg-card shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg max-h-[80vh] flex flex-col rounded-2xl border bg-card shadow-modal">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
           <h2 className="font-semibold text-base">{t("Terms & Privacy Policy")}</h2>

@@ -124,7 +124,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
               <div className="flex flex-col gap-2">
                 {contact.phone && (
                   <ContactRow icon={<Phone size={16} />} label={t("Phone")} value={contact.phone}
-                    href={`tel:${contact.phone}`} colorClass="text-zinc-500" />
+                    href={`tel:${contact.phone}`} colorClass="text-muted-foreground" />
                 )}
                 {contact.whatsapp && (
                   <ContactRow icon={<MessageCircle size={16} />} label="WhatsApp" value={contact.whatsapp}
@@ -136,7 +136,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                 )}
                 {contact.email && (
                   <ContactRow icon={<Mail size={16} />} label={t("Email")} value={contact.email}
-                    href={`mailto:${contact.email}`} colorClass="text-zinc-500" />
+                    href={`mailto:${contact.email}`} colorClass="text-muted-foreground" />
                 )}
               </div>
             ) : contact?.name === "__limit__" ? (

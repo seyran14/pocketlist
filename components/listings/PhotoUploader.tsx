@@ -37,7 +37,7 @@ function PhotoTile({ id, index, onCover, onRemove }: {
       {...listeners}
       className={cn(
         "relative aspect-square cursor-grab touch-manipulation overflow-hidden rounded-lg border bg-muted select-none [-webkit-touch-callout:none]",
-        isDragging && "z-10 cursor-grabbing opacity-90 shadow-lg ring-2 ring-foreground"
+        isDragging && "z-10 cursor-grabbing opacity-90 shadow-pop ring-2 ring-foreground"
       )}
     >
       <Image src={photoUrl(id, "thumb")} alt={`Photo ${index + 1}`} fill unoptimized draggable={false} className="pointer-events-none object-cover" />
