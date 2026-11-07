@@ -4,7 +4,7 @@ import { useT } from "@/components/I18nProvider"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react"
+import { ArrowUp, ArrowDown, ArrowUpDown, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -277,7 +277,7 @@ export function AgentDashboard({ listings }: Props) {
             </>
           ) : (
             <Link href="/dashboard/listings/new">
-              <Button size="sm">{t("+ Add listing")}</Button>
+              <Button size="sm"><Plus aria-hidden="true" />{t("Add listing")}</Button>
             </Link>
           )}
         </div>
@@ -286,7 +286,7 @@ export function AgentDashboard({ listings }: Props) {
       {sorted.length === 0 ? (
         <div className="rounded-xl border bg-card py-16 text-center text-muted-foreground text-sm">
           No listings with the selected status.{" "}
-          <Link href="/dashboard/listings/new" className="underline underline-offset-4">{t("Add your first listing →")}</Link>
+          <Link href="/dashboard/listings/new" className="underline underline-offset-4">{t("Add your first listing")}</Link>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border bg-card">

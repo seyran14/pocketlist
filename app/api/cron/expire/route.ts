@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
             userId: listing.agentId,
             listingId: listing.id,
             type: "LISTING_EXPIRING",
-            message: `"${listing.projectName} in ${listing.location}" is over 30 days old — still active?`,
+            message: `"${listing.projectName} in ${listing.location}" is over 30 days old. Is it still available?`,
           },
         })
         notified++

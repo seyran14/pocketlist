@@ -28,7 +28,7 @@ export default async function GuidePage({ searchParams }: { searchParams: Promis
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-8">
         <h1 className="text-[28px] leading-tight font-bold tracking-tight">{t("How PocketList works")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("Every step, from the first visit to a signed contract.")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("What owners and tenants do on PocketList, from the first visit to a contract registered on Ejari.")}</p>
 
         <nav className="mt-6 flex gap-2" aria-label={t("Guide")}>
           {TABS.map((tab) => (

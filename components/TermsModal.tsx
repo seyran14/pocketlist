@@ -101,12 +101,12 @@ export function TermsModal({ onClose }: { onClose: () => void }) {
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">{t("2. Analytics & Session Recording")}</p>
-              <p>{t("We use PostHog to collect anonymous analytics including page views and user interactions. This may include session recordings — visual replays of how you navigate the site. All form inputs (passwords, emails) are masked and never recorded. No cookies are used for tracking.")}</p>
+              <p>{t("We use PostHog to collect anonymous analytics, including page views and user interactions. This may include session recordings, which replay how you move through the site. All form inputs, such as passwords and emails, are masked and never recorded. No cookies are used for tracking.")}</p>
             </div>
 
             <div className="space-y-1">
               <p className="font-medium text-foreground">{t("3. How We Use Your Data")}</p>
-              <p>{t("Your data is used solely to operate and improve PocketList — to send OTP login codes, display your listings, and understand how the platform is used. We do not sell your data to third parties.")}</p>
+              <p>{t("Your data is used only to run and improve PocketList: to send sign-in codes, show your listings and understand how the site is used. We do not sell your data to third parties.")}</p>
             </div>
 
             <div className="space-y-1">

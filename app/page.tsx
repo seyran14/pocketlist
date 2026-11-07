@@ -1,4 +1,9 @@
-import { getT } from "@/lib/i18n/server"
+import { getLocale, getT } from "@/lib/i18n/server"
+import Link from "next/link"
+import { Plus } from "lucide-react"
+import { auth } from "@/lib/auth"
+import { countOf } from "@/lib/i18n/plural"
+import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { getSavedIds } from "@/lib/saved"
@@ -141,9 +146,9 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
 
   return (
     <>
-      <p className="mt-8 mb-5 text-[22px] leading-tight font-medium tracking-[-0.02em]">
-        {t("Listings: {n}", { n: data.total })}
-      </p>
+      <h2 className="mt-8 mb-5 text-[22px] font-semibold">
+        {countOf("home", data.total, await getLocale())}
+      </h2>
       <ListingGrid listings={serialized} savedIds={savedIds} />
       {data.pages > 1 && (
         <PaginationBar
@@ -172,19 +177,29 @@ export default async function HomePage({
 }) {
   const t = await getT()
   const sp = await searchParams
-  const locations = await getLocations()
+  const [locations, session] = await Promise.all([getLocations(), auth()])
+  // Owners go straight to the form; everyone else starts an owner account.
+  const postHomeHref = session?.user?.role === "AGENT" ? "/dashboard/listings/new" : "/register?as=owner"
 
   return (
     <div className="flex-1 bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
-          <>
-            <h1 className="text-[28px] leading-tight font-bold tracking-tight mb-1 text-center">{t("Dubai Properties")}</h1>
-            <p className="text-muted-foreground text-sm mb-5 text-center">
-              {t("Homes listed directly by their owners.")}
-            </p>
-          </>
+          <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-xl">
+              <h1 className="text-[28px] font-semibold sm:text-[34px]">{t("Rent a home in Dubai from its owner")}</h1>
+              <p className="mt-2 text-muted-foreground">
+                {t("Owners post their own homes here, and we check each title deed before a listing goes live.")}
+              </p>
+            </div>
+            <Link href={postHomeHref} className="shrink-0">
+              <Button variant="outline" size="lg">
+                <Plus aria-hidden="true" />
+                {t("Post your home")}
+              </Button>
+            </Link>
+          </section>
         )}
 
         <ListingFilters locations={locations} />

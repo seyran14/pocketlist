@@ -1,7 +1,6 @@
 import { getT } from "@/lib/i18n/server"
 import Link from "next/link"
 import { auth } from "@/lib/auth"
-import { BookOpen, Heart, LayoutDashboard, LogOut, Plus, Shield, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { signOutAction } from "@/lib/actions/auth"
@@ -30,7 +29,6 @@ export async function Navbar() {
     >
       <Link href="/guide">
         <Button variant="ghost" size="sm" className={row}>
-          <BookOpen size={16} />
           {t("Guide")}
         </Button>
       </Link>
@@ -41,13 +39,11 @@ export async function Navbar() {
             <>
               <Link href="/dashboard/listings/new">
                 <Button variant="ghost" size="sm" className={row}>
-                  <Plus size={16} />
-                  {t("+ Add listing").replace(/^\+\s*/, "")}
+                  {t("Add listing")}
                 </Button>
               </Link>
               <Link href="/dashboard">
                 <Button variant="ghost" size="sm" className={row}>
-                  <LayoutDashboard size={16} />
                   {t("Dashboard")}
                 </Button>
               </Link>
@@ -56,7 +52,6 @@ export async function Navbar() {
           ) : (
             <Link href="/dashboard/saved">
               <Button variant="ghost" size="sm" className={row}>
-                <Heart size={16} />
                 {t("Saved")}
               </Button>
             </Link>
@@ -65,7 +60,6 @@ export async function Navbar() {
           {user.email === process.env.ADMIN_EMAIL && (
             <Link href="/admin">
               <Button variant="ghost" size="sm" className={row}>
-                <Shield size={16} />
                 {t("Admin")}
               </Button>
             </Link>
@@ -73,7 +67,6 @@ export async function Navbar() {
 
           <Link href="/profile">
             <Button variant="ghost" size="sm" className={row} title={displayName}>
-              <User size={16} />
               <span className="truncate">{displayName}</span>
             </Button>
           </Link>
@@ -87,7 +80,6 @@ export async function Navbar() {
       {user && (
         <form action={signOutAction}>
           <Button variant="ghost" size="sm" type="submit" className={row}>
-            <LogOut size={16} />
             {t("Sign out")}
           </Button>
         </form>

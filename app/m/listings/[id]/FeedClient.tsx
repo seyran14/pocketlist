@@ -16,7 +16,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SupportButton } from "@/components/SupportButton"
 import { PhotoGallery } from "@/components/listings/PhotoGallery"
-import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
+import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
+import { countOf } from "@/lib/i18n/plural"
 
 type Owner = { id: string; name: string | null }
 
@@ -261,15 +262,15 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   <div className="rounded-lg border bg-card px-3">
                     <FieldRow label="Location" value={l.location} />
                     <FieldRow label="Property type" value={t(enumLabel(l.propertyType))} />
-                    <FieldRow label="Bedrooms" value={formatBeds(l.bedrooms, t)} />
+                    <FieldRow label="Bedrooms" value={l.bedrooms === "Studio" ? t("Studio") : l.bedrooms} />
                     <FieldRow label="Bathrooms" value={l.bathrooms} />
                     <FieldRow label="Area" value={formatArea(l.areaSqft, l.areaSqm, t)} />
-                    <FieldRow label="Floor" value={l.floor ? t(`${enumLabel(l.floor)} floor`) : null} />
-                    <FieldRow label="View" value={l.view} />
-                    <FieldRow label="Furnished" value={l.furnished ? t(enumLabel(l.furnished)) : null} />
+                    <FieldRow label="Floor" value={l.floor ? floorValue(l.floor, t) : null} />
+                    <FieldRow label="View" value={l.view ? viewValue(l.view) : null} />
+                    <FieldRow label="Furnished" value={l.furnished ? furnishedValue(l.furnished, t) : null} />
                     <FieldRow label="Status" value={isAvailableLater(l.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(l.availableFrom!, locale) }) : t("Available now")} />
                     {l.listingType !== "RENT" && <FieldRow label="Handover" value={l.handover && t(l.handover)} />}
-                    <FieldRow label="Parking" value={l.parkingSpots ? t("Spots: {n}", { n: l.parkingSpots }) : null} />
+                    <FieldRow label="Parking" value={l.parkingSpots ? countOf("space", l.parkingSpots, locale) : null} />
                     {l.isRented && l.listingType !== "RENT" && <FieldRow label="Rental income" value={l.rentAmount ? `${formatPrice(l.rentAmount)} ${t("/ yr")}` : t("Rented")} />}
                   </div>
 
@@ -410,7 +411,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
               <Textarea placeholder={t("Message (optional)")} className="resize-none text-sm" rows={3}
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
               <Button type="submit" className="w-full" disabled={inquirySending || !inquiryEmail}>
-                {inquirySending ? t("Sending…") : t("Send to owner →")}
+                {inquirySending ? t("Sending…") : t("Send to owner")}
               </Button>
             </form>
           )}

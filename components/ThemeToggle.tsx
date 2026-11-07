@@ -23,7 +23,7 @@ export function ThemeToggle({ row = false }: { row?: boolean }) {
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       aria-label={row ? undefined : t("Toggle theme")}
     >
-      {resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+      {!row && (resolvedTheme === "dark" ? <Sun size={16} /> : <Moon size={16} />)}
       {row && (resolvedTheme === "dark" ? t("Light theme") : t("Dark theme"))}
     </Button>
   )

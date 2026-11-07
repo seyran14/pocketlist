@@ -25,7 +25,7 @@ function Fact({ label, value }: { label: string; value: string | number | null |
   return (
     <div className="flex justify-between gap-3 border-b py-1 text-sm last:border-0">
       <span className="text-muted-foreground">{label}</span>
-      <span className="text-right font-medium">{value ?? "—"}</span>
+      <span className="text-right font-medium">{value ?? "–"}</span>
     </div>
   )
 }
@@ -55,7 +55,7 @@ export default async function ReviewsPage() {
       <Navbar />
       <main className="ph-no-capture mx-auto max-w-4xl space-y-6 px-4 py-8">
         <div>
-          <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">← Admin</Link>
+          <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">Back to admin</Link>
           <h1 className="mt-2 text-2xl font-bold">Listings to review</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             The table compares the owner&apos;s entries with the text of the deed. It can&apos;t tell whether the deed is

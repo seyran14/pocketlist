@@ -288,7 +288,7 @@ export function ContractClient({ listingId, eligible, contracts, defaults }: Pro
   return (
     <main className="ph-no-capture mx-auto max-w-3xl space-y-6 px-4 py-6">
       <div>
-        <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">← {t("Back")}</Link>
+        <Link href="/dashboard" className="text-sm text-muted-foreground hover:text-foreground">{t("Back to dashboard")}</Link>
         <h1 className="mt-2 text-2xl font-bold">{t("Tenancy contract")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("You fill in the contract, the tenant adds their details and signs, then you check it and sign last. Both of you get the finished contract by email.")}

@@ -207,7 +207,7 @@ export function ContactButton({ listingId, isLoggedIn }: Props) {
                 value={inquiryMsg} onChange={(e) => setInquiryMsg(e.target.value)} />
 
               <Button type="submit" className="w-full" disabled={sending || !inquiryEmail}>
-                {sending ? t("Sending…") : t("Send to owner →")}
+                {sending ? t("Sending…") : t("Send to owner")}
               </Button>
             </form>
           )}

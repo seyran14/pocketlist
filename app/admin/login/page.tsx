@@ -65,7 +65,7 @@ export default async function AdminLoginPage({
               <Input id="password" name="password" type="password" required />
             </div>
             <Button type="submit" className="w-full">
-              Sign in →
+              Sign in
             </Button>
           </form>
         </div>

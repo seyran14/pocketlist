@@ -38,7 +38,7 @@ export default async function VerifyPage() {
             redirect("/login")
           }}>
             <Button variant="ghost" size="sm" type="submit" className="text-sm h-8">
-              {t("Change email →")}
+              {t("Change email")}
             </Button>
           </form>
         </div>

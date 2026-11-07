@@ -145,7 +145,7 @@ export default async function AdminPage({
                       {listing.location}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">
-                      {listing.agent.name ?? "—"}
+                      {listing.agent.name ?? "–"}
                     </td>
                     <td className="px-4 py-2">
                       <span

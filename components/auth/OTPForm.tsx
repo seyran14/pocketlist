@@ -79,7 +79,7 @@ export function OTPForm({ email }: { email: string }) {
         className="w-full"
         disabled={code.length !== 6 || loading}
       >
-        {loading ? t("Verifying…") : t("Verify →")}
+        {loading ? t("Verifying…") : t("Verify")}
       </Button>
     </form>
   )

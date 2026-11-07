@@ -11,7 +11,8 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel } from "@/lib/utils"
+import { enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
+import { countOf } from "@/lib/i18n/plural"
 import Link from "next/link"
 
 const BASE_URL = "https://pocketlist.ae"
@@ -135,13 +136,17 @@ export default async function ListingPage({
               {listing.subLocation && ` · ${listing.subLocation}`}
             </p>
 
-            <p className="text-3xl font-bold mb-6">
-              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : formatPrice(listing.price)}
+            <p className="text-3xl font-bold">
+              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : listing.listingType === "RENT" ? formatRentPrice(listing.price, t) : formatPrice(listing.price)}
               {listing.isDistress && listing.originalPrice && (
                 <span className="ms-3 text-base font-normal text-muted-foreground line-through">
                   {t("OP: {price}", { price: formatPrice(listing.originalPrice) })}
                 </span>
               )}
+            </p>
+            <p className="mt-1 mb-6 text-sm text-muted-foreground">
+              {listing.listingType === "RENT" && formatMonthlyRent(listing.price, t)}
+              {listing.listingType === "RENT" && listing.chequeCount ? ` · ${t(listing.chequeCount === 1 ? "1 cheque" : "{n} cheques", { n: listing.chequeCount })}` : null}
             </p>
 
             <Separator className="mb-4" />
@@ -149,16 +154,16 @@ export default async function ListingPage({
             <div className="rounded-lg border bg-card px-3">
               {fieldRow("Location", listing.location)}
               {fieldRow("Property type", t(enumLabel(listing.propertyType)))}
-              {fieldRow("Bedrooms", formatBeds(listing.bedrooms, t))}
+              {fieldRow("Bedrooms", listing.bedrooms === "Studio" ? t("Studio") : listing.bedrooms)}
               {fieldRow("Bathrooms", listing.bathrooms)}
               {fieldRow("Area", formatArea(listing.areaSqft, listing.areaSqm, t))}
-              {fieldRow("Floor", listing.floor ? t(`${enumLabel(listing.floor)} floor`) : null)}
-              {fieldRow("View", listing.view)}
-              {fieldRow("Furnished", listing.furnished ? t(enumLabel(listing.furnished)) : null)}
+              {fieldRow("Floor", listing.floor ? floorValue(listing.floor, t) : null)}
+              {fieldRow("View", listing.view ? viewValue(listing.view) : null)}
+              {fieldRow("Furnished", listing.furnished ? furnishedValue(listing.furnished, t) : null)}
               {fieldRow("Status", isAvailableLater(listing.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(listing.availableFrom!, locale) }) : t("Available now"))}
               {listing.listingType !== "RENT" && fieldRow("Handover", listing.handover && t(listing.handover))}
               {fieldRow("Cheques", listing.chequeCount)}
-              {fieldRow("Parking", listing.parkingSpots ? t("Spots: {n}", { n: listing.parkingSpots }) : null)}
+              {fieldRow("Parking", listing.parkingSpots ? countOf("space", listing.parkingSpots, locale) : null)}
               {listing.isRented && listing.listingType !== "RENT" && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
             </div>
 

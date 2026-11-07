@@ -2,7 +2,6 @@
 
 import { useT } from "@/components/I18nProvider"
 import { useState, useEffect } from "react"
-import { Bell } from "lucide-react"
 import Link from "next/link"
 import { motion } from "motion/react"
 import { spring } from "@/lib/motion"
@@ -49,7 +48,6 @@ export function NotificationBell() {
         aria-expanded={open}
         className="flex h-8 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-medium hover:bg-muted"
       >
-        <Bell size={16} />
         {t("Notifications")}
         {notifs.length > 0 && (
           <motion.span

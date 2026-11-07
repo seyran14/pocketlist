@@ -30,7 +30,7 @@ export function AdminGate({ error }: { error?: boolean }) {
               required
             />
             <Button type="submit" className="w-full">
-              Continue →
+              Continue
             </Button>
           </form>
         </div>

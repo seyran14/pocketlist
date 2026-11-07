@@ -32,7 +32,7 @@ export default async function LoginPage({
             <BrandMark className="size-8" />
             PocketList
           </Link>
-          <p className="text-muted-foreground text-sm mt-1">{t("Sign in to your account")}</p>
+          <p className="text-muted-foreground text-sm mt-1">{t("We'll email you a 6-digit code to sign in.")}</p>
         </div>
 
         <StatusBanner searchParams={searchParams} />
@@ -45,13 +45,12 @@ export default async function LoginPage({
                 id="email"
                 name="email"
                 type="email"
-                placeholder="you@example.com"
                 required
                 autoFocus
               />
             </div>
             <Button type="submit" className="w-full">
-              {t("Send code →")}
+              {t("Send code")}
             </Button>
           </form>
 

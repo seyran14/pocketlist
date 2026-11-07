@@ -72,7 +72,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
             {list.map((user) => (
               <tr key={user.id} className="border-b last:border-0 hover:bg-muted/20">
                 <td className="px-4 py-2 font-medium truncate max-w-[180px]">{user.email}</td>
-                <td className="px-4 py-2 text-muted-foreground">{user.name ?? "—"}</td>
+                <td className="px-4 py-2 text-muted-foreground">{user.name ?? "–"}</td>
                 <td className="px-4 py-2">
                   <Badge variant={user.role === "AGENT" ? "default" : "secondary"} className="text-xs">
                     {user.role === "AGENT" ? "OWNER" : user.role}
@@ -91,7 +91,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
                         disabled={loading === user.id + "AGENT"}
                         onClick={() => changeRole(user.id, "AGENT")}
                       >
-                        → Owner
+                        Make owner
                       </Button>
                     ) : (
                       <Button
@@ -100,7 +100,7 @@ export function AdminUsersTable({ users }: { users: User[] }) {
                         disabled={loading === user.id + "BUYER"}
                         onClick={() => changeRole(user.id, "BUYER")}
                       >
-                        → Buyer
+                        Make tenant
                       </Button>
                     )}
                     <Button

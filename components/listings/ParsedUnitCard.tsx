@@ -265,7 +265,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             onValueChange={(v) => setValue("bedrooms", v || null)}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("bedrooms") ? formatBeds(watch("bedrooms")!, t) : "—"}</span>
+              <span>{watch("bedrooms") ? formatBeds(watch("bedrooms")!, t) : "–"}</span>
             </SelectTrigger>
             <SelectContent>
               {["Studio", "1", "2", "3", "4", "5+"].map((b) => (
@@ -278,7 +278,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {/* Bathrooms */}
         <div>
           <Label className="text-xs text-muted-foreground">{t("Bathrooms")}</Label>
-          <Input {...register("bathrooms")} className="h-8 text-sm mt-1" placeholder="—" />
+          <Input {...register("bathrooms")} className="h-8 text-sm mt-1" placeholder="–" />
         </div>
 
         {/* Parking */}
@@ -300,7 +300,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             onValueChange={(v) => setValue("furnished", (v || null) as UnitFormValues["furnished"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("furnished") ? t(FURNISHED_LABELS[watch("furnished")!]) : "—"}</span>
+              <span>{watch("furnished") ? t(FURNISHED_LABELS[watch("furnished")!]) : "–"}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="FURNISHED">{t("Furnished")}</SelectItem>
@@ -324,7 +324,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             onValueChange={(v) => setValue("occupancy", (v || null) as UnitFormValues["occupancy"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{occupancy ? t(OCCUPANCY_LABELS[occupancy]) : "—"}</span>
+              <span>{occupancy ? t(OCCUPANCY_LABELS[occupancy]) : "–"}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="VACANT">{t("Available now")}</SelectItem>
@@ -387,7 +387,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
         {/* Area sqft */}
         <div>
           <Label className="text-xs text-muted-foreground">{t("BUA (built-up area), sqft")}</Label>
-          {!areaSqft && <Hint>{t("Buyers filter by size — add sqft if you have it")}</Hint>}
+          {!areaSqft && <Hint>{t("Tenants filter by size, so add the area if you know it")}</Hint>}
           <Input
             {...register("areaSqft", { valueAsNumber: true })}
             type="number"
@@ -436,7 +436,7 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
             onValueChange={(v) => setValue("floor", (v || null) as UnitFormValues["floor"])}
           >
             <SelectTrigger className="h-8 text-sm mt-1">
-              <span>{watch("floor") ? t(FLOOR_LABELS[watch("floor")!]) : "—"}</span>
+              <span>{watch("floor") ? t(FLOOR_LABELS[watch("floor")!]) : "–"}</span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="LOW">{t("Low")}</SelectItem>

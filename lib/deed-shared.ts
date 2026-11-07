@@ -138,7 +138,7 @@ function closeTo(a: number, b: number) {
 function checkArea(claim: DeedClaim, fields: DeedFields, text: string): DeedCheck {
   const base = { key: "area", label: "Area" }
   const sqft = claim.areaSqft ?? (claim.areaSqm ? claim.areaSqm / SQM_PER_SQFT : null)
-  if (!sqft) return { ...base, claimed: "—", found: fields.areaSqft ? `${fields.areaSqft} sqft` : "—", result: "check" }
+  if (!sqft) return { ...base, claimed: "–", found: fields.areaSqft ? `${fields.areaSqft} sqft` : "–", result: "check" }
 
   const claimed = `${Math.round(sqft)} sqft`
   const deedSqft = fields.areaSqft ?? (fields.areaSqm ? fields.areaSqm / SQM_PER_SQFT : null)
@@ -156,7 +156,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     return [{
       key: "unreadable",
       label: "Document",
-      claimed: "—",
+      claimed: "–",
       found: "No text to read, compare by hand",
       result: "check",
     }]
@@ -167,13 +167,13 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
   const number = claim.propertyNumber?.trim() ?? ""
   if (fields.propertyNumber) {
     checks.push({
-      key: "propertyNumber", label: "Property number", claimed: number || "—", found: fields.propertyNumber,
+      key: "propertyNumber", label: "Property number", claimed: number || "–", found: fields.propertyNumber,
       result: number.toLowerCase() === fields.propertyNumber.toLowerCase() ? "match" : "mismatch",
     })
   } else {
     const inText = !!number && hasToken(text, number)
     checks.push({
-      key: "propertyNumber", label: "Property number", claimed: number || "—",
+      key: "propertyNumber", label: "Property number", claimed: number || "–",
       found: inText ? "Found in the text" : "Not found", result: inText ? "match" : "mismatch",
     })
   }
@@ -183,7 +183,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     ? containsAll(fields.buildingName, building) || containsAll(building, fields.buildingName)
     : containsAll(text, building)
   checks.push({
-    key: "building", label: "Building", claimed: building || "—",
+    key: "building", label: "Building", claimed: building || "–",
     found: fields.buildingName ?? (buildingFound ? "Found in the text" : "Not found"),
     result: buildingFound ? "match" : "mismatch",
   })
@@ -192,7 +192,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
   // ("Dubai Creek Harbour"), so a difference here isn't evidence of anything.
   const location = claim.location?.trim() ?? ""
   checks.push({
-    key: "location", label: "Location", claimed: location || "—", found: fields.community ?? "—",
+    key: "location", label: "Location", claimed: location || "–", found: fields.community ?? "–",
     result: fields.community && (containsAll(fields.community, location) || containsAll(location, fields.community))
       ? "match"
       : "check",
@@ -202,7 +202,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     const accepted = DEED_TYPES[claim.propertyType] ?? []
     const found = fields.propertyType?.toLowerCase()
     checks.push({
-      key: "propertyType", label: "Property type", claimed: claim.propertyType, found: fields.propertyType ?? "—",
+      key: "propertyType", label: "Property type", claimed: claim.propertyType, found: fields.propertyType ?? "–",
       result: !found ? "check" : accepted.some((t) => found.includes(t)) ? "match" : "mismatch",
     })
   }
@@ -213,7 +213,7 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     const count = fields.parkings ? fields.parkings.split(/[,;]/).filter((p) => p.trim()).length : null
     checks.push({
       key: "parking", label: "Parking", claimed: String(claim.parkingSpots),
-      found: fields.parkings ? `${count} (${fields.parkings})` : "—",
+      found: fields.parkings ? `${count} (${fields.parkings})` : "–",
       result: count === null ? "check" : count === claim.parkingSpots ? "match" : "mismatch",
     })
   }
@@ -222,13 +222,13 @@ export function compareDeed(claim: DeedClaim, fields: DeedFields, text: string):
     const name = claim.ownerName?.trim() ?? ""
     const matched = fields.ownerNames.some((n) => namesMatch(name, n))
     checks.push({
-      key: "owner", label: "Owner name", claimed: name || "—", found: fields.ownerNames.join(", ") || "—",
+      key: "owner", label: "Owner name", claimed: name || "–", found: fields.ownerNames.join(", ") || "–",
       result: matched ? "match" : fields.ownerNames.length === 0 ? "check" : "mismatch",
     })
   }
 
   checks.push({
-    key: "mortgage", label: "Mortgage", claimed: "—", found: fields.mortgageStatus ?? "—",
+    key: "mortgage", label: "Mortgage", claimed: "–", found: fields.mortgageStatus ?? "–",
     result: /^not mortgaged$/i.test(fields.mortgageStatus ?? "") ? "match" : "check",
   })
 

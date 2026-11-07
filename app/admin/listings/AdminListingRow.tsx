@@ -40,7 +40,7 @@ export function AdminListingRow({ listing }: { listing: Listing }) {
           {listing.projectName}
         </Link>
         <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-          {listing.location} · {listing.priceLabel ?? "—"} · {listing.status}
+          {listing.location} · {listing.priceLabel ?? "–"} · {listing.status}
         </p>
         <p className="text-xs text-muted-foreground [overflow-wrap:anywhere]">
           {listing.agent.name ?? "No name"} · {listing.agent.email}

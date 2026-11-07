@@ -19,10 +19,30 @@ export function localizePriceLabel(label: string, t: Translate): string {
   return label.replace("/ yr", t("/ yr"))
 }
 
+// Converted areas carry decimals ("759.29"); nobody measures a flat to the hundredth.
 export function formatArea(sqft: number | null, sqm: number | null, t: Translate): string {
-  if (sqft) return t("{n} sqft", { n: sqft.toLocaleString("en-US") })
-  if (sqm) return t("{n} sqm", { n: sqm.toLocaleString("en-US") })
-  return "—"
+  if (sqft) return t("{n} sqft", { n: Math.round(sqft).toLocaleString("en-US") })
+  if (sqm) return t("{n} sqm", { n: Math.round(sqm).toLocaleString("en-US") })
+  return "–"
+}
+
+// Dubai rents are quoted per year; the monthly figure is what people compare with their salary.
+export function formatMonthlyRent(yearly: number, t: Translate): string {
+  return `AED ${Math.round(yearly / 12).toLocaleString("en-AE")} ${t("/ mo")}`
+}
+
+// Values that don't repeat their label: "Furnished: Yes", not "Furnished: Furnished".
+export function furnishedValue(value: string, t: Translate): string {
+  return t(value === "FURNISHED" ? "Yes" : value === "PARTIAL" ? "Partly" : "No")
+}
+
+export function floorValue(value: string, t: Translate): string {
+  return t(enumLabel(value))
+}
+
+// Owners type views as "Burj Khalifa view"; under a "View" label the last word is noise.
+export function viewValue(value: string): string {
+  return value.replace(/\s+views?$/i, "").trim() || value
 }
 
 export function formatBeds(beds: string, t: Translate): string {

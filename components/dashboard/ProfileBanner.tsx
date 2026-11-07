@@ -33,7 +33,7 @@ export function ProfileBanner({ hasName }: { hasName: boolean }) {
       <div className="flex items-center gap-2 shrink-0">
         <Link href="/profile">
           <Button size="sm" variant="outline" className="h-7 px-3 text-xs">
-            {t("Set up profile →")}
+            {t("Set up profile")}
           </Button>
         </Link>
         <button

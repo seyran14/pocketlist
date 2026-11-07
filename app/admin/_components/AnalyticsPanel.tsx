@@ -79,7 +79,7 @@ export async function AnalyticsPanel() {
           target="_blank"
           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4"
         >
-          Open PostHog →
+          Open PostHog
         </Link>
       </div>
 
@@ -101,7 +101,7 @@ export async function AnalyticsPanel() {
             target="_blank"
             className="text-sm font-medium hover:underline underline-offset-4"
           >
-            View replays →
+            View replays
           </Link>
           <p className="text-xs text-muted-foreground mt-1">Heatmaps, clicks, scrolls</p>
         </div>
@@ -139,7 +139,7 @@ function StatCell({ label, value, hint }: { label: string; value: number | null;
       <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p className="text-2xl font-bold">
         {value === null ? (
-          <span className="text-muted-foreground text-sm">—</span>
+          <span className="text-muted-foreground text-sm">–</span>
         ) : (
           value.toLocaleString()
         )}

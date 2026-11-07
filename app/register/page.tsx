@@ -4,8 +4,10 @@ import { RegisterForm } from "./RegisterForm"
 import { ArchBackdrop } from "@/components/ArchBackdrop"
 import { BrandMark } from "@/components/BrandLogo"
 
-export default async function RegisterPage() {
+// "?as=owner" comes from "Post your home" and preselects the owner account.
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {
   const t = await getT()
+  const { as } = await searchParams
   return (
     <div className="relative flex-1 bg-background flex items-center justify-center p-4">
       <ArchBackdrop />
@@ -18,7 +20,7 @@ export default async function RegisterPage() {
           <p className="text-muted-foreground text-sm mt-1">{t("Create your account")}</p>
         </div>
 
-        <RegisterForm />
+        <RegisterForm initialRole={as === "owner" ? "AGENT" : "BUYER"} />
       </div>
     </div>
   )

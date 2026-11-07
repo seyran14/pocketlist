@@ -59,9 +59,9 @@ export default async function OgImage({ params }: { params: Promise<{ id: string
   const beds  = listing.bedrooms === "Studio" ? "Studio" : `${listing.bedrooms} BR`
   const type  = listing.propertyType.charAt(0) + listing.propertyType.slice(1).toLowerCase()
   const area  = listing.areaSqft
-    ? `${listing.areaSqft.toLocaleString()} sqft`
+    ? `${Math.round(listing.areaSqft).toLocaleString()} sqft`
     : listing.areaSqm
-    ? `${listing.areaSqm.toLocaleString()} sqm`
+    ? `${Math.round(listing.areaSqm).toLocaleString()} sqm`
     : null
 
   const cover = await coverDataUri(listing.photos[0]?.id).catch(() => null)

@@ -237,7 +237,7 @@ export function NewListingClient() {
               disabled={!rawText.trim() || parsing}
               className="flex-1 sm:flex-none"
             >
-              {parsing ? t("Parsing…") : t("Parse with AI →")}
+              {parsing ? t("Parsing…") : t("Parse with AI")}
             </Button>
             <Button
               variant="outline"
@@ -275,7 +275,7 @@ export function NewListingClient() {
                 setFormValues([])
               }}
             >
-              {t("← Start over")}
+              {t("Start over")}
             </Button>
           </div>
 

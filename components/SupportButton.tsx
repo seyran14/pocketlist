@@ -74,7 +74,7 @@ export function SupportButton({ row = false }: { row?: boolean }) {
         className={row ? "w-full justify-start gap-2" : "text-sm text-muted-foreground gap-1.5"}
         onClick={() => setOpen(true)}
       >
-        <LifeBuoy size={row ? 16 : 15} />
+        {!row && <LifeBuoy size={15} />}
         <span className={row ? undefined : "hidden sm:inline"}>{t("Support")}</span>
       </Button>
 
@@ -105,7 +105,7 @@ export function SupportButton({ row = false }: { row?: boolean }) {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3 pt-1">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {t("Have a question, an issue, or a suggestion for the site? Drop us a line — we read every message.")}
+                {t("Write to us about a question, a problem or an idea for the site. A person reads every message.")}
               </p>
 
               {/* Email — required */}
@@ -134,7 +134,7 @@ export function SupportButton({ row = false }: { row?: boolean }) {
               {error && <p className="text-sm text-destructive">{error}</p>}
 
               <Button type="submit" className="w-full" disabled={sending || !email || !message.trim()}>
-                {sending ? t("Sending…") : t("Send message →")}
+                {sending ? t("Sending…") : t("Send message")}
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">

@@ -18,7 +18,7 @@ async function reuseCheck(listingId: string, ownerId: string, deed: { sha256: st
   return {
     key: "reused",
     label: "Deed reuse",
-    claimed: "—",
+    claimed: "–",
     found: `Also on listing ${elsewhere.listingId}${byOtherOwner ? ", by a different owner" : ""}`,
     result: byOtherOwner ? "mismatch" : "check",
   } satisfies DeedCheck
@@ -57,7 +57,7 @@ export async function refreshChecks(listingId: string) {
     checks.push({
       key: "editable",
       label: "File type",
-      claimed: "—",
+      claimed: "–",
       found: "Word file, easy to edit. DLD issues PDFs, so ask for the original.",
       result: "check",
     })

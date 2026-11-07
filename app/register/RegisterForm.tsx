@@ -11,11 +11,11 @@ import { TermsModal } from "@/components/TermsModal"
 import { registerAction } from "@/lib/actions/auth"
 import { GUIDE } from "@/lib/guide"
 
-export function RegisterForm() {
+export function RegisterForm({ initialRole = "BUYER" }: { initialRole?: "BUYER" | "AGENT" }) {
   const t = useT()
   const [agreed, setAgreed] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
-  const [role, setRole] = useState<"BUYER" | "AGENT">("BUYER")
+  const [role, setRole] = useState<"BUYER" | "AGENT">(initialRole)
   const guideRole = role === "AGENT" ? "owner" : "tenant"
 
   return (
@@ -29,7 +29,6 @@ export function RegisterForm() {
             id="email"
             name="email"
             type="email"
-            placeholder="you@example.com"
             required
             autoFocus
           />
@@ -88,7 +87,7 @@ export function RegisterForm() {
         </div>
 
         <Button type="submit" className="w-full" disabled={!agreed}>
-          {t("Continue →")}
+          {t("Continue")}
         </Button>
       </form>
 

@@ -102,14 +102,14 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
       <form
         role="search"
         onSubmit={(e) => { e.preventDefault(); clearTimeout(searchTimer.current); update("q", query.trim() || null) }}
-        className="relative mx-auto w-full max-w-2xl rounded-2xl border border-input bg-card"
+        className="relative w-full rounded-2xl border border-input bg-card"
       >
         <input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("Search projects, locations…")}
-          aria-label={t("Search projects, locations…")}
+          placeholder={t("Building or area")}
+          aria-label={t("Building or area")}
           className="h-14 w-full rounded-2xl bg-transparent ps-5 pe-32 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-search-cancel-button]:hidden"
         />
         {query && (
@@ -124,7 +124,6 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
         )}
         <button
           type="submit"
-          aria-label={t("Search projects, locations…")}
           className="absolute end-2 top-1/2 flex h-10 -translate-y-1/2 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground transition-transform active:scale-[0.97]"
         >
           <Search className="size-4" />
@@ -155,9 +154,9 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
       </div>
 
       <div id="listing-filters" className={cn("flex flex-col gap-4", !filtersOpen && "hidden sm:flex")}>
-        {/* Row 1: Sort + Price | Property type */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-          <div className="flex items-end gap-3 flex-wrap">
+        {/* One left-aligned line of groups that wraps, so the eye reads them in order. */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-8 sm:gap-y-4">
+          <div className="contents">
             <div className="flex flex-col gap-1">
               <Label className="text-xs text-muted-foreground">{t("Sort")}</Label>
               <Select
@@ -181,7 +180,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
                 <Input type="number" placeholder={t("Min")} className="h-8 w-24 bg-card text-xs"
                   value={priceMin} onChange={(e) => setPriceMin(e.target.value)}
                   onBlur={(e) => update("priceMin", e.target.value || null)} />
-                <span className="text-muted-foreground text-xs">—</span>
+                <span className="text-muted-foreground text-xs">–</span>
                 <Input type="number" placeholder={t("Max")} className="h-8 w-24 bg-card text-xs"
                   value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
                   onBlur={(e) => update("priceMax", e.target.value || null)} />
@@ -189,11 +188,11 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 sm:items-end">
+          <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">{t("Property type")}</Label>
             <ToggleGroup
               multiple
-              className="flex-wrap justify-start sm:justify-end gap-1"
+              className="flex-wrap justify-start gap-1"
               value={current("propertyType") ? (current("propertyType").split(",") as string[]) : []}
               onValueChange={(v) => update("propertyType", v.length ? v.join(",") : null)}
             >
@@ -204,10 +203,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
               ))}
             </ToggleGroup>
           </div>
-        </div>
 
-        {/* Row 2: Bedrooms | Status */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">{t("Bedrooms")}</Label>
             <ToggleGroup
@@ -224,9 +220,9 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             </ToggleGroup>
           </div>
 
-          <div className="flex flex-col gap-1 sm:items-end">
+          <div className="flex flex-col gap-1">
             <Label className="text-xs text-muted-foreground">{t("Status")}</Label>
-            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <div className="flex flex-wrap items-center gap-2">
               {status === "soon" && (
                 <DatePicker
                   label={t("Free by")}
@@ -238,7 +234,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
                 />
               )}
               <ToggleGroup
-                className="justify-start sm:justify-end gap-1"
+                className="justify-start gap-1"
                 value={status ? [status] : []}
                 onValueChange={(v) => changeStatus(v[v.length - 1] ?? null)}
               >
