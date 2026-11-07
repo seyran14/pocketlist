@@ -1,6 +1,6 @@
 "use client"
 
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,7 @@ type ExpiringListing = {
 
 export function NotificationBanner({ listings }: { listings: ExpiringListing[] }) {
   const t = useT()
+  const locale = useLocale()
   const router = useRouter()
   const [dismissed, setDismissed] = useState(false)
   const [hidden, setHidden] = useState<Set<string>>(new Set())
@@ -82,7 +83,7 @@ export function NotificationBanner({ listings }: { listings: ExpiringListing[] }
             <span className="text-sm font-medium flex-1 min-w-0 truncate">
               {l.projectName} · {l.location}
               <span className="ms-2 text-xs text-muted-foreground font-normal">
-                {daysAgo(new Date(l.createdAt), t)}
+                {daysAgo(new Date(l.createdAt), locale)}
               </span>
             </span>
             <div className="flex gap-1.5 shrink-0">

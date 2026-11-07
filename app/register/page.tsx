@@ -9,7 +9,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   const t = await getT()
   const { as } = await searchParams
   return (
-    <div className="relative flex-1 bg-background flex items-center justify-center p-4">
+    <div className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
       <ArchBackdrop />
       <div className="card-animate relative w-full max-w-sm">
         <div className="mb-8 text-center">

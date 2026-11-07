@@ -175,7 +175,7 @@ export function ListingFilters({ locations: _locations }: { locations: string[] 
             </div>
 
             <div className="flex flex-col gap-1">
-              <Label className="text-xs text-muted-foreground">{t("Rent (AED)")}</Label>
+              <Label className="text-xs text-muted-foreground">{t("Rent (AED / yr)")}</Label>
               <div className="flex items-center gap-1">
                 <Input type="number" placeholder={t("Min")} className="h-8 w-24 bg-card text-xs"
                   value={priceMin} onChange={(e) => setPriceMin(e.target.value)}

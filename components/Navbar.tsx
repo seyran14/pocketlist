@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { signOutAction } from "@/lib/actions/auth"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { NotificationBell } from "@/components/NotificationBell"
 import { SupportButton } from "@/components/SupportButton"
 import { SiteHeader } from "@/components/SiteHeader"
@@ -29,7 +30,7 @@ export async function Navbar() {
     >
       <Link href="/guide">
         <Button variant="ghost" size="sm" className={row}>
-          {t("Guide")}
+          {t("How it works")}
         </Button>
       </Link>
 
@@ -74,6 +75,7 @@ export async function Navbar() {
       )}
 
       <Separator className="my-2" />
+      <LanguageSwitcher row />
       <ThemeToggle row />
       <SupportButton row />
 

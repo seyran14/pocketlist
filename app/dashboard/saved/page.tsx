@@ -32,6 +32,7 @@ export default async function SavedPage() {
           price: true,
           priceLabel: true,
           floor: true,
+          chequeCount: true,
           status: true,
           listingType: true,
           isDistress: true,

@@ -220,7 +220,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     <ChevronLeft size={20} />
                   </Link>
                   <span className="text-sm font-medium truncate flex-1">{l.projectName}</span>
-                  <span className="text-xs text-muted-foreground shrink-0">{daysAgo(new Date(l.createdAt), t)}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{daysAgo(new Date(l.createdAt), locale)}</span>
                   <SupportButton />
                 </div>
 
@@ -277,7 +277,7 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                   {/* Description */}
                   {l.description && (
                     <div>
-                      <h2 className="font-semibold mb-1.5 text-sm">{t("Notes")}</h2>
+                      <h2 className="font-semibold mb-1.5 text-sm">{t("About this home")}</h2>
                       <p className="text-sm text-muted-foreground whitespace-pre-wrap">{l.description}</p>
                     </div>
                   )}

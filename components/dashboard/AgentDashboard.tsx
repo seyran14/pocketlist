@@ -1,6 +1,6 @@
 "use client"
 
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -79,6 +79,7 @@ function SortTh({
 
 export function AgentDashboard({ listings }: Props) {
   const t = useT()
+  const locale = useLocale()
   const router = useRouter()
   const [statusFilter, setStatusFilter] = useState<string[]>(["ACTIVE", "RESERVED", "PENDING_REVIEW", "REJECTED"])
   const [isPending, startTransition] = useTransition()
@@ -404,7 +405,7 @@ export function AgentDashboard({ listings }: Props) {
                   <td className="hidden whitespace-nowrap px-2.5 py-3 align-top font-medium tabular-nums sm:table-cell">{price(l)}</td>
                   <td className="px-2.5 py-3 hidden sm:table-cell align-top">{statusBadge(l.status)}</td>
                   <td className="px-2.5 py-3 hidden lg:table-cell align-top text-muted-foreground text-xs">
-                    {daysAgo(new Date(l.createdAt), t)}
+                    {daysAgo(new Date(l.createdAt), locale)}
                   </td>
                   <td className="px-2.5 py-3 hidden lg:table-cell align-top text-muted-foreground text-xs tabular-nums">
                     {l.viewCount}

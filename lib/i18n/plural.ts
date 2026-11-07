@@ -3,11 +3,21 @@ import type { Locale } from "@/lib/i18n"
 type Forms = Partial<Record<Intl.LDMLPluralRule, string>> & { other: string }
 
 // Counted nouns need the language's plural forms, which the key-per-phrase dictionaries can't express.
-const NOUNS: Record<"home" | "space", Record<Locale, Forms>> = {
+const NOUNS: Record<"home" | "space" | "bedroom" | "cheque", Record<Locale, Forms>> = {
   home: {
     en: { one: "{n} home", other: "{n} homes" },
     ru: { one: "{n} дом", few: "{n} дома", many: "{n} домов", other: "{n} дома" },
     ar: { zero: "لا توجد عقارات", one: "عقار واحد", two: "عقاران", few: "{n} عقارات", many: "{n} عقارًا", other: "{n} عقار" },
+  },
+  bedroom: {
+    en: { one: "{n} bedroom", other: "{n} bedrooms" },
+    ru: { one: "{n} спальня", few: "{n} спальни", many: "{n} спален", other: "{n} спальни" },
+    ar: { one: "غرفة نوم واحدة", two: "غرفتا نوم", few: "{n} غرف نوم", many: "{n} غرفة نوم", other: "{n} غرفة نوم" },
+  },
+  cheque: {
+    en: { one: "{n} cheque", other: "{n} cheques" },
+    ru: { one: "{n} чек", few: "{n} чека", many: "{n} чеков", other: "{n} чека" },
+    ar: { one: "شيك واحد", two: "شيكان", few: "{n} شيكات", many: "{n} شيكًا", other: "{n} شيك" },
   },
   space: {
     en: { one: "{n} space", other: "{n} spaces" },

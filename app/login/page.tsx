@@ -24,7 +24,7 @@ export default async function LoginPage({
 }) {
   const t = await getT()
   return (
-    <div className="relative flex-1 bg-background flex items-center justify-center p-4">
+    <div className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
       <ArchBackdrop />
       <div className="card-animate relative w-full max-w-sm">
         <div className="mb-8 text-center">
@@ -39,7 +39,7 @@ export default async function LoginPage({
 
         <div className="rounded-xl border bg-card p-6 space-y-4">
           <form action={loginAction} className="space-y-3">
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Label htmlFor="email">{t("Email address")}</Label>
               <Input
                 id="email"

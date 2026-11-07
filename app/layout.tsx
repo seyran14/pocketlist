@@ -1,6 +1,6 @@
 import { SiteFooter } from "@/components/SiteFooter"
 import type { Metadata } from "next"
-import { Onest } from "next/font/google"
+import { IBM_Plex_Sans_Arabic, Onest } from "next/font/google"
 import { ThemeProvider } from "next-themes"
 import { Toaster } from "@/components/ui/sonner"
 import { I18nProvider } from "@/components/I18nProvider"
@@ -12,6 +12,15 @@ import "./globals.css"
 const onest = Onest({
   variable: "--font-onest",
   subsets: ["latin", "cyrillic"],
+})
+
+// Arabic glyphs only, with no fallback of its own, so Latin text still falls through to Onest.
+const plexArabic = IBM_Plex_Sans_Arabic({
+  variable: "--font-arabic",
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  fallback: [],
+  adjustFontFallback: false,
 })
 
 export const metadata: Metadata = {
@@ -28,7 +37,7 @@ export default async function RootLayout({
   const locale = await getLocale()
 
   return (
-    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${onest.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} className={`${onest.variable} ${plexArabic.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="relative flex min-h-dvh flex-col bg-background font-sans">
         <PostHogProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

@@ -104,6 +104,7 @@ async function getListings(sp: SearchParams) {
         price: true,
         priceLabel: true,
         floor: true,
+        chequeCount: true,
         view: true,
         furnished: true,
         handover: true,
@@ -134,7 +135,7 @@ async function getLocations() {
 }
 
 async function ListingsSection({ searchParams }: { searchParams: SearchParams }) {
-  const t = await getT()
+  const locale = await getLocale()
   const data = await getListings(searchParams)
   const savedIds = await getSavedIds(data.listings.map((l) => l.id))
   const serialized = data.listings.map((l) => ({
@@ -147,7 +148,7 @@ async function ListingsSection({ searchParams }: { searchParams: SearchParams })
   return (
     <>
       <h2 className="mt-8 mb-5 text-[22px] font-semibold">
-        {countOf("home", data.total, await getLocale())}
+        {countOf("home", data.total, locale)}
       </h2>
       <ListingGrid listings={serialized} savedIds={savedIds} />
       {data.pages > 1 && (
@@ -186,19 +187,22 @@ export default async function HomePage({
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 py-6">
         {sp.page && parseInt(sp.page) > 1 ? null : (
-          <section className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-xl">
+          <section className="mb-6 flex flex-col items-start gap-4">
+            <div className="max-w-2xl">
               <h1 className="text-[28px] font-semibold sm:text-[34px]">{t("Rent a home in Dubai from its owner")}</h1>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 max-w-xl text-muted-foreground [text-wrap:balance]">
                 {t("Owners post their own homes here, and we check each title deed before a listing goes live.")}
               </p>
             </div>
-            <Link href={postHomeHref} className="shrink-0">
-              <Button variant="outline" size="lg">
-                <Plus aria-hidden="true" />
-                {t("Post your home")}
-              </Button>
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm text-muted-foreground">{t("Own a home in Dubai?")}</span>
+              <Link href={postHomeHref}>
+                <Button variant="outline">
+                  <Plus aria-hidden="true" />
+                  {t("Post your home")}
+                </Button>
+              </Link>
+            </div>
           </section>
         )}
 

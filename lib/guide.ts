@@ -10,7 +10,7 @@ export const GUIDE: Record<GuideRole, GuideStep[]> = {
     { title: "Wait for the review", text: "A person on our team checks every listing and emails you when it goes live, or tells you what to change first. Each listing stays up for 30 days." },
     { title: "Talk to tenants", text: "Tenants see your contact details and reach you directly, and you agree the terms with them yourself." },
     { title: "Prepare the contract", text: "In your dashboard, open the contract for the listing, fill it in and enter the tenant's email. We send them a link to sign." },
-    { title: "Sign last", text: "The tenant adds their details and signs first. We email you, you check that everything is right and add your signature." },
+    { title: "You sign last", text: "The tenant adds their details and signs first. We then email you to check the details and add your signature." },
     { title: "Register on Ejari", text: "You both get the finished contract by email. It takes effect once it's registered on Ejari." },
   ],
   tenant: [

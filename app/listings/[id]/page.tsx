@@ -11,7 +11,7 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
+import { enumLabel, formatAvailableShort, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, isPublicStatus, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
 import { countOf } from "@/lib/i18n/plural"
 import Link from "next/link"
 
@@ -93,6 +93,11 @@ export default async function ListingPage({
       })
     : null
 
+  // "1BR" reads naturally in English only; other languages spell the bedrooms out.
+  const bedsTitle = listing.bedrooms === "Studio" ? t("Studio")
+    : locale === "en" ? formatBeds(listing.bedrooms, t)
+    : countOf("bedroom", Number(listing.bedrooms) || 0, locale)
+
   const fieldRow = (label: string, value: string | number | null | undefined) => {
     if (!value && value !== 0) return null
     return (
@@ -124,12 +129,12 @@ export default async function ListingPage({
                 <Badge variant="destructive">{t("Distress Deal")}</Badge>
               )}
               <span className="text-xs text-muted-foreground">
-                {daysAgo(listing.createdAt, t)}
+                {daysAgo(listing.createdAt, locale)}
               </span>
             </div>
 
             <h1 className="text-2xl font-bold mb-1">
-              {t("{beds} in {location}", { beds: formatBeds(listing.bedrooms, t), location: listing.location })}
+              {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
             </h1>
             <p className="text-muted-foreground mb-4">
               {listing.projectName}
@@ -146,7 +151,7 @@ export default async function ListingPage({
             </p>
             <p className="mt-1 mb-6 text-sm text-muted-foreground">
               {listing.listingType === "RENT" && formatMonthlyRent(listing.price, t)}
-              {listing.listingType === "RENT" && listing.chequeCount ? ` · ${t(listing.chequeCount === 1 ? "1 cheque" : "{n} cheques", { n: listing.chequeCount })}` : null}
+              {listing.listingType === "RENT" && listing.chequeCount ? ` · ${countOf("cheque", listing.chequeCount, locale)}` : null}
             </p>
 
             <Separator className="mb-4" />
@@ -160,17 +165,17 @@ export default async function ListingPage({
               {fieldRow("Floor", listing.floor ? floorValue(listing.floor, t) : null)}
               {fieldRow("View", listing.view ? viewValue(listing.view) : null)}
               {fieldRow("Furnished", listing.furnished ? furnishedValue(listing.furnished, t) : null)}
-              {fieldRow("Status", isAvailableLater(listing.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(listing.availableFrom!, locale) }) : t("Available now"))}
+              {fieldRow("Available", isAvailableLater(listing.availableFrom) ? t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) }) : t("Now"))}
               {listing.listingType !== "RENT" && fieldRow("Handover", listing.handover && t(listing.handover))}
-              {fieldRow("Cheques", listing.chequeCount)}
               {fieldRow("Parking", listing.parkingSpots ? countOf("space", listing.parkingSpots, locale) : null)}
+              {listing.listingType === "RENT" && fieldRow("Ejari", t("After the contract is signed"))}
               {listing.isRented && listing.listingType !== "RENT" && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
             </div>
 
             {listing.description && (
               <div className="mt-6">
-                <h2 className="font-semibold mb-2">{t("Notes")}</h2>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{listing.description}</p>
+                <h2 className="font-semibold mb-2">{t("About this home")}</h2>
+                <p dir="auto" className="text-sm text-muted-foreground whitespace-pre-wrap">{listing.description}</p>
               </div>
             )}
           </div>

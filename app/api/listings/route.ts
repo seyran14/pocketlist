@@ -81,6 +81,7 @@ export async function GET(req: NextRequest) {
           price: true,
           priceLabel: true,
           floor: true,
+          chequeCount: true,
           view: true,
           furnished: true,
           handover: true,

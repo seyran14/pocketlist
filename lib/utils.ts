@@ -10,8 +10,10 @@ export function formatPrice(price: number): string {
   return `AED ${price.toLocaleString("en-AE")}`
 }
 
-export function formatRentPrice(price: number, t: Translate): string {
-  return `AED ${price.toLocaleString("en-AE")} ${t("/ yr")}`
+// `compact` shortens millions ("AED 1.25M") where a card has little room.
+export function formatRentPrice(price: number, t: Translate, compact = false): string {
+  const amount = compact && price >= 1_000_000 ? `${Number((price / 1_000_000).toFixed(2))}M` : price.toLocaleString("en-AE")
+  return `AED ${amount} ${t("/ yr")}`
 }
 
 // Stored labels are always English, for example "AED 100,000 / yr".
@@ -27,8 +29,11 @@ export function formatArea(sqft: number | null, sqm: number | null, t: Translate
 }
 
 // Dubai rents are quoted per year; the monthly figure is what people compare with their salary.
+// Rounded to the hundred and marked as approximate when the division isn't clean.
 export function formatMonthlyRent(yearly: number, t: Translate): string {
-  return `AED ${Math.round(yearly / 12).toLocaleString("en-AE")} ${t("/ mo")}`
+  const exact = yearly / 12
+  const rounded = Math.round(exact / 100) * 100
+  return `${rounded === exact ? "" : "≈ "}AED ${rounded.toLocaleString("en-AE")} ${t("/ mo")}`
 }
 
 // Values that don't repeat their label: "Furnished: Yes", not "Furnished: Furnished".
@@ -55,11 +60,18 @@ export function enumLabel(value: string): string {
   return value.charAt(0) + value.slice(1).toLowerCase()
 }
 
-export function daysAgo(date: Date, t: Translate): string {
+// Intl gets each language's grammar right ("3 дня назад", "قبل 3 أيام"); digits stay Latin.
+export function daysAgo(date: Date, locale: string): string {
   const diff = Math.floor((Date.now() - date.getTime()) / 86_400_000)
-  if (diff === 0) return t("Today")
-  if (diff === 1) return t("Yesterday")
-  return t("{n} days ago", { n: diff })
+  const format = new Intl.RelativeTimeFormat(`${locale}-u-nu-latn`, { numeric: "auto" }).format(-diff, "day")
+  return format.charAt(0).toLocaleUpperCase(locale) + format.slice(1)
+}
+
+// The year only matters when the date falls in another year.
+export function formatAvailableShort(availableFrom: string | Date, locale: string) {
+  const date = new Date(availableFrom)
+  const sameYear = date.getUTCFullYear() === new Date().getUTCFullYear()
+  return date.toLocaleDateString(locale, { day: "numeric", month: "short", ...(sameYear ? {} : { year: "numeric" }), timeZone: "UTC" })
 }
 
 // Counts every listing the user has, sold and expired included. Together with

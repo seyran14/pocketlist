@@ -61,8 +61,8 @@ export default async function GuidePage({ searchParams }: { searchParams: Promis
         </ol>
 
         {!session?.user && (
-          <Link href="/register" className="mt-8 inline-block">
-            <Button>{t("Create an account")}</Button>
+          <Link href={role === "owner" ? "/register?as=owner" : "/register"} className="mt-8 inline-block">
+            <Button size="lg">{t(role === "owner" ? "Post your home" : "Create an account")}</Button>
           </Link>
         )}
       </main>

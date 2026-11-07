@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-onest);
+  --font-sans: var(--font-arabic), var(--font-onest);
   --font-heading: var(--font-sans);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -106,6 +106,10 @@
   html {
     @apply font-sans;
     overflow-x: clip;
+  }
+  /* Arabic letterforms run small next to Latin at the same size. */
+  html[lang="ar"] {
+    font-size: 106.25%;
   }
   /* Tracking tightens and leading closes as type grows; small print opens up slightly. */
   h1, h2, h3 {

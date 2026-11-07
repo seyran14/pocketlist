@@ -4,11 +4,12 @@ import { useLocale, useT } from "@/components/I18nProvider"
 import Link from "next/link"
 import Image from "next/image"
 import { Building2 } from "lucide-react"
-import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds, daysAgo, localizePriceLabel } from "@/lib/utils"
+import { cn, enumLabel, formatAvailableShort, isAvailableLater, formatPrice, formatRentPrice, formatMonthlyRent, formatArea, formatBeds,  localizePriceLabel } from "@/lib/utils"
 import { photoUrl } from "@/lib/photos-shared"
 import { CardSaveButton } from "./CardSaveButton"
 import { motion, type Variants } from "motion/react"
 import { spring } from "@/lib/motion"
+import { countOf } from "@/lib/i18n/plural"
 
 type ListingCardData = {
   id: string
@@ -22,6 +23,7 @@ type ListingCardData = {
   price: number
   priceLabel: string | null
   floor: string | null
+  chequeCount?: number | null
   status: string
   listingType: string
   isDistress: boolean
@@ -82,7 +84,7 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
               {isDistress && <span className={BADGE}>{t("Distress Deal")}</span>}
               {availableLater && (
                 <span className={BADGE} suppressHydrationWarning>
-                  {t("From {date}", { date: formatAvailableDate(listing.availableFrom!, locale) })}
+                  {t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) })}
                 </span>
               )}
             </div>
@@ -93,14 +95,14 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
         <div className="mt-3 min-w-0 text-sm leading-5">
           <div className="flex items-baseline justify-between gap-2">
             <p className="truncate text-base font-semibold tracking-[-0.01em] tabular-nums">
-              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t) : formatPrice(listing.price)}
+              {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t, true) : formatPrice(listing.price)}
             </p>
             {isRent && <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{formatMonthlyRent(listing.price, t)}</span>}
           </div>
           <p className="mt-1 truncate font-medium">{listing.projectName}</p>
           <div className="flex items-baseline justify-between gap-2 text-muted-foreground">
             <p className="truncate">{listing.location}</p>
-            <span className="shrink-0 text-xs">{daysAgo(new Date(listing.createdAt), t)}</span>
+            {isRent && listing.chequeCount ? <span className="shrink-0 text-xs">{countOf("cheque", listing.chequeCount, locale)}</span> : null}
           </div>
           <p className="truncate text-muted-foreground">{details.join(" · ")}</p>
         </div>

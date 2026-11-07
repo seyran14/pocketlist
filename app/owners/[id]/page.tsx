@@ -37,6 +37,7 @@ export default async function OwnerPage({ params }: { params: Promise<{ id: stri
       price: true,
       priceLabel: true,
       floor: true,
+      chequeCount: true,
       view: true,
       furnished: true,
       handover: true,
