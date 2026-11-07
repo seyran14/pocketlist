@@ -30,6 +30,8 @@ const FLOOR_LABELS: Record<string, string> = { LOW: "Low", MIDDLE: "Middle", HIG
 const FURNISHED_LABELS: Record<string, string> = {
   FURNISHED: "Furnished", UNFURNISHED: "Unfurnished", PARTIAL: "Partial",
 }
+const CHILLER_LABELS = { INCLUDED: "Included in rent", EXCLUDED: "Paid by tenant", NONE: "No chiller fees" } as const
+
 
 const OCCUPANCY_LABELS: Record<string, string> = { VACANT: "Available now", RENTED: "Available soon", OFFPLAN: "Off-plan" }
 
@@ -60,6 +62,9 @@ export type UnitFormValues = {
   occupancy: "VACANT" | "RENTED" | "OFFPLAN" | null
   availableFrom: string | null
   chequeCount: number | null
+  securityDeposit: number | null
+  dewaIncluded: boolean | null
+  chiller: "INCLUDED" | "EXCLUDED" | "NONE" | null
   amountPaid: number | null
   deedId: string | null
 }
@@ -67,6 +72,7 @@ export type UnitFormValues = {
 export type UnitData = ParsedListing & Partial<Pick<
   UnitFormValues,
   "propertyNumber" | "parkingSpots" | "occupancy" | "availableFrom" | "chequeCount" | "amountPaid"
+  | "securityDeposit" | "dewaIncluded" | "chiller"
 >> & {
   photos?: { id: string }[]
   deed?: { id: string; fileName: string } | null
@@ -126,6 +132,9 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
       occupancy: defaultOccupancy(data),
       availableFrom: data.availableFrom?.slice(0, 10) ?? null,
       chequeCount: data.chequeCount ?? null,
+      securityDeposit: data.securityDeposit ?? null,
+      dewaIncluded: data.dewaIncluded ?? null,
+      chiller: data.chiller ?? null,
       amountPaid: data.amountPaid ?? null,
       deedId: data.deed?.id ?? null,
     },
@@ -382,6 +391,53 @@ export function ParsedUnitCard({ index, total, data, onChange, onRemove, onUploa
               className="h-8 text-sm mt-1"
             />
           </div>
+        )}
+
+        {/* Rental terms tenants ask about first. All optional. */}
+        {isRent && (
+          <>
+            <div className="col-span-2 sm:col-span-1">
+              <Label className="text-xs text-muted-foreground">{t("Security deposit (AED)")}</Label>
+              <Input
+                {...register("securityDeposit", { valueAsNumber: true })}
+                type="number"
+                min={0}
+                className="h-8 text-sm mt-1"
+                placeholder={t("e.g. 5000")}
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">{t("DEWA (water and electricity)")}</Label>
+              <Select
+                value={watch("dewaIncluded") === null ? "" : watch("dewaIncluded") ? "YES" : "NO"}
+                onValueChange={(v) => setValue("dewaIncluded", v === "YES" ? true : v === "NO" ? false : null)}
+              >
+                <SelectTrigger className="mt-1 h-8 w-full min-w-0 text-sm">
+                  <span className="truncate">{watch("dewaIncluded") === null ? "–" : watch("dewaIncluded") ? t("Included in rent") : t("Paid by tenant")}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="YES">{t("Included in rent")}</SelectItem>
+                  <SelectItem value="NO">{t("Paid by tenant")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">{t("Chiller (cooling)")}</Label>
+              <Select
+                value={watch("chiller") ?? ""}
+                onValueChange={(v) => setValue("chiller", (v || null) as UnitFormValues["chiller"])}
+              >
+                <SelectTrigger className="mt-1 h-8 w-full min-w-0 text-sm">
+                  <span className="truncate">{watch("chiller") ? t(CHILLER_LABELS[watch("chiller")!]) : "–"}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INCLUDED">{t("Included in rent")}</SelectItem>
+                  <SelectItem value="EXCLUDED">{t("Paid by tenant")}</SelectItem>
+                  <SelectItem value="NONE">{t("No chiller fees")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
         )}
 
         {/* Area sqft */}

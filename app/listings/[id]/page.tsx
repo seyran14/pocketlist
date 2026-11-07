@@ -60,6 +60,8 @@ export async function generateMetadata({
   }
 }
 
+const CHILLER_VALUES: Record<string, string> = { INCLUDED: "Included in rent", EXCLUDED: "Paid by tenant", NONE: "No chiller fees" }
+
 export default async function ListingPage({
   params,
 }: {
@@ -193,7 +195,7 @@ export default async function ListingPage({
                 </div>
               )}
               <div className="flex items-start justify-between gap-3">
-                <h1 className="text-2xl font-semibold sm:text-[28px]">
+                <h1 className="text-2xl font-semibold [text-wrap:balance] sm:text-[28px]">
                   {t("{beds} in {location}", { beds: bedsTitle, location: listing.location })}
                 </h1>
                 <div className="flex gap-2 lg:hidden">
@@ -244,6 +246,11 @@ export default async function ListingPage({
                 <dl className="mt-1 divide-y">
                   {isRent && fieldRow("Cheques", listing.chequeCount)}
                   {fieldRow("Available", isAvailableLater(listing.availableFrom) ? t("From {date}", { date: formatAvailableShort(listing.availableFrom!, locale) }) : t("Now"))}
+                  {isRent && fieldRow("Security deposit", listing.securityDeposit ? formatPrice(listing.securityDeposit) : null)}
+                  {isRent && listing.dewaIncluded !== null && fieldRow("DEWA", t(listing.dewaIncluded ? "Included in rent" : "Paid by tenant"))}
+                  {isRent && listing.chiller && fieldRow("Chiller", t(CHILLER_VALUES[listing.chiller] ?? ""))}
+                  {/* Every listing comes from its owner, so there is never an agency fee. */}
+                  {isRent && fieldRow("Agency fee", t("None, direct from the owner"))}
                   {isRent && fieldRow("Ejari", t("After the contract is signed"))}
                   {listing.isRented && !isRent && fieldRow("Rental income", listing.rentAmount ? `${formatPrice(listing.rentAmount)} ${t("/ yr")}` : t("Rented"))}
                 </dl>

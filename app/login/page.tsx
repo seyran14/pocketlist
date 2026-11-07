@@ -1,4 +1,4 @@
-import { getT } from "@/lib/i18n/server"
+import { getLocale, getT } from "@/lib/i18n/server"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,7 +27,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<{ error?: string; next?: string }>
 }) {
-  const t = await getT()
+  const [t, locale] = await Promise.all([getT(), getLocale()])
   const { next } = await searchParams
   return (
     <main id="main" className="relative flex-1 bg-background flex items-center justify-center px-8 py-4 sm:p-4">
@@ -65,7 +65,7 @@ export default async function LoginPage({
             {t("By continuing you agree to")}{" "}
             {/* Each link and the "and" before it stay on one line, so no word is left hanging. */}
             <Link href="/terms" className="whitespace-nowrap underline underline-offset-4 hover:text-foreground">{t("the Terms of Service")}</Link>
-            {" "}<span className="whitespace-nowrap">{t("and")}{"\u00a0"}
+            {" "}<span className="whitespace-nowrap">{t("and")}{locale === "ar" ? "" : "\u00a0"}
             <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">{t("the Privacy Policy")}</Link>.</span>
           </p>
 

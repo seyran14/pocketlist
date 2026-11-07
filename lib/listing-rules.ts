@@ -5,7 +5,10 @@ export const PUBLIC_FIELDS = [
   "areaSqft", "areaSqm", "plotSqft", "plotSqm", "price", "floor", "view", "furnished", "handover",
   "isDistress", "originalPrice", "parkingSpots", "isRented", "rentAmount", "rentedUntil",
   "occupancy", "chequeCount", "availableFrom",
+  "securityDeposit", "dewaIncluded", "chiller",
 ] as const
+
+export const CHILLER_OPTIONS = ["INCLUDED", "EXCLUDED", "NONE"] as const
 
 export const PRIVATE_FIELDS = ["propertyNumber", "amountPaid"] as const
 
@@ -19,7 +22,21 @@ function pick(body: Values, fields: readonly string[]) {
   return Object.fromEntries(fields.filter((f) => body[f] !== undefined).map((f) => [f, body[f]]))
 }
 
-export const pickPublicFields = (body: Values) => pick(body, PUBLIC_FIELDS)
+// The optional rental terms are coerced here so a stray value becomes "not said" (null)
+// instead of a database error.
+function cleanRentalTerms(data: Values) {
+  if ("securityDeposit" in data) {
+    const n = Number(data.securityDeposit)
+    data.securityDeposit = data.securityDeposit !== null && data.securityDeposit !== "" && Number.isFinite(n) && n >= 0 ? n : null
+  }
+  if ("dewaIncluded" in data) data.dewaIncluded = typeof data.dewaIncluded === "boolean" ? data.dewaIncluded : null
+  if ("chiller" in data) {
+    data.chiller = CHILLER_OPTIONS.includes(data.chiller as (typeof CHILLER_OPTIONS)[number]) ? data.chiller : null
+  }
+  return data
+}
+
+export const pickPublicFields = (body: Values) => cleanRentalTerms(pick(body, PUBLIC_FIELDS))
 export const pickPrivateFields = (body: Values) => pick(body, PRIVATE_FIELDS)
 
 const filled = (v: unknown) => (typeof v === "string" ? v.trim() !== "" : v !== null && v !== undefined)

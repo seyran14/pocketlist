@@ -1,7 +1,7 @@
 "use client"
 
 import { cn, enumLabel, formatBeds } from "@/lib/utils"
-import { useT } from "@/components/I18nProvider"
+import { useLocale, useT } from "@/components/I18nProvider"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Search, SlidersHorizontal, X } from "lucide-react"
@@ -35,6 +35,7 @@ const PILL = "h-8 rounded-full! border border-input bg-card px-3 text-xs aria-pr
 
 export function ListingFilters() {
   const t = useT()
+  const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -217,7 +218,8 @@ export function ListingFilters() {
             >
               {BEDROOM_OPTIONS.map((b) => (
                 <ToggleGroupItem key={b} value={b} className={PILL}>
-                  {formatBeds(b, t)}
+                  {/* Arabic spells the count out; Russian keeps the short pill label. */}
+                  {formatBeds(b, t, locale === "ar" ? locale : "en")}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>

@@ -98,9 +98,9 @@ export function ListingCard({ listing, index = 0, saved }: { listing: ListingCar
             {listing.priceLabel ? localizePriceLabel(listing.priceLabel, t) : isRent ? formatRentPrice(listing.price, t, true) : formatPrice(listing.price)}
           </p>
           {isRent && <p className="text-xs text-muted-foreground tabular-nums">{formatMonthlyRent(listing.price, t)}</p>}
-          <p className="mt-1 truncate font-medium">{listing.projectName}</p>
+          <p dir="auto" className="mt-1 truncate text-start font-medium">{listing.projectName}</p>
           <div className="flex items-baseline justify-between gap-2 text-muted-foreground">
-            <p className="truncate">{listing.location}</p>
+            <p dir="auto" className="truncate text-start">{listing.location}</p>
             {isRent && listing.chequeCount ? <span className="shrink-0 text-xs">{countOf("cheque", listing.chequeCount, locale)}</span> : null}
           </div>
           <p className="truncate text-muted-foreground">{details.join(" · ")}</p>

@@ -80,6 +80,11 @@ model Listing {
   chequeCount   Int?
   availableFrom DateTime?
 
+  // Rental terms tenants in Dubai ask about. All optional; null means the owner didn't say.
+  securityDeposit Float?
+  dewaIncluded    Boolean?
+  chiller         String?   // INCLUDED | EXCLUDED | NONE (no chiller in the building)
+
   description   String?
   viewCount     Int             @default(0)
 

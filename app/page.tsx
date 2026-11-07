@@ -187,7 +187,7 @@ export default async function HomePage({
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm text-muted-foreground">{t("Own a home in Dubai?")}</span>
               <Link href={postHomeHref}>
-                <Button>
+                <Button variant="secondary">
                   <Plus aria-hidden="true" />
                   {t("Post your home")}
                 </Button>

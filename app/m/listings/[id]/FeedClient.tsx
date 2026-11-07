@@ -19,6 +19,8 @@ import { PhotoGallery } from "@/components/listings/PhotoGallery"
 import { cn, enumLabel, formatAvailableDate, isAvailableLater, formatPrice, formatArea, formatBeds, daysAgo, localizePriceLabel, furnishedValue, floorValue, viewValue } from "@/lib/utils"
 import { countOf } from "@/lib/i18n/plural"
 
+const CHILLER_VALUES: Record<string, string> = { INCLUDED: "Included in rent", EXCLUDED: "Paid by tenant", NONE: "No chiller fees" }
+
 type Owner = { id: string; name: string | null }
 
 type FeedListing = {
@@ -44,6 +46,9 @@ type FeedListing = {
   isRented: boolean
   rentAmount: number | null
   parkingSpots: number | null
+  securityDeposit: number | null
+  dewaIncluded: boolean | null
+  chiller: string | null
   description: string | null
   status: string
   listingType: string
@@ -273,6 +278,14 @@ export function FeedClient({ listings, savedIds, isLoggedIn }: Props) {
                     <FieldRow label="Status" value={isAvailableLater(l.availableFrom) ? t("Available from {date}", { date: formatAvailableDate(l.availableFrom!, locale) }) : t("Available now")} />
                     {l.listingType !== "RENT" && <FieldRow label="Handover" value={l.handover && t(l.handover)} />}
                     <FieldRow label="Parking" value={l.parkingSpots ? countOf("space", l.parkingSpots, locale) : null} />
+                    {l.listingType === "RENT" && (
+                      <>
+                        <FieldRow label="Security deposit" value={l.securityDeposit ? formatPrice(l.securityDeposit) : null} />
+                        <FieldRow label="DEWA" value={l.dewaIncluded == null ? null : t(l.dewaIncluded ? "Included in rent" : "Paid by tenant")} />
+                        <FieldRow label="Chiller" value={l.chiller ? t(CHILLER_VALUES[l.chiller] ?? "") : null} />
+                        <FieldRow label="Agency fee" value={t("None, direct from the owner")} />
+                      </>
+                    )}
                     {l.isRented && l.listingType !== "RENT" && <FieldRow label="Rental income" value={l.rentAmount ? `${formatPrice(l.rentAmount)} ${t("/ yr")}` : t("Rented")} />}
                   </div>
 
