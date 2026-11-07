@@ -14,7 +14,9 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR ?? join(process.cwd(), "uploads")
 const STALE_UPLOAD_MS = 24 * 60 * 60 * 1000
 const MAX_INPUT_PIXELS = 100_000_000
 const FULL_SIDE = 2000
-const THUMB_SIDE = 960
+// Cards show the thumbnail at most ~360px wide, so 800px covers a 2x screen.
+const THUMB_SIDE = 800
+const THUMB_QUALITY = 72
 const HEIC_SCRIPT = join(process.cwd(), "scripts", "heic-to-png.mjs")
 const HEIC_TIMEOUT_MS = 60_000
 
@@ -83,6 +85,19 @@ async function openImage(input: Buffer): Promise<Sharp> {
   return sharp(input, options)
 }
 
+function thumbnailOf(image: Sharp) {
+  return image.resize(THUMB_SIDE, THUMB_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: THUMB_QUALITY }).toBuffer()
+}
+
+// Rebuilds a stored photo's thumbnail from its full-size file, for when the thumbnail size changes.
+export async function rebuildThumbnail(id: string): Promise<boolean> {
+  if (!FILE_NAME.test(`${id}.webp`)) return false
+  const full = await readFile(join(UPLOAD_DIR, `${id}.webp`)).catch(() => null)
+  if (!full) return false
+  await writeFile(join(UPLOAD_DIR, `${id}-thumb.webp`), await thumbnailOf(sharp(full)))
+  return true
+}
+
 // Re-encoding drops EXIF, so GPS coordinates in phone photos never reach the site.
 export async function storePhoto(input: Buffer): Promise<string> {
   let full: Buffer
@@ -91,7 +106,7 @@ export async function storePhoto(input: Buffer): Promise<string> {
     const image = (await openImage(input)).rotate()
     ;[full, thumb] = await Promise.all([
       image.clone().resize(FULL_SIDE, FULL_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: 85 }).toBuffer(),
-      image.clone().resize(THUMB_SIDE, THUMB_SIDE, { fit: "inside", withoutEnlargement: true }).webp({ quality: 80 }).toBuffer(),
+      thumbnailOf(image.clone()),
     ])
   } catch (err) {
     if (err instanceof InvalidPhotoError) throw err
